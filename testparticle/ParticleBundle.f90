@@ -531,7 +531,7 @@ Module ModuleParticleBundle
             class(ParticleBundle), intent(inout) :: this
 
             if(allocated(this%PO)) deallocate(this%PO)
-            if(allocated(this%BS)) deallocate(this%BS)
+            ! if(allocated(this%BS)) deallocate(this%BS)
 
             this%NPar = 0
 
