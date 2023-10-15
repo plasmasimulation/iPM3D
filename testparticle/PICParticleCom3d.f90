@@ -10,7 +10,7 @@ module ModulePICParticleCom3d
         integer(4) :: lx, ly, lz
         integer(4) :: xyz_np(3)
         integer(4) :: size, rank
-        integer(4) :: col, row
+        integer(4) :: col, row,layer
         logical :: is_init = .False.
        
 
@@ -24,7 +24,7 @@ module ModulePICParticleCom3d
     contains
 
         procedure :: init       => initPICCom3D
-        procedure :: destroy    => destroyPICCom3D
+       ! procedure :: destroy    => destroyPICCom3D
         procedure :: comp       => communicationPICParticleCom3D
 
     end type PICCom3D
@@ -47,8 +47,9 @@ module ModulePICParticleCom3d
                 this%lz = z_local_size
                 this%xyz_np = xyz_np
         
-                this%row = this%rank / this%xyz_np(1)
-                this%col = mod(this%rank, this%xyz_np(2))
+                this%col = mod(mod(this%rank, this%xyz_np(1)*this%xyz_np(2)), this%xyz_np(1))
+                this%row = mod(this%rank, this%xyz_np(1)*this%xyz_np(2))/ this%xyz_np(1) 
+                this%layer=this%rank/(this%xyz_np(1)*this%xyz_np(2))
 
                 ! 进程数分解到三个维度，必须恰好等于总进程数
                 if (this%xyz_np(1) * this%xyz_np(2)*this%xyz_np(3) /= this%size) then
@@ -74,10 +75,10 @@ module ModulePICParticleCom3d
 
     
 
-        subroutine communicationPICParticleCom3D(this, pb, x_lb, x_ub, y_lb, y_ub,z_lb,z_ub)
+        subroutine communicationPICParticleCom3D(this, pb,  xstart, xend, ystart, yend,zstart,zend)
             class(PICCom3D), intent(inout) :: this
             type(ParticleBundle), intent(inout) :: pb
-            real(8), intent(in) :: x_lb, x_ub, y_lb, y_ub,z_lb,z_ub
+            real(8), intent(in) :: xstart, xend, ystart, yend,zstart,zend
             integer(4) :: ierr, index, i,Indx(6,pb%NPar+5000),l(6),j,test(com_negb_num),dim
             integer(4) :: particle_number_send(com_negb_num)
             integer(4) :: particle_number_recv(com_negb_num),negb_rank(com_negb_num),boundarytest,temp1,temp2
@@ -88,16 +89,20 @@ module ModulePICParticleCom3d
             ! 处理超过domain的粒子
             particle_number_send = 0
             particle_number_recv = 0
-            test=0
+            
+            l=0
 
             if (pb%NPar > 0) then
                 do i = 1, pb%NPar
-                    index = getParticleDomainIndex(this,pb%PO(i), x_lb, x_ub, y_lb, y_ub,z_lb,z_ub)    
+                    index = getParticleDomainIndex(this,pb%PO(i), xstart, xend, ystart, yend,zstart,zend)    
+                    if(index>0) then
                     Indx(index,l(index))=i
                     l(index)=l(index)+1
+                    end if
                 end do
             end if
-            do dim=1,3,-1
+            do dim=1,3
+                test=0
                 select case (dim)
                 case (1)
                     
@@ -114,11 +119,21 @@ module ModulePICParticleCom3d
                     boundarytest=this%xyz_np(1)*this%xyz_np(2)
                 case default
                 end select
-                    temp1=mod(this%rank/boundarytest,this%xyz_np(dim)) 
+                    temp1=mod((this%rank)/boundarytest,this%xyz_np(dim)) 
                 do i = 1, 2       
-                    temp2=mod(negb_rank(i)/boundarytest,this%xyz_np(dim))
-                    if (abs(temp2-temp1)==1) then!检测邻居节点是否存在
-                        test(i)=1!标记检测结果
+                    temp2=mod((negb_rank(i))/boundarytest,this%xyz_np(dim))
+                    
+                    if(i==1) then
+
+                        if (temp1-temp2==1.and.temp2>=0) test(i)=1!标记检测结果
+                    else
+                        if (temp2-temp1==1) test(i)=1!标记检测结果
+                    end if    
+                    if(test(i)==1) then
+                      
+                        particle_number_send(i)=l(i+dim*2-2)
+                        ! write(*,*)"send",this%rank,l(i+dim*2-2),i+dim*2-2,i
+                       
                         call MPI_ISEND(particle_number_send(i), 1, &
                                    MPI_INTEGER, negb_rank(i), &
                                    1, MPI_COMM_WORLD, this%reqs_send(i), ierr)
@@ -139,8 +154,10 @@ module ModulePICParticleCom3d
                 do i = 1, 2
                     call particle_send_buff(i)%init(particle_number_send(i))
                     call particle_recv_buff(i)%init(particle_number_recv(i))
-                end do
 
+                    
+                end do
+               
                 do i = 1, 2
                     
                     do j=1,l(i+dim*2-2)
@@ -153,6 +170,9 @@ module ModulePICParticleCom3d
                 ! send and recv
                 do i = 1, 2    
                     if (test(i)==1) then!检测邻居节点是否存在
+                        write(*,*)"rank",this%rank
+                     write(*,*)"particle_number_send(i)",particle_number_send(i)
+                    write(*,*)"particle_number_recv(i)",particle_number_recv(i)
                         if (particle_number_send(i) > 0) &
                         call MPI_ISEND(particle_send_buff(i)%PO, particle_number_send(i), &
                                    this%mpi_type_particle_one, negb_rank(i), &
@@ -178,16 +198,18 @@ module ModulePICParticleCom3d
 
                 do i = 1, com_negb_num
                     if (test(i)==1 .and. particle_number_recv(i) > 0) then
-                        if(particle_recv_buff(i)%NPar>0) then
-                            do j=pb%NPar,pb%NPar+particle_recv_buff(i)%NPar
-                                index = getParticleDomainIndex(this,particle_recv_buff(i)%PO(j-pb%NPar+1), x_lb, x_ub, y_lb, y_ub,z_lb,z_ub)    
-                                if(index>0)  then
-                                Indx(index,l(index))=j 
-                                l(index)=l(index)+1
-                                end if
-                            end do  
+                        particle_recv_buff(i)%NPar=particle_number_recv(i)
+                        ! write(*,*)"ParticleNpar",particle_number_recv(i)
+                            ! do j=pb%NPar,pb%NPar+particle_recv_buff(i)%NPar
+                            !     index = getParticleDomainIndex(this,particle_recv_buff(i)%PO(j-pb%NPar+1), xstart, xend, ystart, yend,zstart,zend)    
+                            !     if(index>0)  then
+                            !     Indx(index,l(index))=j 
+                            !     l(index)=l(index)+1
+                            !     ! write(*,*)j
+                            !     end if
+                            ! end do  
                             call pb%addbun(particle_recv_buff(i))
-                        end if
+                      
 
                     end if
                 end do
@@ -198,42 +220,43 @@ module ModulePICParticleCom3d
                 end do
             end do
             do i=1,6
-                do j=l(i),1
-                call pb%DelOne(Indx(i,j))
-                end do
-            end do    
+                if(l(i)>0) then
+                    do j=1,l(i)
+                    call pb%DelOne2(Indx(i,j))
+                    
+                    
+                    end do
+                end if
+            end do  
+            call pb%DelOneready()  
 
         end subroutine communicationPICParticleCom3D
 
 
 
-        function getParticleDomainIndex(this,one, x_lb, x_ub, y_lb, y_ub,z_lb,z_ub)
+        function getParticleDomainIndex(this,one,  xstart, xend, ystart, yend,zstart,zend)
             type(ParticleOne), intent(in) :: one
             class(PICCom3D), intent(inout) :: this
-            real(8), intent(in) :: x_lb, x_ub, y_lb, y_ub,z_lb,z_ub
+            real(8), intent(in) ::  xstart, xend, ystart, yend,zstart,zend
             integer(4) :: getParticleDomainIndex
 
             getParticleDomainIndex = 0
-            if (one%X <= x_lb) then
-                    getParticleDomainIndex = 1
-                if (one%X >= x_lb) then
+            if (one%X <= xstart) then
+                    getParticleDomainIndex = 1  
+            else if (one%X >= xend) then
                     getParticleDomainIndex = 2
-                    if (one%Y <= y_lb) then
-                        getParticleDomainIndex = 3
-                        if (one%Y >= y_lb) then
-                            getParticleDomainIndex = 4
-                            if (one%Z <= z_lb) then
-                                getParticleDomainIndex = 5
-                                if (one%Z >= z_lb) then
-                                    getParticleDomainIndex =6
-                                else
-                                    getParticleDomainIndex =0
-                                end if
-                            end if
-                        end if
-                    end if            
-                end if
-            end if       
+            else if (one%Y <= ystart) then
+                    getParticleDomainIndex = 3
+            else if (one%Y >= yend) then
+                    getParticleDomainIndex = 4
+            else if (one%Z <= zstart) then
+                     getParticleDomainIndex = 5
+            else if (one%Z >= zend) then
+                     getParticleDomainIndex =6 
+            else
+                    getParticleDomainIndex =0
+          end if
+                            
         end
 
 end module ModulePICParticleCom3d

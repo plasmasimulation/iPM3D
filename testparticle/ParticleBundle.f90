@@ -45,6 +45,8 @@ Module ModuleParticleBundle
         procedure :: AddOne  => AddParticleOneParticleBundle
         procedure :: AddBun  => AddParticleBundleParticleBundle
         procedure :: DelOne  => DelParticleOneParticleBundle
+        procedure :: DelOne2  => DelParticleOne2ParticleBundle
+        procedure :: DelOneReady  => DelParticleReadyParticleBundle
         !procedure :: NumRes2=>ParticleBundleNumberRescale2
 
         !procedure :: PosRes  => PositionRescaleParticleBundle
@@ -581,6 +583,49 @@ Module ModuleParticleBundle
             end if
 
         end subroutine DelParticleOneParticleBundle
+        subroutine  DelParticleReadyParticleBundle(this)
+            class(ParticleBundle),intent(inout) :: this
+           integer(4):: i
+            if (this%NPar > 0) then
+                do i=1,this%NPar-1 
+                    if(this%PO(i)%tempdelflag==1) then
+                            do while(this%PO(this%NPar)%tempdelflag==1)
+                                this%NPar = this%NPar - 1
+                            end do    
+                        this%PO(i) = this%PO(this%NPar)
+                        this%NPar = this%NPar - 1
+                        
+                    end if
+                end do
+                if(this%PO(this%NPar)%tempdelflag==1) then
+                    this%NPar = this%NPar - 1
+                end if
+                call this%adjust()
+
+            end if
+        end subroutine DelParticleReadyParticleBundle
+
+        subroutine DelParticleOne2ParticleBundle(this, NDel)
+            class(ParticleBundle),intent(inout) :: this
+            integer(4),intent(in) :: NDel
+
+            if (this%NPar > 0) then
+                if (NDel >= 1 .and. NDel <= this%NPar) then
+                    this%PO(NDel)%tempdelflag = 1
+                    !this%NPar = this%NPar - 1                    
+                    !call this%adjust()
+
+                else
+                    write(*, *) "The NDel 2is out of the range."
+                    !stop
+                end if
+
+            else
+                write(*, *) "No particle in particle bundle can be deleted."
+                stop
+            end if
+
+        end subroutine DelParticleOne2ParticleBundle
 
 
         subroutine adjustParticleBundle(this, newsize)

@@ -6,6 +6,7 @@ Module ModuleParticleOne
     Type :: ParticleOne
 
         real(8) ::  X, Y, Z, R, Vx, Vy, Vz, Ax, Ay, Az, WQ
+        integer(4):: tempdelflag=0
 
     contains
 

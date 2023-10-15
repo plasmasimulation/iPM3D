@@ -26,6 +26,8 @@ program fortran_mpi
     xend = dble(mycom%col+1)
     ystart = dble(mycom%row)
     yend = dble(mycom%row+1)
+    zstart=dble(mycom%layer)
+    zend=dble(mycom%layer+1)
 
     x_lb = 0.d0
     x_ub = dble(px)
@@ -64,7 +66,7 @@ program fortran_mpi
 
     ! com
     call mycom%comp(pb, xstart, xend, ystart, yend)
-
+    
     ! dump
     write(file_name, '(i1)') rank
     open(10, file="final_par_"//trim(file_name)//".txt")
