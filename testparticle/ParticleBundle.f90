@@ -555,7 +555,7 @@ Module ModuleParticleBundle
             class(ParticleBundle), intent(inout) :: this
             class(ParticleBundle), intent(in) :: bun
 
-            if (this%NPar+bun%NPar > this%size) call this%adjust(this%NPar+bun%NPar)
+           if (this%NPar+bun%NPar > this%size) call this%adjust(this%NPar+bun%NPar)
             this%PO(this%NPar+1:this%NPar+bun%NPar) = bun%PO(1:bun%NPar)
             this%NPar = this%NPar + bun%NPar
 
@@ -587,19 +587,26 @@ Module ModuleParticleBundle
             class(ParticleBundle),intent(inout) :: this
            integer(4):: i
             if (this%NPar > 0) then
-                do i=1,this%NPar-1 
+                i=1
+                ! write(*,*) "this%NPar before",this%NPar
+                do while(i<this%NPar-1) 
                     if(this%PO(i)%tempdelflag==1) then
+                           if(this%PO(this%NPar)%tempdelflag==1) then
                             do while(this%PO(this%NPar)%tempdelflag==1)
-                                this%NPar = this%NPar - 1
-                            end do    
+                                 this%NPar = this%NPar - 1 
+                            end do  
+                            end if
+                           
                         this%PO(i) = this%PO(this%NPar)
                         this%NPar = this%NPar - 1
                         
                     end if
+                    i=i+1
                 end do
                 if(this%PO(this%NPar)%tempdelflag==1) then
                     this%NPar = this%NPar - 1
                 end if
+                ! write(*,*) "this%NPar after",this%NPar
                 call this%adjust()
 
             end if
@@ -616,7 +623,8 @@ Module ModuleParticleBundle
                     !call this%adjust()
 
                 else
-                    write(*, *) "The NDel 2is out of the range."
+                    write(*, *) "The NDel 2is out of the range.",NDel,this%NPar
+
                     !stop
                 end if
 

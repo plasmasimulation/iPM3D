@@ -46,6 +46,7 @@ program fortran_mpi
 
         call random_number(RR)
         one%Z = zstart - 1.d0 + (zend - zstart + 2.d0) * RR
+        one%tempdelflag=0
 
         call pb%addone(one)
     end do

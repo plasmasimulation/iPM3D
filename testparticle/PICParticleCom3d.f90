@@ -57,7 +57,7 @@ module ModulePICParticleCom3d
                     stop
                 end if
                 ! 创建新的数据类型
-                call MPI_TYPE_CONTIGUOUS(11, MPI_DOUBLE, this%mpi_type_particle_one, ierr)
+                call MPI_TYPE_CONTIGUOUS(12, MPI_DOUBLE, this%mpi_type_particle_one, ierr)
                 call MPI_TYPE_COMMIT(this%mpi_type_particle_one, ierr)
 
                 this%is_init = .True.
@@ -90,8 +90,8 @@ module ModulePICParticleCom3d
             particle_number_send = 0
             particle_number_recv = 0
             
-            l=0
-
+            l=1
+           
             if (pb%NPar > 0) then
                 do i = 1, pb%NPar
                     index = getParticleDomainIndex(this,pb%PO(i), xstart, xend, ystart, yend,zstart,zend)    
@@ -101,7 +101,10 @@ module ModulePICParticleCom3d
                     end if
                 end do
             end if
+            !此部分标记了所有不在domain的粒子，粒子编号保存在index数组中，l(index)记录了应传送到每个邻居domain的粒子个数
+           
             do dim=1,3
+               
                 test=0
                 select case (dim)
                 case (1)
@@ -127,12 +130,13 @@ module ModulePICParticleCom3d
 
                         if (temp1-temp2==1.and.temp2>=0) test(i)=1!标记检测结果
                     else
-                        if (temp2-temp1==1) test(i)=1!标记检测结果
+                        if (temp2-temp1==1) test(i)=1
+                        !此部分利用取余操作判断了边界上的网格所包含的邻居节点个数，为避免重复判断将结果保存在test数组中
                     end if    
                     if(test(i)==1) then
                       
-                        particle_number_send(i)=l(i+dim*2-2)
-                        ! write(*,*)"send",this%rank,l(i+dim*2-2),i+dim*2-2,i
+                        particle_number_send(i)=l(i+dim*2-2)-1
+                       
                        
                         call MPI_ISEND(particle_number_send(i), 1, &
                                    MPI_INTEGER, negb_rank(i), &
@@ -152,62 +156,57 @@ module ModulePICParticleCom3d
 
                 ! send and recv buffer
                 do i = 1, 2
+                    ! if (test(i)==1) then!检测邻居节点是否存在
                     call particle_send_buff(i)%init(particle_number_send(i))
                     call particle_recv_buff(i)%init(particle_number_recv(i))
+                ! end if
 
                     
                 end do
                
                 do i = 1, 2
-                    
-                    do j=1,l(i+dim*2-2)
+                    if(l(i+dim*2-2)>1) then
+                    do j=1,(l(i+dim*2-2)-1)
                 
                     call particle_send_buff(i)%addone(pb%PO(Indx(i+dim*2-2,j)))
                     end do
-                ! end if
+                    
+                    !  write(*,*)"particle_send_buff(i)%PO%X" ,particle_send_buff(i)%PO(particle_number_send(i)-1)%X,particle_number_send(i)
+                 end if
                 end do
 
                 ! send and recv
                 do i = 1, 2    
                     if (test(i)==1) then!检测邻居节点是否存在
-                        write(*,*)"rank",this%rank
-                     write(*,*)"particle_number_send(i)",particle_number_send(i)
-                    write(*,*)"particle_number_recv(i)",particle_number_recv(i)
+                       
                         if (particle_number_send(i) > 0) &
-                        call MPI_ISEND(particle_send_buff(i)%PO, particle_number_send(i), &
+                        call MPI_SEND(particle_send_buff(i)%PO, particle_number_send(i), &
                                    this%mpi_type_particle_one, negb_rank(i), &
                                    1, MPI_COMM_WORLD, this%reqs_send(i), ierr)
 
                     if (particle_number_recv(i) > 0) &
-                    call MPI_IRECV(particle_recv_buff(i)%PO, particle_number_recv(i), &
+                    call MPI_RECV(particle_recv_buff(i)%PO, particle_number_recv(i), &
                                    this%mpi_type_particle_one, negb_rank(i), 1, &
                                    MPI_COMM_WORLD, this%reqs_recv(i), ierr)
                      end if
                 end do
 
-                ! wait
-                do i = 1, 2
-                    if (test(i)==1 .and. particle_number_send(i) > 0) then
-                        call MPI_WAIT(this%reqs_send(i), this%status_send(:, i), ierr)
-                    end if
-
-                    if (test(i)==1 .and. particle_number_recv(i) > 0) then
-                        call MPI_WAIT(this%reqs_recv(i), this%status_recv(:, i), ierr)
-                    end if
-                end do
-
                 do i = 1, com_negb_num
                     if (test(i)==1 .and. particle_number_recv(i) > 0) then
-                        particle_recv_buff(i)%NPar=particle_number_recv(i)
-                        ! write(*,*)"ParticleNpar",particle_number_recv(i)
-                            ! do j=pb%NPar,pb%NPar+particle_recv_buff(i)%NPar
-                            !     index = getParticleDomainIndex(this,particle_recv_buff(i)%PO(j-pb%NPar+1), xstart, xend, ystart, yend,zstart,zend)    
-                            !     if(index>0)  then
-                            !     Indx(index,l(index))=j 
-                            !     l(index)=l(index)+1
-                            !     ! write(*,*)j
-                            !     end if
-                            ! end do  
+                         particle_recv_buff(i)%NPar=particle_number_recv(i)
+                        
+                        
+                             do j=1,particle_recv_buff(i)%NPar
+                                 index = getParticleDomainIndex(this,particle_recv_buff(i)%PO(j), xstart, xend, ystart, yend,zstart,zend)    
+                               
+                                 if(index>0) then
+                                 Indx(index,l(index))=j+pb%NPar 
+                                 l(index)=l(index)+1
+                                 end if
+                                
+                                 !此部分将传送来的粒子进行标记，index为0表明传送粒子在该domain中，否则存入index数组进行下一步传送
+                                 
+                             end do  
                             call pb%addbun(particle_recv_buff(i))
                       
 
@@ -220,9 +219,12 @@ module ModulePICParticleCom3d
                 end do
             end do
             do i=1,6
-                if(l(i)>0) then
-                    do j=1,l(i)
+                
+                if(l(i)>1) then
+                    do j=1,l(i)-1
                     call pb%DelOne2(Indx(i,j))
+                    ! 为了减少重复检测粒子在哪个domain，重写了删除粒子函数，只对需删除粒子进行标记操作，
+                    !然后在DelOneready() 函数中将标记粒子删除
                     
                     
                     end do
@@ -239,7 +241,7 @@ module ModulePICParticleCom3d
             class(PICCom3D), intent(inout) :: this
             real(8), intent(in) ::  xstart, xend, ystart, yend,zstart,zend
             integer(4) :: getParticleDomainIndex
-
+            
             getParticleDomainIndex = 0
             if (one%X <= xstart) then
                     getParticleDomainIndex = 1  
