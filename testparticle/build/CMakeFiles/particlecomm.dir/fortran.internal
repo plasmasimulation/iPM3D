@@ -1,0 +1,6 @@
+# The fortran modules provided by this target.
+provides
+ constants.mod
+ moduleparticlebundle.mod
+ moduleparticleone.mod
+ modulepicparticlecom3d.mod

@@ -1,0 +1,4 @@
+/home/sapphire/sparta/iPM3D/testparticle/build/CMakeFiles/rebuild_cache.dir
+/home/sapphire/sparta/iPM3D/testparticle/build/CMakeFiles/edit_cache.dir
+/home/sapphire/sparta/iPM3D/testparticle/build/CMakeFiles/test.dir
+/home/sapphire/sparta/iPM3D/testparticle/build/CMakeFiles/particlecomm.dir
