@@ -13,8 +13,8 @@ integer(4), parameter :: com_field_negh=2
         integer(4) :: col, row,layer
         integer(4) :: reqs_send(2),reqs_recv(2)
         ! field buffer
-        real(8), allocatable :: send_buff(:,:,:)
-        real(8), allocatable :: recv_buff(:,:,:)
+        real(8), allocatable :: send_buff(:,:,:,:)
+        real(8), allocatable :: recv_buff(:,:,:,:)
          integer(4), allocatable :: orrd_x(:,:),orrd_y(:,:),orrd_z(:,:)
          integer(4) :: status_send(MPI_STATUS_SIZE, com_field_negh), status_recv(MPI_STATUS_SIZE,com_field_negh)
 
@@ -100,8 +100,8 @@ end subroutine initPICCom3D
                     negb_rank(2)=this%rank+1
                     boundarytest=1
                     boundarysize=this%ly*this%lz
-                    allocate(this%send_buff(2,this%ly,this%lz))
-                    allocate(this%recv_buff(2,this%ly,this%lz))
+                    allocate(this%send_buff(2,1,this%ly,this%lz))
+                    allocate(this%recv_buff(2,1,this%ly,this%lz))
                      allocate(this%orrd_x(2,1))
                      allocate(this%orrd_y(2,this%ly))
                      allocate(this%orrd_z(2,this%lz))
@@ -119,8 +119,8 @@ end subroutine initPICCom3D
                     negb_rank(2)=this%rank+this%xyz_np(1)
                     boundarytest=this%xyz_np(1)
                     boundarysize=this%lx*this%lz
-                    allocate(this%send_buff(2,this%lx,this%lz))
-                    allocate(this%recv_buff(2,this%lx,this%lz))
+                    allocate(this%send_buff(2,this%lx,1,this%lz))
+                    allocate(this%recv_buff(2,this%lx,1,this%lz))
                     allocate(this%orrd_x(2,this%lx))
                     allocate(this%orrd_y(2,1))
                     allocate(this%orrd_z(2,this%lz))
@@ -136,8 +136,8 @@ end subroutine initPICCom3D
                     negb_rank(2)=this%rank+this%xyz_np(1)*this%xyz_np(2)
                     boundarytest=this%xyz_np(1)*this%xyz_np(2)
                     boundarysize=this%lx*this%ly
-                    allocate(this%send_buff(2,this%lx,this%ly))
-                    allocate(this%recv_buff(2,this%lx,this%ly))
+                    allocate(this%send_buff(2,this%lx,this%ly,1))
+                    allocate(this%recv_buff(2,this%lx,this%ly,1))
                     allocate(this%orrd_x(2,this%lx))
                     allocate(this%orrd_y(2,this%ly))
                     allocate(this%orrd_z(2,1))
@@ -146,7 +146,7 @@ end subroutine initPICCom3D
                     this%orrd_y(2,:)=(/(i,i=ystart,yend)/)
                     this%orrd_x(1,:)=(/(i,i=xstart,xend)/)
                     this%orrd_x(2,:)=(/(i,i=xstart,xend)/)
-                    arrysize=(/this%ly,this%lx,1/)
+                    arrysize=(/this%lx,this%ly,1/)
                 case default    
                 end select    
                 test=0
@@ -160,16 +160,16 @@ end subroutine initPICCom3D
                          if (temp2-temp1==1) test(i)=1    !此部分利用取余操作判断了边界上的网格所包含的邻居节点个数，为避免重复判断将结果保存在test数组中
                     end if    
                     if(test(i)==1) then
-                           this%send_buff(i,:,:) = reshape(array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)),(/5,5/))
+                            this%send_buff(i,:,:,:) = array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:))
                     !        if (0 == this%rank) then
                     !         write(*,*)this%send_buff(i,:),this%rank,"this%send_buff(k(i,:),:,:)"
                     !        write(*,*)array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)),this%rank,"array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:))"
                     !       write(*,*)boundarysize
                     !   end if
                            
-                              call MPI_SEND(this%send_buff(i,:,:), boundarysize, MPI_DOUBLE, negb_rank(i), 1, MPI_COMM_WORLD, reqs_send(i+dim*2-2), ierr)
-                              call MPI_RECV(this%recv_buff(i,:,:), boundarysize, MPI_DOUBLE, negb_rank(i), 1, MPI_COMM_WORLD, reqs_recv(i+dim*2-2), ierr)
-                            !   if(i==1) then
+                               call MPI_SEND(this%send_buff(i,:,:,:), boundarysize, MPI_DOUBLE, negb_rank(i), 1, MPI_COMM_WORLD, reqs_send(i+dim*2-2), ierr)
+                               call MPI_RECV(this%recv_buff(i,:,:,:), boundarysize, MPI_DOUBLE, negb_rank(i), 1, MPI_COMM_WORLD, reqs_recv(i+dim*2-2), ierr)
+                            ! !   if(i==1) then
                             !     array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) = array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) + reshape(this%recv_buff(i,:,:),(/arrysize(1),arrysize(2),arrysize(3)/))
                             !   else
                             !     array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) =  reshape(this%recv_buff(i,:,:),(/arrysize(1),arrysize(2),arrysize(3)/))
@@ -177,11 +177,11 @@ end subroutine initPICCom3D
                    
                     end if 
                 end do
-                do i=1,2
-                    if(test(i)==1) then
-                        array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) = array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) + reshape(this%recv_buff(i,:,:),(/arrysize(1),arrysize(2),arrysize(3)/))
+                 do i=1,2
+                     if(test(i)==1) then
+                       array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) = array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) + this%recv_buff(i,:,:,:)!reshape(this%recv_buff(i,:,:),(/arrysize(1),arrysize(2),arrysize(3)/))
                      end if   
-                end do
+                 end do
                 !  do i = 1, 2
                 !      if (test(i)==1) then!检测邻居节点是否存在
                 !          call MPI_WAIT(this%send_buff(i,:,:), this%status_send(:, i), ierr)
