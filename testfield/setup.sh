@@ -13,3 +13,4 @@ export CXX=mpiicpc
 
 cmake -S . -B build
 cmake --build build -j 8
+mkdir build/sum

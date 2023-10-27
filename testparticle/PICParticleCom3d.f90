@@ -241,19 +241,17 @@ module ModulePICParticleCom3d
             class(PICCom3D), intent(inout) :: this
             real(8), intent(in) ::  xstart, xend, ystart, yend,zstart,zend
             integer(4) :: getParticleDomainIndex
-            
-            getParticleDomainIndex = 0
-            if (one%X <= xstart) then
+            if (one%X < xstart) then
                     getParticleDomainIndex = 1  
-            else if (one%X >= xend) then
+            else if (one%X > xend) then
                     getParticleDomainIndex = 2
-            else if (one%Y <= ystart) then
+            else if (one%Y < ystart) then
                     getParticleDomainIndex = 3
-            else if (one%Y >= yend) then
+            else if (one%Y > yend) then
                     getParticleDomainIndex = 4
-            else if (one%Z <= zstart) then
+            else if (one%Z < zstart) then
                      getParticleDomainIndex = 5
-            else if (one%Z >= zend) then
+            else if (one%Z > zend) then
                      getParticleDomainIndex =6 
             else
                     getParticleDomainIndex =0

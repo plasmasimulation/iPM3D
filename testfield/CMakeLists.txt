@@ -7,7 +7,7 @@ project(fieldcomm LANGUAGES CXX Fortran)
     # 06 test for domain
     set(testname "06_test_domain")
     find_package(MPI REQUIRED)
-    add_executable(${PROJECT_NAME} test_fieldcom3d.f90  PICFieldCom3d.f90)
+    add_executable(${PROJECT_NAME} test_field_com3d.f90  PICFieldCom3d.f90)
 #add_definitions(${MPI_Fortran_COMPILE_FLAGS})
 #include_directories(${MPI_Fortran_INCLUDE_PATH})
 #link_directories(${MPI_Fortran_LIBRARIES})

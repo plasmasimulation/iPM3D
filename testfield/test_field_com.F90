@@ -41,7 +41,7 @@ program fortran_mpi
 
     mycom%left_ext_type = com_field_ext_type_symmetry
 
-    call mycom%comf(array, com_field_opt_sum, xstart, xend, ystart, yend)
+    ! call mycom%comf(array, com_field_opt_sum, xstart, xend, ystart, yend)
     ! call mycom%comf(array_ext, com_field_opt_ext, xstart, xend, ystart, yend)
 
     ! call mycom%gather(array, array_out, xstart, xend, ystart, yend, lx*px, ly*py)

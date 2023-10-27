@@ -5,11 +5,11 @@ program fortran_mpi
 
     integer(4) :: size, rank, ierr, i,j, k
     type(PICCom3D) :: mycom
-    real(8), allocatable :: array(:, :,:), array_ext(:, :)
+    real(8), allocatable :: array(:, :,:), array_ext(:, :,:)
     real(8), allocatable :: array_out(:, :,:)
     character(len=99) :: file_name
 
-    integer(4) :: lx = 5, ly = 5,lz=5
+    integer(4) :: lx = 3, ly = 3,lz=3
     integer(4) :: xyz_np(3)=[2,2,2],com_type_nonblock, com_field_opt_sum
     integer(4) :: xstart, xend, ystart, yend,zstart,zend
 
@@ -27,7 +27,7 @@ program fortran_mpi
     zend=(mycom%layer+1)*lz
 
     allocate(array(xstart:xend, ystart:yend,zstart:zend))
-    ! allocate(array_ext(xstart-1:xend+1, ystart-1:yend+1))
+    allocate(array_ext(xstart-1:xend+1, ystart-1:yend+1,zstart-1:zend+1))
     ! allocate(array_out(lx*px, ly*py))
 
     do i = xstart, xend
@@ -43,19 +43,21 @@ program fortran_mpi
 
     ! mycom%left_ext_type = com_field_ext_type_symmetry
     write(file_name, '(i1)') rank
-    open(10, file="raw_field_"//trim(file_name)//".txt")
+    open(10, file="./sum/raw_field_"//trim(file_name)//".txt")
         write(10,*)array
     close(10)
-
-     call mycom%comf(array, com_field_opt_sum, xstart, xend, ystart, yend,zstart,zend)
-    ! call mycom%comf(array_ext, com_field_opt_ext, xstart, xend, ystart, yend)
+    
+     call mycom%comfsum(array,xstart, xend, ystart, yend,zstart,zend)
+     
+      call mycom%comfext(array_ext,xstart, xend, ystart, yend,zstart,zend)
+    
 
     !  call mycom%gather(array, array_out, xstart, xend, ystart, yend, lx*px, ly*py)
 
     
      ! dump
     write(file_name, '(i1)') rank
-    open(10, file="final_field_"//trim(file_name)//".txt")
+    open(10, file="./sum/final_field_"//trim(file_name)//".txt")
         write(10,*)array
     close(10)
 
