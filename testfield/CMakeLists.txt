@@ -23,6 +23,6 @@ target_link_libraries(${NAME_FLIB}MPI::MPI_Fortran)
 
     add_test(NAME ${PROJECT_NAME} COMMAND "mpirun" "-np" "8" $<TARGET_FILE:${PROJECT_NAME}>)
 
-    
+    set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/run)
 
 #endif()

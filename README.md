@@ -17,3 +17,13 @@ sh  ./setup.sh
 cd build  
 mpirun -np 8 ./particlecomm  
 
+test field使用方法: 
+cd testfield  
+sh ./setup.sh
+之后
+cd run 
+mpirun -np 8 ./fieldcomm
+
+然后回到testfield目录
+python3 fieldplot.py会打印出整个区域x方向的电场
+

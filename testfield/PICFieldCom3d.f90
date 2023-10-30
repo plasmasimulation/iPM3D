@@ -87,7 +87,7 @@ end subroutine initPICCom3D
                 if (allocated(this%orrd_y))deallocate(this%orrd_y)
                 if (allocated(this%orrd_z))deallocate(this%orrd_z)
          
-                select case(dim)
+                select case(dim)!针对维度对传输数据进行确定，确定所要传输的数据范围
                 case(1)
                    
                     negb_rank(1)=this%rank-1
@@ -162,7 +162,8 @@ end subroutine initPICCom3D
                  do i=1,2
                     if(test(i)==1) then
                        array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) = array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) + this%recv_buff(i,:,:,:)!reshape(this%recv_buff(i,:,:),(/arrysize(1),arrysize(2),arrysize(3)/))
-                    end if   
+                    end if  !将接收到的数据赋值给array，此处赋值了x方向的数据并进行了加和，当传输数据给y方向时
+                    !传输的是x方向已经加和过的数据，因此可以保证角点全部加和，边点全部加和 
                  end do
 
                 
@@ -213,15 +214,15 @@ end subroutine initPICCom3D
                     negb_rank(1)=this%rank-this%xyz_np(1)
                     negb_rank(2)=this%rank+this%xyz_np(1)
                     boundarytest=this%xyz_np(1)
-                    boundarysize=this%lx*this%lz
-                    allocate(this%send_buff(2,this%lx,1,this%lz))
-                    allocate(this%recv_buff(2,this%lx,1,this%lz))
-                    allocate(this%orrd_x(2,this%lx))
+                    boundarysize=(this%lx+2)*this%lz
+                    allocate(this%send_buff(2,this%lx+2,1,this%lz))
+                    allocate(this%recv_buff(2,this%lx+2,1,this%lz))
+                    allocate(this%orrd_x(2,this%lx+2))
                     allocate(this%orrd_y(2,1))
                     allocate(this%orrd_z(2,this%lz))
                     this%orrd_y(:,1)=(/ystart+1,yend-1/)
-                    this%orrd_x(1,:)=(/(i,i=xstart,xend)/)
-                    this%orrd_x(2,:)=(/(i,i=xstart,xend)/)
+                    this%orrd_x(1,:)=(/(i,i=xstart-1,xend+1)/)!x方向通讯完成，可以传输xstart-1,xend+1所在的数据
+                    this%orrd_x(2,:)=(/(i,i=xstart-1,xend+1)/)
                     this%orrd_z(1,:)=(/(i,i=zstart,zend)/)
                     this%orrd_z(2,:)=(/(i,i=zstart,zend)/)
                     arrysize=(/this%lx,1,this%lz/)
@@ -229,17 +230,17 @@ end subroutine initPICCom3D
                     negb_rank(1)=this%rank-this%xyz_np(1)*this%xyz_np(2)
                     negb_rank(2)=this%rank+this%xyz_np(1)*this%xyz_np(2)
                     boundarytest=this%xyz_np(1)*this%xyz_np(2)
-                    boundarysize=this%lx*this%ly
-                    allocate(this%send_buff(2,this%lx,this%ly,1))
-                    allocate(this%recv_buff(2,this%lx,this%ly,1))
-                    allocate(this%orrd_x(2,this%lx))
-                    allocate(this%orrd_y(2,this%ly))
+                    boundarysize=(this%lx+2)*(this%ly+2)
+                    allocate(this%send_buff(2,this%lx+2,this%ly+2,1))
+                    allocate(this%recv_buff(2,this%lx+2,this%ly+2,1))
+                    allocate(this%orrd_x(2,this%lx+2))
+                    allocate(this%orrd_y(2,this%ly+2))
                     allocate(this%orrd_z(2,1))
                     this%orrd_z(:,1)=(/zstart+1,zend-1/)
-                    this%orrd_y(1,:)=(/(i,i=ystart,yend)/)
-                    this%orrd_y(2,:)=(/(i,i=ystart,yend)/)
-                    this%orrd_x(1,:)=(/(i,i=xstart,xend)/)
-                    this%orrd_x(2,:)=(/(i,i=xstart,xend)/)
+                    this%orrd_y(1,:)=(/(i,i=ystart-1,yend+1)/)
+                    this%orrd_y(2,:)=(/(i,i=ystart-1,yend+1)/)!y方向数据已通讯，扩大数组范围以保证通讯到角点，边界点
+                    this%orrd_x(1,:)=(/(i,i=xstart-1,xend+1)/)
+                    this%orrd_x(2,:)=(/(i,i=xstart-1,xend+1)/)
                     arrysize=(/this%lx,this%ly,1/)
                 case default    
                 end select    
@@ -259,22 +260,19 @@ end subroutine initPICCom3D
                         call MPI_RECV(this%recv_buff(i,:,:,:), boundarysize, MPI_DOUBLE, negb_rank(i), 1, MPI_COMM_WORLD, reqs_recv(i+dim*2-2), ierr)
                     end if 
                 end do
-                select case (dim)!电势为了插值出电场多存了一格，网格对应传送举例：将右侧网格(xstart+1,:,:)传送给对应
-                    !左侧网格xend+1，为实现此步骤需将坐标修改，由(/xstart+1,xend-1/)改为(/xend+1,xstart-1/)
-                    !其中xsatrt,xend不用传送，每个网格都独立计算，需要做的是xstart+1 和xend-1传送给
-                    !另一个网格的xend+1,xstart-1
-                case(1)  
-                     this%orrd_x(:,1)=(/xend+1,xstart-1/)
-                case(2)
-                     this%orrd_y(:,1)=(/yend+1,ystart-1/)
-                case(3)
-                    this%orrd_z(:,1)=(/zend+1,zstart-1/)
-                end select
+                ! select case (dim)!电势为了插值出电场多存了一格
+                ! case(1)  
+                !      this%orrd_x(:,1)=(/xstart-1,xend+1/)
+                ! case(2)
+                !      this%orrd_y(:,1)=(/ystart-1,yend+1/)
+                ! case(3)
+                !     this%orrd_z(:,1)=(/zstart-1,zend+1/)
+                ! end select
                 do i=1,2
-                     if(test(i)==1) then
+                     if(test(i)==1) then!此部分利用取余操作判断了边界上的网格所包含的邻居节点个数，为避免重复判断将结果保存在test数组中
                         array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) = this%recv_buff(i,:,:,:)     
-                    !假如不等于1，那就说明为边界区域，边界电势已知，设为0。
-                    !  else
+                    ! 假如不等于1，那就说明为边界区域，边界电势已知，设为0。
+                     else
                     !  select case(dim*2-2+i)
                     !     case(1)!左侧表面
                     !         array3d(xstart-1,:,:)=0
