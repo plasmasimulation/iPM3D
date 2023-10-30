@@ -260,14 +260,14 @@ end subroutine initPICCom3D
                         call MPI_RECV(this%recv_buff(i,:,:,:), boundarysize, MPI_DOUBLE, negb_rank(i), 1, MPI_COMM_WORLD, reqs_recv(i+dim*2-2), ierr)
                     end if 
                 end do
-                ! select case (dim)!电势为了插值出电场多存了一格
-                ! case(1)  
-                !      this%orrd_x(:,1)=(/xstart-1,xend+1/)
-                ! case(2)
-                !      this%orrd_y(:,1)=(/ystart-1,yend+1/)
-                ! case(3)
-                !     this%orrd_z(:,1)=(/zstart-1,zend+1/)
-                ! end select
+                select case (dim)!电势为了插值出电场多存了一格
+                case(1)  
+                     this%orrd_x(:,1)=(/xstart-1,xend+1/)
+                case(2)
+                     this%orrd_y(:,1)=(/ystart-1,yend+1/)
+                case(3)
+                    this%orrd_z(:,1)=(/zstart-1,zend+1/)
+                end select
                 do i=1,2
                      if(test(i)==1) then!此部分利用取余操作判断了边界上的网格所包含的邻居节点个数，为避免重复判断将结果保存在test数组中
                         array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) = this%recv_buff(i,:,:,:)     
