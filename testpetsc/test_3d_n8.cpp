@@ -28,7 +28,7 @@ extern "C" {
   void  SendPhi(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, int*a);
 }
 
-int testfieldcomm()
+int testfieldcomm() //测试petec场通讯 4x4x4网格
 {
     // test for 2d deps
     PetscErrorCode ierr = 0;
@@ -44,17 +44,9 @@ int testfieldcomm()
     PetscInt Mx, My, Mz;
     long start,end;//定义clock_t变量
     start = clock();
- 
-
-   int*a,*rho;
- a=new int[3];
- 
-//   for(int i=0;i<3;i++)
-//    std::cout<<"C++read"<<a[i]<<std::endl;
-
+    
     // init petsc
     PetscInitialize(NULL, NULL, (char *)0, NULL);
-
     // parameter set
     Mx = 4;
     My = 4;
@@ -91,9 +83,7 @@ int testfieldcomm()
     PetscInt coord_x, coord_y, coord_z, width_x, width_y, width_z;
     DMDAGetCorners(dm, &coord_x, &coord_y, &coord_z,
                    &width_x, &width_y, &width_z);
-     rho=new int[width_x*width_y*width_z];
-    GetRho(coord_x, coord_y, coord_z, width_x, width_y, width_z,rho);
-     print_2d(3, a);
+     
    std:: cout << rank << ": " << coord_x << " " << coord_y << " "
          << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
 
@@ -165,14 +155,11 @@ int testfieldcomm()
     // solve once
     ierr = KSPSetOperators(ksp, A, A); CHKERRQ(ierr);
     ierr = KSPSolve(ksp, b, x); CHKERRQ(ierr);
-    // KSPGetSolution(ksp,&d);
-    
-// dk=array.begin();
-//    std::cout<<dk<<std::endl;
-DMDAVecGetArray(dm,x,&array);
 
- end = clock();   //结束时间
-std::cout<<"time = "<<double(end-start)/CLOCKS_PER_SEC<<"s"<<std::endl;  //输出时间（单位：ｓ）
+    DMDAVecGetArray(dm,x,&array);
+
+    end = clock();   //结束时间
+    std::cout<<"time = "<<double(end-start)/CLOCKS_PER_SEC<<"s"<<std::endl;  //输出时间（单位：ｓ）
 
     // std::cout<<dk<<std::endl;
      std::ofstream log("logfile"+std::to_string(rank)+".txt", std::ios_base::app | std::ios_base::out);
@@ -180,54 +167,36 @@ std::cout<<"time = "<<double(end-start)/CLOCKS_PER_SEC<<"s"<<std::endl;  //输�
      for (auto i =  coord_x; i < coord_x + width_x; i++) {
         for (auto j = coord_y; j < coord_y +width_y; j++) {
             for (auto k = coord_z; k < coord_z + width_z; k++) {
-    //  log<<array[i][orrd_y+width_y-1][orrd_x+width_x-1]<<std::endl;
- log<<array[k][j][i]<<" ";
-}
-log<<std::endl;}}
 
- DMDAVecRestoreArray(dm,x,&array);
+            log<<array[k][j][i]<<" ";}
+        log<<std::endl;}}
 
-   DMDAGetGhostCorners(dm, &coord_x, &coord_y, &coord_z,
-                     &width_x, &width_y, &width_z);
- DMGetLocalVector(dm, &d);
+    DMDAVecRestoreArray(dm,x,&array);
+
+    DMDAGetGhostCorners(dm, &coord_x, &coord_y, &coord_z,&width_x, &width_y, &width_z);
+    DMGetLocalVector(dm, &d);
     DMGlobalToLocalBegin( dm, x, INSERT_VALUES, d);
    
       DMGlobalToLocalEnd(dm, x, INSERT_VALUES, d);
       DMDAVecGetArray(dm,d, &x_array);
 
-   std:: cout <<"afterlocal"<< rank << ": " << coord_x << " " << coord_y << " "
+     std:: cout <<"afterlocal"<< rank << ": " << coord_x << " " << coord_y << " "
           << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
-//  DMDAVecGetArrayDOF(dm,d,&x);
-    // output
-     // std::cout<<dk<<std::endl;
+
      std::ofstream log2("logyyfile"+std::to_string(rank)+".txt", std::ios_base::app | std::ios_base::out);
      log<< width_x << " " << width_y << " " << width_z << std::endl;
      for (auto i =  coord_x; i < coord_x + width_x; i++) {
         for (auto j = coord_y; j < coord_y +width_y; j++) {
             for (auto k = coord_z; k < coord_z + width_z; k++) {
-    //  log<<array[i][orrd_y+width_y-1][orrd_x+width_x-1]<<std::endl;
- log2<<x_array[k][j][i]<<" ";
-}
-log2<<std::endl;}}
-     PetscViewer myViewer;
-      PetscViewerASCIIOpen(PETSC_COMM_WORLD, "phi.dat", &myViewer);
-     VecView(x, myViewer);
-    // VecView(d, myViewer);
-
-    // PetscViewerPushFormat(myViewer,PETSC_VIEWER_STDOUT_COMMON)
-    
-    // if (!(rank))
-    // {
-    //     ostringstream os;
-    //     os << "../../" << "plotVec.py" << " " << "phi.dat" << " " << Mx << " " << My;
-    //     string cmd = os.str();
-    //     system(cmd.c_str());
-    // }
    
-
-    PetscFinalize();
-   
+                log2<<x_array[k][j][i]<<" ";}
+        log2<<std::endl;}}
+    PetscFinalize();  
 }
+
+
+
+
 
 int testpetsc(){
     
@@ -243,9 +212,12 @@ int testpetsc(){
     PetscScalar ***barray = nullptr,***array=nullptr,***x_array=nullptr;
     PetscInt Mx, My, Mz;
     double*charge;
+    int*a,*rho,*phi;
+   
 
     long start,end;//定义clock_t变量
     start = clock();
+     a=new int[3];
     // init petsc
     PetscInitialize(NULL, NULL, (char *)0, NULL);
     // parameter set
@@ -284,7 +256,9 @@ int testpetsc(){
     PetscInt coord_x, coord_y, coord_z, width_x, width_y, width_z;
     DMDAGetCorners(dm, &coord_x, &coord_y, &coord_z,
                    &width_x, &width_y, &width_z);
-
+    rho=new int[width_x*width_y*width_z];
+    GetRho(coord_x, coord_y, coord_z, width_x, width_y, width_z,rho);
+    
    std:: cout << rank << ": " << coord_x << " " << coord_y << " "
          << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
 
@@ -365,6 +339,7 @@ int testpetsc(){
     DMGlobalToLocalBegin( dm, x, INSERT_VALUES, d);
     DMGlobalToLocalEnd(dm, x, INSERT_VALUES, d);
     DMDAVecGetArray(dm,d, &x_array);
+    SendPhi(coord_x, coord_y, coord_z, width_x, width_y, width_z,phi);
 
     std:: cout <<"afterlocal"<< rank << ": " << coord_x << " " << coord_y << " "
           << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;

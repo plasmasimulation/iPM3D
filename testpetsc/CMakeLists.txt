@@ -25,7 +25,7 @@ target_link_libraries(solver PUBLIC MPI::MPI_CXX)
 
 # build lib
 find_package(MPI REQUIRED)
-add_library(cxx-call-f-f ${CMAKE_CURRENT_SOURCE_DIR}/test_field_com3d.f90 PICFieldCom3d.f90)
+add_library(cxx-call-f-f ${CMAKE_CURRENT_SOURCE_DIR}/FieldInterface.f90)
 set_property(TARGET cxx-call-f-f PROPERTY LINKER_LANGUAGE Fortran)
 target_link_libraries(cxx-call-f-f MPI::MPI_Fortran)
 
