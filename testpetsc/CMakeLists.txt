@@ -34,7 +34,7 @@ target_link_libraries(cxx-call-f-f MPI::MPI_Fortran)
 # set_property(TARGET cxx-call-f-c PROPERTY LINKER_LANGUAGE C)
 include_directories ("${MPI_CXX_INCLUDE_DIRS}")
 
-add_executable(cxx-call-f-cxx ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp test_3d_n8.cpp)
+add_executable(cxx-call-f-cxx ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp fieldsolver.cpp)
 target_link_libraries(cxx-call-f-cxx cxx-call-f-f)
 target_link_libraries(cxx-call-f-cxx ${MPI_LIBRARIES})
 target_link_libraries(cxx-call-f-cxx solver)

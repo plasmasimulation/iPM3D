@@ -257,7 +257,7 @@ int testpetsc(){
     DMDAGetCorners(dm, &coord_x, &coord_y, &coord_z,
                    &width_x, &width_y, &width_z);
     rho=new int[width_x*width_y*width_z];
-    GetRho(coord_x, coord_y, coord_z, width_x, width_y, width_z,rho);
+    GetRho(coord_x, coord_y, coord_z, coord_x+width_x-1, coord_y+width_y-1, coord_z+width_z-1,rho);
     
    std:: cout << rank << ": " << coord_x << " " << coord_y << " "
          << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
@@ -339,8 +339,7 @@ int testpetsc(){
     DMGlobalToLocalBegin( dm, x, INSERT_VALUES, d);
     DMGlobalToLocalEnd(dm, x, INSERT_VALUES, d);
     DMDAVecGetArray(dm,d, &x_array);
-    SendPhi(coord_x, coord_y, coord_z, width_x, width_y, width_z,phi);
-
+   phi=new int[width_x*width_y*width_z];
     std:: cout <<"afterlocal"<< rank << ": " << coord_x << " " << coord_y << " "
           << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
 
@@ -349,8 +348,10 @@ int testpetsc(){
      for (auto i =  coord_x; i < coord_x + width_x; i++) {
         for (auto j = coord_y; j < coord_y +width_y; j++) {
             for (auto k = coord_z; k < coord_z + width_z; k++) {
-
+                    phi[i*width_x+j*width_y+k]=x_array[k][j][i];
                     logg<<x_array[k][j][i]<<" ";}
                     logg<<std::endl;}}
     PetscFinalize(); 
 }
+ SendPhi(coord_x, coord_y, coord_z,coord_x+width_x-1, coord_y+width_y-1, coord_z+width_z-1,phi);
+
