@@ -17,14 +17,10 @@ module mpi_field_test
     implicit none
 
 
-
-contains
-subroutine print_1d(n, a) bind(C, name="print_1d")
-    integer(C_INT), value :: n
-    integer(C_INT) a(3);
-    
-    integer(4) :: size, rank, ierr, i,j, k
     type(PICCom3D) :: mycom
+     
+    integer(4) :: size, rank, ierr, i,j, k
+    
     real(8), allocatable :: array(:, :,:), array_ext(:, :,:)
     real(8), allocatable :: array_out(:, :,:),electric_field_x(:, :,:),electric_field_y(:, :,:),electric_field_z(:, :,:)
     character(len=99) :: file_name
@@ -33,6 +29,12 @@ subroutine print_1d(n, a) bind(C, name="print_1d")
     integer(4) :: xyz_np(3)=[2,2,2],com_type_nonblock, com_field_opt_sum
     integer(4) :: xstart, xend, ystart, yend,zstart,zend
 
+contains
+
+subroutine GetRho(coord_x, coord_y, coord_z, width_x, width_y, width_z,rho) bind(C, name="GetRho")
+    integer(C_INT), value :: coord_x, coord_y, coord_z, width_x, width_y, width_z
+    integer(C_INT) rho(width_x*width_y*width_z);
+   
     ! call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, size, ierr)
     call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierr)
@@ -77,7 +79,11 @@ subroutine print_1d(n, a) bind(C, name="print_1d")
     open(11, file="./ext/potential/raw_potential"//trim(file_name)//".txt")
         write(11,"(5f9.3,/)")array_ext
     close(11)
-    
+end subroutine GetRho
+subroutine print_2d(n, a) bind(C, name="print_2d")
+    integer(C_INT), value :: n
+    integer(C_INT) a(3);
+    write(*,*)"2d2d2d"
      call mycom%comfsum(array,xstart, xend, ystart, yend,zstart,zend)
      
       call mycom%comfext(array_ext,xstart, xend, ystart, yend,zstart,zend)
@@ -140,6 +146,6 @@ subroutine print_1d(n, a) bind(C, name="print_1d")
 
     ! call mycom%destroy()
     !  call MPI_FINALIZE(ierr)
-end subroutine print_1d
 
+end subroutine print_2d
 end module mpi_field_test

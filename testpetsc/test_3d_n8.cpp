@@ -24,7 +24,8 @@
 #include<fstream>
 
 extern "C" {
-  void print_1d(int n, int*a);
+  void  GetRho(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, int*a);
+  void  SendPhi(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, int*a);
 }
 
 int testfieldcomm()
@@ -45,11 +46,11 @@ int testfieldcomm()
     start = clock();
  
 
-   int*a;
+   int*a,*rho;
  a=new int[3];
-  print_1d(3, a);
-  for(int i=0;i<3;i++)
-   std::cout<<"C++read"<<a[i]<<std::endl;
+ 
+//   for(int i=0;i<3;i++)
+//    std::cout<<"C++read"<<a[i]<<std::endl;
 
     // init petsc
     PetscInitialize(NULL, NULL, (char *)0, NULL);
@@ -90,7 +91,9 @@ int testfieldcomm()
     PetscInt coord_x, coord_y, coord_z, width_x, width_y, width_z;
     DMDAGetCorners(dm, &coord_x, &coord_y, &coord_z,
                    &width_x, &width_y, &width_z);
-
+     rho=new int[width_x*width_y*width_z];
+    GetRho(coord_x, coord_y, coord_z, width_x, width_y, width_z,rho);
+     print_2d(3, a);
    std:: cout << rank << ": " << coord_x << " " << coord_y << " "
          << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
 

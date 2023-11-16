@@ -31,7 +31,23 @@ Module ModuleFieldOne
     end Type FieldOne
 
     contains
-
+    subroutine GetBoundary(n,a) bind(C, name="GetRho")
+        integer(C_INT), value :: n
+        integer(C_INT) a(3);
+        chiFacter;
+        end subroutine 
+        subroutine GetRho(n,a) bind(C, name="GetRho")
+        integer(C_INT), value :: n
+        integer(C_INT) a(3);
+        chiFacter;
+        end subroutine 
+        
+        subroutine GetEpsilon bind(C, name="GetRho")
+            integer(C_INT), value :: n
+            integer(C_INT) a(3);
+            chiFacter;
+            end subroutine GetEpsilon
+            
         subroutine InitFieldOne(FO, PB, CF)
             Class(FieldOne),intent(inout) :: FO
             Type(ParticleBundle),intent(in) :: PB

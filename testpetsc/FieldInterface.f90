@@ -9,15 +9,17 @@ Module ModuleFieldSolver
     use ModuleExtCircuit
 
     implicit none
+    type(Materials) :: MT
+    type(FieldSource):: FS
 
-    type FieldSolver3d
+    type FieldSolver
         type(Domain), Pointer :: DM => Null()
         integer(4) :: laplace_num
 
-        real(8), allocatable :: Source(:, :,:) !电势
-        real(8), allocatable :: Solve(:,:,:) !电荷密度
-        real(8), allocatable :: CoeA(:,:,:),CoeB(:,:,:),CoeC(:,:,:)
-        real(8), allocatable :: CoeD(:,:,:),CoeE(:,:,:),CoeF(:,:,:)
+        real(8), allocatable :: Source(:, :)
+        real(8), allocatable :: Solve(:, :)
+        real(8), allocatable :: CoeA(:, :), CoeB(:, :), CoeC(:, :), CoeD(:, :), CoeE(:, :)
+
         real(8), allocatable :: poisson(:, :)
         real(8), allocatable :: laplace(:, :, :)
 
@@ -41,6 +43,11 @@ Module ModuleFieldSolver
     end type FieldSolver
 
     contains
+        subroutine FieldInitial() bind(C, name="FieldInitial") 
+
+        end subroutine
+
+        
 
         subroutine InitFieldSolver(FS, CF, metal_num)
             class(FieldSolver),intent(inout) :: FS
