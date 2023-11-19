@@ -1,6 +1,6 @@
 Module ModuleFieldOne
     ! use ModuleControlFlow
-     use ModuleParticleBundle
+    !  use ModuleParticleBundle
     ! use ModuleBspline
     ! use ModuleDomain
     ! use ModuleFieldEM
@@ -13,63 +13,67 @@ Module ModuleFieldOne
         ! Type(Domain), Pointer :: DM => Null()
         real(8) :: RhoFactor, JonFactor, ChiFactor
 
-        real(8), Allocatable :: RhoOne(:, :)
-        real(8), Allocatable :: JonOne(:, :)
-        real(8), Allocatable :: ChiOne(:, :)
+        real(8), Allocatable :: RhoOne(:,:,:)
+        ! real(8), Allocatable :: JonOne(:, :)
+        ! real(8), Allocatable :: ChiOne(:, :)
 
     contains
 
-        procedure :: Init => InitFieldOne
+        ! procedure :: Init => InitFieldOne
         procedure :: Zero => ZeroFieldOne
-        procedure :: Rescale => RescaleFieldOne
-        procedure :: Reset => ResetFieldOne
+        ! procedure :: Rescale => RescaleFieldOne
+        ! procedure :: Reset => ResetFieldOne
         procedure :: Destroy => DestroyFieldOne
-        procedure :: Diag => DiagFieldOne
+        ! procedure :: Diag => DiagFieldOne
 
-        procedure :: P2CES => WeightingFieldOneElectrostatic
+        ! procedure :: P2CES => WeightingFieldOneElectrostatic
 
     end Type FieldOne
 
     contains
-    subroutine GetBoundary(n,a) bind(C, name="GetRho")
-        integer(C_INT), value :: n
-        integer(C_INT) a(3);
-        chiFacter;
-        end subroutine 
-        subroutine GetRho(n,a) bind(C, name="GetRho")
-        integer(C_INT), value :: n
-        integer(C_INT) a(3);
-        chiFacter;
-        end subroutine 
-        
-        subroutine GetEpsilon bind(C, name="GetRho")
-            integer(C_INT), value :: n
-            integer(C_INT) a(3);
-            chiFacter;
-            end subroutine GetEpsilon
-            
-        subroutine InitFieldOne(FO, PB, CF)
-            Class(FieldOne),intent(inout) :: FO
-            Type(ParticleBundle),intent(in) :: PB
-            ! Type(ControlFlow), intent(in) :: CF
+   
+    subroutine ZeroFieldOne(FO)
+        Class(FieldOne), intent(inout) :: FO
 
-            call FO%Reset(PB)
+        FO%RhoOne=0.d0
+        ! FO%JonOne=0.d0
+        ! FO%ChiOne=0.d0 
 
-            return
-        end subroutine InitFieldOne
+        return
+    end subroutine ZeroFieldOne
+
+    subroutine DestroyFieldOne(FO)
+        Class(FieldOne),intent(inout) :: FO
+
+        if (Allocated(FO%RhoOne)) Deallocate(FO%RhoOne)
+        ! if (Allocated(FO%JonOne)) Deallocate(FO%JonOne)
+        ! if (Allocated(FO%ChiOne)) Deallocate(FO%ChiOne)
+
+        return
+    end subroutine DestroyFieldOne
+
+        ! subroutine InitFieldOne(FO, PB, CF)
+        !     Class(FieldOne),intent(inout) :: FO
+        !     Type(ParticleBundle),intent(in) :: PB
+        !     ! Type(ControlFlow), intent(in) :: CF
+
+        !     call FO%Reset(PB)
+
+        !     return
+        ! end subroutine InitFieldOne
 
 
-        subroutine ResetFieldOne(FO, PB)
-            Class(FieldOne),intent(inout) :: FO
-            Type(ParticleBundle),intent(in) :: PB
-            ! Type(Domain), intent(in), target :: DM
+        ! subroutine ResetFieldOne(FO, PB)
+        !     Class(FieldOne),intent(inout) :: FO
+        !     Type(ParticleBundle),intent(in) :: PB
+        !     ! Type(Domain), intent(in), target :: DM
 
-            ! FO%DM => DM
-            FO%RhoFactor = PB%Charge
-            FO%ChiFactor = 0.5d0 * PB%Charge / PB%Mass * PB%dt * PB%dt / Epsilon
+        !     ! FO%DM => DM
+        !     FO%RhoFactor = PB%Charge
+        !     FO%ChiFactor = 0.5d0 * PB%Charge / PB%Mass * PB%dt * PB%dt / Epsilon
 
-            ! init
-            call FO%Destroy()
+        !     ! init
+        !     call FO%Destroy()
 
             ! Associate(zstart => FO%DM%CornerIndex(BOUNDARY_LEFT, 1), &
             !           zend => FO%DM%CornerIndex(BOUNDARY_RIGHT, 1), &
@@ -82,30 +86,21 @@ Module ModuleFieldOne
 
             ! end Associate
 
-            return
-        end subroutine ResetFieldOne
+        !     return
+        ! end subroutine ResetFieldOne
 
 
-        subroutine ZeroFieldOne(FO)
-            Class(FieldOne), intent(inout) :: FO
+      
 
-            FO%RhoOne=0.d0
-            FO%JonOne=0.d0
-            FO%ChiOne=0.d0
+        ! subroutine RescaleFieldOne(FO)
+        !     Class(FieldOne),intent(inout) :: FO
 
-            return
-        end subroutine ZeroFieldOne
+        !     FO%RhoOne = FO%RhoOne * FO%RhoFactor
+        !     FO%JonOne = FO%JonOne * FO%JonFactor
+        !     FO%ChiOne = FO%ChiOne * FO%ChiFactor
 
-
-        subroutine RescaleFieldOne(FO)
-            Class(FieldOne),intent(inout) :: FO
-
-            FO%RhoOne = FO%RhoOne * FO%RhoFactor
-            FO%JonOne = FO%JonOne * FO%JonFactor
-            FO%ChiOne = FO%ChiOne * FO%ChiFactor
-
-            return
-        end subroutine RescaleFieldOne
+        !     return
+        ! end subroutine RescaleFieldOne
 
 
         ! subroutine DiagFieldOne(FO, name)
@@ -196,14 +191,6 @@ Module ModuleFieldOne
         ! end subroutine WeightingFieldOneElectrostatic
 
 
-        subroutine DestroyFieldOne(FO)
-            Class(FieldOne),intent(inout) :: FO
-
-            if (Allocated(FO%RhoOne)) Deallocate(FO%RhoOne)
-            if (Allocated(FO%JonOne)) Deallocate(FO%JonOne)
-            if (Allocated(FO%ChiOne)) Deallocate(FO%ChiOne)
-
-            return
-        end subroutine DestroyFieldOne
+        
 
 end Module ModuleFieldOne

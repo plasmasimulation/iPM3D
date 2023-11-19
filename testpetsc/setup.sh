@@ -9,8 +9,7 @@ export CC=mpiicc
 export CXX=mpiicpc 
 cmake -S . -B build
 cmake --build build -j 8
-mkdir build/sum
-mkdir run/sum
-mkdir run/ext
-mkdir run/ext/potential
-mkdir run/ext/field
+
+mkdir run/solve
+mkdir run/field
+

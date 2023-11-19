@@ -3,6 +3,17 @@ plasma simulation 3d
 schedule   
 test domain 3d
 
+test petsc 使用方法:  
+
+cd testpetsc  
+
+sh ./setup.sh   
+
+cd run  
+ 
+mpirun -np 8 ./cxx-call-f-cxx  
+ 
+
 test domain 使用方法：  
 cd test  
 sh  ./setup.sh  

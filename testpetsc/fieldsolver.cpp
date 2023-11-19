@@ -2,16 +2,15 @@
 3维泊松方程并行求解
 
 方程:
-                        - Laplacian u = 1      0 < x < 32, 0 < y < 32，0 < z < 32
+                        - Laplacian u = 0      0 < x < 5, 0 < y < 5，0 < z < 5
 
-边界：
-                            边界为 0
+边界：设置z方向上边界电势为1，下边界电势为0，然后中间区域插值获得电势
 
 离散：
 
     - u(i-1, j, k) + 2u(i, j, k) - u(i+1, j, k )
     - u(i, j-1, k)  + 2u(i, j, k) - u(i, j+1, k) 
-    - u(i, j, k-1)  + 2u(i, j, k) - u(i, j+1, k+1)== 10
+    - u(i, j, k-1)  + 2u(i, j, k) - u(i, j+1, k+1)== 0
 -----------------------------------------------------------------------------*/
 
 #include <iostream>
@@ -20,182 +19,13 @@
 #include <petscmat.h>
 #include <petscvec.h>
 #include <petscdmda.h>
-#include <time.h>
 #include<fstream>
 
 extern "C" {
-  void  GetRho(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, int*a);
-  void  SendPhi(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, int*a);
+  void  GetRho(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, float*a);
+  void  SendPhi(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, float*a);
+  void  Finalize();
 }
-
-int testfieldcomm() //测试petec场通讯 4x4x4网格
-{
-    // test for 2d deps
-    PetscErrorCode ierr = 0;
-    Mat A;
-    Vec b, x,d;
-    KSP ksp;
-    DM dm;
-    PetscMPIInt size, rank;
-    PetscScalar v[7];
-    MatStencil row, col[7];
-    PetscScalar ***barray = nullptr,***array=nullptr,***x_array=nullptr;
-
-    PetscInt Mx, My, Mz;
-    long start,end;//定义clock_t变量
-    start = clock();
-    
-    // init petsc
-    PetscInitialize(NULL, NULL, (char *)0, NULL);
-    // parameter set
-    Mx = 4;
-    My = 4;
-    Mz = 4;
-
-    MPI_Comm_size(PETSC_COMM_WORLD, &size);
-    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
-
-    // shape
-
-    DMDACreate3d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE,
-                 DMDA_STENCIL_STAR, Mx, My, Mz, 2, 2, 2,
-                 1, 2, NULL, NULL, NULL, &dm);
-    DMSetFromOptions(dm);
-    DMSetUp(dm);
-
-    // create mat
-    DMCreateMatrix(dm, &A);
-    MatSetFromOptions(A);
-
-//此部分设置数据存储格式，可以提升速度
-     MatMPIAIJSetPreallocation(A, 7, NULL, 7, NULL);
-     MatSeqAIJSetPreallocation(A, 7, NULL);
-     MatSeqSBAIJSetPreallocation(A, 1, 7, NULL);
-     MatMPISBAIJSetPreallocation(A, 1, 7, NULL, 7, NULL);
-     MatMPISELLSetPreallocation(A, 7, NULL, 7, NULL);
-     MatSeqSELLSetPreallocation(A, 7, NULL);
-
-    // create vec
-    DMCreateGlobalVector(dm, &b);
-    DMCreateGlobalVector(dm, &x);
-
-    // 此部分获取该进程x,y,z起始坐标以及各方向的宽度
-    PetscInt coord_x, coord_y, coord_z, width_x, width_y, width_z;
-    DMDAGetCorners(dm, &coord_x, &coord_y, &coord_z,
-                   &width_x, &width_y, &width_z);
-     
-   std:: cout << rank << ": " << coord_x << " " << coord_y << " "
-         << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
-
-    for (auto i =  coord_x; i < coord_x + width_x; i++) {
-        for (auto j = coord_y; j < coord_y +width_y; j++) {
-            for (auto k = coord_z; k < coord_z + width_z; k++) {
-                row.i = i; row.j = j; row.k = k;
-                if (0 == i || Mx-1 == i || 0 == j || My-1 == j||0==k||Mz-1==k) {
-                    v[0] = 1.0;
-                     //设置边界条件为0，此部分v[0]=1是保证只有1个未知数，即v[0]*x(i,j,k)=0得x(i,j,k)=0
-                    MatSetValuesStencil(A, 1, &row, 1, &row, v, INSERT_VALUES);
-                }
-                else {
-                    col[0].i = i-1; col[0].j = j;   col[0].k = k;
-                    col[1].i = i;   col[1].j = j;   col[1].k = k;
-                    col[2].i = i+1; col[2].j = j;   col[2].k = k;
-                    col[3].i = i;   col[3].j = j-1; col[3].k = k;
-                    col[4].i = i;   col[4].j = j+1; col[4].k = k;
-                    col[5].i = i;   col[5].j = j;   col[5].k = k-1;
-                    col[6].i = i;   col[6].j = j;   col[6].k = k+1;
-
-                    v[0] = -1;
-                    v[1] =  6;
-                    v[2] = -1;
-                    v[3] = -1;
-                    v[4] = -1;
-                    v[5] = -1;
-                    v[6] = -1;
-                    MatSetValuesStencil(A, 1, &row, 7, col, v, INSERT_VALUES);
-                    //将泊松方程置入，其中col的i,j,k为变量坐标，row设置第几个方程
-                }
-            }
-        }
-    }
-
-    MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY);
-
-    // set b
-    DMDAVecGetArray(dm, b, &barray);
-     for (auto i =  coord_x; i < coord_x + width_x; i++) {
-        for (auto j = coord_y; j < coord_y +width_y; j++) {
-            for (auto k = coord_z; k < coord_z + width_z; k++) {
-                if (0 == k)
-                {
-                    barray[k][j][i] = 0;
-                }
-                else if (Mz - 1 == k)
-                {
-                    barray[k][j][i] = 1;
-                }
-                else if (0 == i || Mx - 1 == i || 0 == j || My - 1 == j)
-                {
-                    barray[k][j][i] = k / (Mz - 1.0);
-                }
-                else {
-                    barray[k][j][i] = -10;
-                }
-            }
-        }
-    }
-
-    DMDAVecRestoreArray(dm, b, &barray);
-
-    // create ksp
-    KSPCreate(PETSC_COMM_WORLD, &ksp);
-    KSPSetType(ksp, KSPGMRES);
-
-    // solve once
-    ierr = KSPSetOperators(ksp, A, A); CHKERRQ(ierr);
-    ierr = KSPSolve(ksp, b, x); CHKERRQ(ierr);
-
-    DMDAVecGetArray(dm,x,&array);
-
-    end = clock();   //结束时间
-    std::cout<<"time = "<<double(end-start)/CLOCKS_PER_SEC<<"s"<<std::endl;  //输出时间（单位：ｓ）
-
-    // std::cout<<dk<<std::endl;
-     std::ofstream log("logfile"+std::to_string(rank)+".txt", std::ios_base::app | std::ios_base::out);
-     log<< width_x << " " << width_y << " " << width_z << std::endl;
-     for (auto i =  coord_x; i < coord_x + width_x; i++) {
-        for (auto j = coord_y; j < coord_y +width_y; j++) {
-            for (auto k = coord_z; k < coord_z + width_z; k++) {
-
-            log<<array[k][j][i]<<" ";}
-        log<<std::endl;}}
-
-    DMDAVecRestoreArray(dm,x,&array);
-
-    DMDAGetGhostCorners(dm, &coord_x, &coord_y, &coord_z,&width_x, &width_y, &width_z);
-    DMGetLocalVector(dm, &d);
-    DMGlobalToLocalBegin( dm, x, INSERT_VALUES, d);
-   
-      DMGlobalToLocalEnd(dm, x, INSERT_VALUES, d);
-      DMDAVecGetArray(dm,d, &x_array);
-
-     std:: cout <<"afterlocal"<< rank << ": " << coord_x << " " << coord_y << " "
-          << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
-
-     std::ofstream log2("logyyfile"+std::to_string(rank)+".txt", std::ios_base::app | std::ios_base::out);
-     log<< width_x << " " << width_y << " " << width_z << std::endl;
-     for (auto i =  coord_x; i < coord_x + width_x; i++) {
-        for (auto j = coord_y; j < coord_y +width_y; j++) {
-            for (auto k = coord_z; k < coord_z + width_z; k++) {
-   
-                log2<<x_array[k][j][i]<<" ";}
-        log2<<std::endl;}}
-    PetscFinalize();  
-}
-
-
-
 
 
 int testpetsc(){
@@ -209,30 +39,27 @@ int testpetsc(){
     PetscMPIInt size, rank;
     PetscScalar v[7];
     MatStencil row, col[7];
-    PetscScalar ***barray = nullptr,***array=nullptr,***x_array=nullptr;
+    PetscScalar ***barray = nullptr,***array=nullptr;
     PetscInt Mx, My, Mz;
     double*charge;
-    int*a,*rho,*phi;
+    float *rho,*phi;
    
-
-    long start,end;//定义clock_t变量
-    start = clock();
-     a=new int[3];
+   
     // init petsc
     PetscInitialize(NULL, NULL, (char *)0, NULL);
     // parameter set
-    Mx = 80;
-    My = 80;
-    Mz = 80;
+    Mx = 5;
+    My = 5;
+    Mz = 5; //包含边界
 
     MPI_Comm_size(PETSC_COMM_WORLD, &size);
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 
     // shape
 
-    DMDACreate3d(PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE,
+    DMDACreate3d(PETSC_COMM_WORLD,DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE,
                  DMDA_STENCIL_STAR, Mx, My, Mz, 2, 2, 2,
-                 1, 2, NULL, NULL, NULL, &dm);
+                 1, 1, NULL, NULL, NULL, &dm);
     DMSetFromOptions(dm);
     DMSetUp(dm);
 
@@ -256,8 +83,8 @@ int testpetsc(){
     PetscInt coord_x, coord_y, coord_z, width_x, width_y, width_z;
     DMDAGetCorners(dm, &coord_x, &coord_y, &coord_z,
                    &width_x, &width_y, &width_z);
-    rho=new int[width_x*width_y*width_z];
-    GetRho(coord_x, coord_y, coord_z, coord_x+width_x-1, coord_y+width_y-1, coord_z+width_z-1,rho);
+    rho=new float[width_x*width_y*width_z];
+    GetRho(coord_x, coord_y, coord_z, width_x,width_y,width_z,rho);
     
    std:: cout << rank << ": " << coord_x << " " << coord_y << " "
          << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
@@ -315,7 +142,7 @@ int testpetsc(){
                     barray[k][j][i] = k / (Mz - 1.0);
                 }
                 else {
-                    barray[k][j][i] = -10;
+                    barray[k][j][i] = rho[width_x*(i-coord_x)+width_y*(j-coord_y)+k-coord_z];
                 }
             }
         }
@@ -331,27 +158,23 @@ int testpetsc(){
     ierr = KSPSetOperators(ksp, A, A); CHKERRQ(ierr);
     ierr = KSPSolve(ksp, b, x); CHKERRQ(ierr);
   
+    DMDAVecGetArray(dm,x,&array);
 
-    end = clock();   //结束时间
-    std::cout<<"time = "<<double(end-start)/CLOCKS_PER_SEC<<"s"<<std::endl;  //输出时间（单位：ｓ）
-    DMDAGetGhostCorners(dm, &coord_x, &coord_y, &coord_z, &width_x, &width_y, &width_z);
-    DMGetLocalVector(dm, &d);
-    DMGlobalToLocalBegin( dm, x, INSERT_VALUES, d);
-    DMGlobalToLocalEnd(dm, x, INSERT_VALUES, d);
-    DMDAVecGetArray(dm,d, &x_array);
-   phi=new int[width_x*width_y*width_z];
-    std:: cout <<"afterlocal"<< rank << ": " << coord_x << " " << coord_y << " "
-          << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
-
-     std::ofstream logg("loggfile"+std::to_string(rank)+".txt", std::ios_base::app | std::ios_base::out);
-     logg<< width_x << " " << width_y << " " << width_z << std::endl;
+   phi=new float[width_x*width_y*width_z];
+     std::ofstream log("./solve/petscphi"+std::to_string(rank)+".txt", std::ios_base::app | std::ios_base::out);
+     log<< width_x << " " << width_y << " " << width_z << " "<<std::endl;
+     log<<"电势 存储顺序：先遍历z,再遍历x和y"<<std::endl;
      for (auto i =  coord_x; i < coord_x + width_x; i++) {
         for (auto j = coord_y; j < coord_y +width_y; j++) {
             for (auto k = coord_z; k < coord_z + width_z; k++) {
-                    phi[i*width_x+j*width_y+k]=x_array[k][j][i];
-                    logg<<x_array[k][j][i]<<" ";}
-                    logg<<std::endl;}}
+                phi[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z]=array[k][j][i];
+            log<<array[k][j][i]<<" ";}
+        log<<std::endl;}}
+
+    DMDAVecRestoreArray(dm,x,&array);
+    SendPhi(coord_x, coord_y, coord_z,width_x,width_y,width_z,phi);
+    Finalize();
     PetscFinalize(); 
 }
- SendPhi(coord_x, coord_y, coord_z,coord_x+width_x-1, coord_y+width_y-1, coord_z+width_z-1,phi);
+
 

@@ -21,7 +21,7 @@ program fortran_mpi
     real(8), allocatable :: array_out(:, :,:),electric_field_x(:, :,:),electric_field_y(:, :,:),electric_field_z(:, :,:)
     character(len=99) :: file_name
 
-    integer(4) :: lx = 3, ly = 3,lz=3
+    integer(4) :: lx = 3, ly = 3,lz=3 !点的个数,两条边三个点
     integer(4) :: xyz_np(3)=[2,2,2],com_type_nonblock, com_field_opt_sum
     integer(4) :: xstart, xend, ystart, yend,zstart,zend
 
@@ -31,7 +31,7 @@ program fortran_mpi
 
      call mycom%init(lx, ly, lz,xyz_np, com_type_nonblock)
 
-    xstart = mycom%col * lx + 1
+    xstart = mycom%col * lx + 1 
     xend   = (mycom%col+1) * lx
     ystart = mycom%row * ly + 1
     yend   = (mycom%row+1) * ly

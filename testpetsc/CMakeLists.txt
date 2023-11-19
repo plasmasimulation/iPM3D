@@ -25,7 +25,7 @@ target_link_libraries(solver PUBLIC MPI::MPI_CXX)
 
 # build lib
 find_package(MPI REQUIRED)
-add_library(cxx-call-f-f ${CMAKE_CURRENT_SOURCE_DIR}/FieldInterface.f90)
+add_library(cxx-call-f-f ${CMAKE_CURRENT_SOURCE_DIR}/FieldInterface.f90 FieldEM.f90 FieldOne.f90 PICFieldCom3d.f90)
 set_property(TARGET cxx-call-f-f PROPERTY LINKER_LANGUAGE Fortran)
 target_link_libraries(cxx-call-f-f MPI::MPI_Fortran)
 
@@ -34,7 +34,7 @@ target_link_libraries(cxx-call-f-f MPI::MPI_Fortran)
 # set_property(TARGET cxx-call-f-c PROPERTY LINKER_LANGUAGE C)
 include_directories ("${MPI_CXX_INCLUDE_DIRS}")
 
-add_executable(cxx-call-f-cxx ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp fieldsolver.cpp)
+add_executable(cxx-call-f-cxx ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp fieldsolver.cpp)
 target_link_libraries(cxx-call-f-cxx cxx-call-f-f)
 target_link_libraries(cxx-call-f-cxx ${MPI_LIBRARIES})
 target_link_libraries(cxx-call-f-cxx solver)

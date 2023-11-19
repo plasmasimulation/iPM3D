@@ -47,9 +47,9 @@ subroutine initPICCom3D(this, x_local_size, y_local_size, z_local_size, xyz_np, 
     
 
     if (x_local_size > 0 .and. y_local_size > 0.and. z_local_size > 0.and. xyz_np(1) > 0 .and. xyz_np(2) > 0.and. xyz_np(3) > 0) then
-        this%lx = x_local_size
-        this%ly = y_local_size
-        this%lz = z_local_size
+        this%lx = x_local_size+1
+        this%ly = y_local_size+1
+        this%lz = z_local_size+1
         this%xyz_np = xyz_np
 
         this%col = mod(mod(this%rank, this%xyz_np(1)*this%xyz_np(2)), this%xyz_np(1))
@@ -152,7 +152,8 @@ end subroutine initPICCom3D
                         if (temp1-temp2==1.and.temp2>=0) test(i)=1!标记检测结果
                     else 
                         if (temp2-temp1==1) test(i)=1    !此部分利用取余操作判断了边界上的网格所包含的邻居节点个数，为避免重复判断将结果保存在test数组中
-                    end if    
+                    end if 
+                    
                     if(test(i)==1) then
                             this%send_buff(i,:,:,:) = array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:))
                             call MPI_SEND(this%send_buff(i,:,:,:), boundarysize, MPI_DOUBLE, negb_rank(i), 1, MPI_COMM_WORLD, reqs_send(i+dim*2-2), ierr)
@@ -177,7 +178,7 @@ end subroutine initPICCom3D
         integer(4), intent(in) :: xstart, xend, ystart, yend,zstart,zend
         integer(4) :: size,negb_rank(com_field_negh),boundarytest,temp1,temp2,boundarysize,test(2)
         integer(4) :: ierr,dim,arrysize(3)
-        integer(4) :: reqs_send(6),reqs_recv(6)
+        integer(4) :: reqs_send(6),reqs_recv(6),reqs_send2(6),reqs_recv2(6)
             if (this%is_init) then
                 if (xend-xstart+1 /= this%lx .or. yend-ystart+1 /= this%ly.or. zend-zstart+1 /= this%lz) then
                     if (0 == this%rank) then
@@ -204,7 +205,7 @@ end subroutine initPICCom3D
                     allocate(this%orrd_x(2,1))
                     allocate(this%orrd_y(2,this%ly))
                     allocate(this%orrd_z(2,this%lz))
-                    this%orrd_x(:,1)=(/xstart+1,xend-1/)
+                    this%orrd_x(:,1)=(/xstart,xend/)
                     this%orrd_y(1,:)=(/(i,i=ystart,yend)/)
                     this%orrd_y(2,:)=(/(i,i=ystart,yend)/)
                     this%orrd_z(1,:)=(/(i,i=zstart,zend)/)
@@ -220,7 +221,7 @@ end subroutine initPICCom3D
                     allocate(this%orrd_x(2,this%lx+2))
                     allocate(this%orrd_y(2,1))
                     allocate(this%orrd_z(2,this%lz))
-                    this%orrd_y(:,1)=(/ystart+1,yend-1/)
+                    this%orrd_y(:,1)=(/ystart,yend/)
                     this%orrd_x(1,:)=(/(i,i=xstart-1,xend+1)/)!x方向通讯完成，可以传输xstart-1,xend+1所在的数据
                     this%orrd_x(2,:)=(/(i,i=xstart-1,xend+1)/)
                     this%orrd_z(1,:)=(/(i,i=zstart,zend)/)
@@ -236,7 +237,7 @@ end subroutine initPICCom3D
                     allocate(this%orrd_x(2,this%lx+2))
                     allocate(this%orrd_y(2,this%ly+2))
                     allocate(this%orrd_z(2,1))
-                    this%orrd_z(:,1)=(/zstart+1,zend-1/)
+                    this%orrd_z(:,1)=(/zstart,zend/)
                     this%orrd_y(1,:)=(/(i,i=ystart-1,yend+1)/)
                     this%orrd_y(2,:)=(/(i,i=ystart-1,yend+1)/)!y方向数据已通讯，扩大数组范围以保证通讯到角点，边界点
                     this%orrd_x(1,:)=(/(i,i=xstart-1,xend+1)/)
@@ -253,7 +254,31 @@ end subroutine initPICCom3D
                         if (temp1-temp2==1.and.temp2>=0) test(i)=1!标记检测结果
                     else 
                         if (temp2-temp1==1) test(i)=1    !此部分利用取余操作判断了边界上的网格所包含的邻居节点个数，为避免重复判断将结果保存在test数组中
-                    end if    
+                    end if  
+                end do 
+                    if(test(2)==1) then !交换单边数据,petsc求解电势边界数据只有左边网格有，交给右边网格
+                        
+                        this%send_buff(2,:,:,:) = array3d(this%orrd_x(2,:), this%orrd_y(2,:),this%orrd_z(2,:))
+                        call MPI_SEND(this%send_buff(2,:,:,:), boundarysize, MPI_DOUBLE, negb_rank(2), 1, MPI_COMM_WORLD, reqs_send2(2+dim*2-2), ierr)
+                        
+                    end if
+                     if(test(1)==1) then
+                       call MPI_RECV(this%recv_buff(1,:,:,:), boundarysize, MPI_DOUBLE, negb_rank(1), 1, MPI_COMM_WORLD, reqs_recv2(2+dim*2-2), ierr)
+
+                         array3d(this%orrd_x(1,:), this%orrd_y(1,:),this%orrd_z(1,:)) = this%recv_buff(1,:,:,:)     
+                     end if
+
+                   
+                    select case (dim)!电势为了插值出电场多存了一格
+                    case(1)  
+                         this%orrd_x(:,1)=(/xstart+1,xend-1/)
+                    case(2)
+                         this%orrd_y(:,1)=(/ystart+1,yend-1/)
+                    case(3)
+                        this%orrd_z(:,1)=(/zstart+1,zend-1/)
+                    end select
+
+                    do i=1,2
                     if(test(i)==1) then
                         this%send_buff(i,:,:,:) = array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:))
                         call MPI_SEND(this%send_buff(i,:,:,:), boundarysize, MPI_DOUBLE, negb_rank(i), 1, MPI_COMM_WORLD, reqs_send(i+dim*2-2), ierr)
@@ -271,22 +296,22 @@ end subroutine initPICCom3D
                 do i=1,2
                      if(test(i)==1) then!此部分利用取余操作判断了边界上的网格所包含的邻居节点个数，为避免重复判断将结果保存在test数组中
                         array3d(this%orrd_x(i,:), this%orrd_y(i,:),this%orrd_z(i,:)) = this%recv_buff(i,:,:,:)     
-                    ! 假如不等于1，那就说明为边界区域，边界电势已知，设为0。
-                     else
-                    !  select case(dim*2-2+i)
-                    !     case(1)!左侧表面
-                    !         array3d(xstart-1,:,:)=0
-                    !     case(2) !右侧表面
-                    !         array3d(xend+1,:,:)=0
-                    !     case(3) !前表面
-                    !         array3d(:,ystart-1,:)=0
-                    !     case(4) !后表面
-                    !         array3d(:,yend+1,:)=0
-                    !     case(5) !下表面
-                    !         array3d(:,:,zstart-1)=0
-                    !     case(6) !上表面 
-                    !         array3d(:,:,zend+1)=0           
-                    !     end select                    
+                !     ! 假如不等于1，那就说明为边界区域，边界电势已知，设为0。
+                !      else
+                !     !  select case(dim*2-2+i)
+                !     !     case(1)!左侧表面
+                !     !         array3d(xstart-1,:,:)=0
+                !     !     case(2) !右侧表面
+                !     !         array3d(xend+1,:,:)=0
+                !     !     case(3) !前表面
+                !     !         array3d(:,ystart-1,:)=0
+                !     !     case(4) !后表面
+                !     !         array3d(:,yend+1,:)=0
+                !     !     case(5) !下表面
+                !     !         array3d(:,:,zstart-1)=0
+                !     !     case(6) !上表面 
+                !     !         array3d(:,:,zend+1)=0           
+                !     !     end select                    
                     end if 
                 end do
 
