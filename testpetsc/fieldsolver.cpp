@@ -163,7 +163,7 @@ int testpetsc(){
    phi=new float[width_x*width_y*width_z];
      std::ofstream log("./solve/petscphi"+std::to_string(rank)+".txt", std::ios_base::app | std::ios_base::out);
      log<< width_x << " " << width_y << " " << width_z << " "<<std::endl;
-     log<<"电势 存储顺序：先遍历z,再遍历x和y"<<std::endl;
+    //  log<<"电势 存储顺序：先遍历z,再遍历x和y"<<std::endl;
      for (auto i =  coord_x; i < coord_x + width_x; i++) {
         for (auto j = coord_y; j < coord_y +width_y; j++) {
             for (auto k = coord_z; k < coord_z + width_z; k++) {

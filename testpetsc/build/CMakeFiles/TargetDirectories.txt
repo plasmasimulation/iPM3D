@@ -1,0 +1,5 @@
+/home/sapphire/sparta/iPM3D/testpetsc/build/CMakeFiles/solver.dir
+/home/sapphire/sparta/iPM3D/testpetsc/build/CMakeFiles/cxx-call-f-f.dir
+/home/sapphire/sparta/iPM3D/testpetsc/build/CMakeFiles/cxx-call-f-cxx.dir
+/home/sapphire/sparta/iPM3D/testpetsc/build/CMakeFiles/edit_cache.dir
+/home/sapphire/sparta/iPM3D/testpetsc/build/CMakeFiles/rebuild_cache.dir

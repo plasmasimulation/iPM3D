@@ -1,0 +1,6 @@
+# The fortran modules provided by this target.
+provides
+ fieldinterface.mod
+ modulefieldem.mod
+ modulefieldone.mod
+ modulepicfieldcom.mod
