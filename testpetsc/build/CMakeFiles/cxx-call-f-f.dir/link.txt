@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcxx-call-f-f.a "CMakeFiles/cxx-call-f-f.dir/FieldInterface.f90.o" "CMakeFiles/cxx-call-f-f.dir/FieldEM.f90.o" "CMakeFiles/cxx-call-f-f.dir/FieldOne.f90.o" "CMakeFiles/cxx-call-f-f.dir/PICFieldCom3d.f90.o"
-/usr/bin/ranlib libcxx-call-f-f.a
