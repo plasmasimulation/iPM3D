@@ -21,6 +21,7 @@
 #include <petscdmda.h>
 #include<fstream>
 #include"material.h"
+#include"fieldsolver.h"
 using namespace std;
 
 extern "C" {
@@ -30,7 +31,7 @@ extern "C" {
 }
 
 
-int testpetsc(){
+int testpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz){
     
     
     PetscErrorCode ierr = 0;
@@ -41,9 +42,9 @@ int testpetsc(){
     PetscMPIInt size, rank;
     PetscScalar v[7];
     MatStencil row, col[7];
-     double ***barray = nullptr,***array=nullptr,***geometry==nullptr;
+     double ***barray = nullptr,***array=nullptr,***geometry=nullptr;
     //  PetscScalar
-    PetscInt Mx, My, Mz;
+    
     double*charge;
     float *rho,*phi,*rho1;
 
@@ -64,12 +65,9 @@ int testpetsc(){
 
    
    
-    // init petsc
-    PetscInitialize(NULL, NULL, (char *)0, NULL);
-    // parameter set
-    Mx = 5;
-    My = 5;
-    Mz = 5; //包含边界
+    // // init petsc
+    // PetscInitialize(NULL, NULL, (char *)0, NULL);
+  
 
     MPI_Comm_size(PETSC_COMM_WORLD, &size);
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
@@ -196,7 +194,7 @@ int testpetsc(){
      
     SendPhi(coord_x, coord_y, coord_z,width_x,width_y,width_z,phi);
     Finalize();
-    PetscFinalize(); 
-}
+//     PetscFinalize(); 
+ }
 
 

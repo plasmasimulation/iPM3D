@@ -1,2 +1,2 @@
 
-int testpetsc();
+int testpetsc(  PetscInt Mx,  PetscInt  My,   PetscInt Mz);
