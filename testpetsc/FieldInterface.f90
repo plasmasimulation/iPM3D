@@ -12,7 +12,7 @@ implicit none
     type(FieldEM) FG
     
     type(PICCom3D) :: mycom
-    real(8), allocatable :: array(:, :,:)
+    real(8), allocatable :: array(:, :,:),rho(:,:,:)
     integer(4) :: xstart, xend, ystart, yend,zstart,zend
    
 
@@ -20,18 +20,21 @@ implicit none
      
 contains
 
-subroutine GetRho(xstart, ystart,zstart,  width_x,  width_y, width_z,  rho)bind(C, name="GetRho")
+subroutine GetRho(xstart, ystart,zstart,  width_x,  width_y, width_z,  rho1)bind(C, name="GetRho")
     
     integer(C_INT), value :: xstart, ystart,zstart,  width_x,  width_y, width_z
-    real(C_FLOAT) rho(width_x*width_y*width_z)
+    real(C_Double) rho1(width_z,width_y,width_x)
+
     integer(8) xend,yend,zend
     xend=xstart-1+width_x
     yend=ystart-1+width_y
     zend=zstart-1+width_z
     allocate(FO%RhoOne(xstart:xend,ystart:yend,zstart:zend))
+    ! allocate( rho1(xstart:xend))
     FO%RhoOne=0
  !设置电荷密度,后期耦合粒子后添加，暂时设置为0
-    rho=0
+    !  rho1=0
+    write(*,"(3f9.3,/)")rho1
     ! do  i = xstart, xend
     !     do j=ystart, yend
     !         do k=zstart,zend

@@ -16,7 +16,7 @@ z=coord[0,2]+coord[4,2]
 f=np.ones((x,y,z))
 
 for i in range(0,8):
-    a=np.loadtxt('./run/solve/petscphi'+str(i)+'.txt',skiprows=2)
+    a=np.loadtxt('./run/solve/petscphi'+str(i)+'.txt',skiprows=1)
     a=a.reshape(coord[i,0],coord[i,1],coord[i,2])
    #  print(a)
 
@@ -85,6 +85,9 @@ plt.title('phi x-z surface y=1')
 print(h)
 plt.savefig("kk.png")
 
+k =np.zeros((25,5))
+
+np.savetxt("/home/sapphire/sparta/iPM3D/testpetsc/input/geometry.txt",k,fmt='%f',delimiter=',')
                  
   
 # print(b)

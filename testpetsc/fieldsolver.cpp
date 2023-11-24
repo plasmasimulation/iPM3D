@@ -20,9 +20,11 @@
 #include <petscvec.h>
 #include <petscdmda.h>
 #include<fstream>
+#include"material.h"
+using namespace std;
 
 extern "C" {
-  void  GetRho(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, float*a);
+  void  GetRho(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, double ***a);
   void  SendPhi(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, float*a);
   void  Finalize();
 }
@@ -39,10 +41,27 @@ int testpetsc(){
     PetscMPIInt size, rank;
     PetscScalar v[7];
     MatStencil row, col[7];
-    PetscScalar ***barray = nullptr,***array=nullptr;
+     double ***barray = nullptr,***array=nullptr,***geometry==nullptr;
+    //  PetscScalar
     PetscInt Mx, My, Mz;
     double*charge;
-    float *rho,*phi;
+    float *rho,*phi,*rho1;
+
+    Material *material[3];
+    Material vacuum;
+    Metal metal;
+    Dielectric dielectric;
+
+    //赋值
+    material[0]=&vacuum;
+    material[1]=&metal;
+    material[2]=&dielectric;
+    for(int i=0;i<3;i++)
+    {
+        cout<<"epsilon"<<material[i]->epsilon<<endl;
+         cout<<"epsilon"<<vacuum.epsilon<<endl;
+    }
+
    
    
     // init petsc
@@ -84,7 +103,8 @@ int testpetsc(){
     DMDAGetCorners(dm, &coord_x, &coord_y, &coord_z,
                    &width_x, &width_y, &width_z);
     rho=new float[width_x*width_y*width_z];
-    GetRho(coord_x, coord_y, coord_z, width_x,width_y,width_z,rho);
+    // for(i=0,i<)
+    //  GetRho(coord_x, coord_y, coord_z, width_x,width_y,width_z,rho);
     
    std:: cout << rank << ": " << coord_x << " " << coord_y << " "
          << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
@@ -142,7 +162,8 @@ int testpetsc(){
                     barray[k][j][i] = k / (Mz - 1.0);
                 }
                 else {
-                    barray[k][j][i] = rho[width_x*(i-coord_x)+width_y*(j-coord_y)+k-coord_z];
+                    // barray[k][j][i] = rho[width_x*(i-coord_x)+width_y*(j-coord_y)+k-coord_z];
+                     barray[k][j][i]=0;
                 }
             }
         }
@@ -170,8 +191,9 @@ int testpetsc(){
                 phi[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z]=array[k][j][i];
             log<<array[k][j][i]<<" ";}
         log<<std::endl;}}
-
+//   GetRho(coord_x, coord_y, coord_z, width_x,width_y,width_z,array);
     DMDAVecRestoreArray(dm,x,&array);
+     
     SendPhi(coord_x, coord_y, coord_z,width_x,width_y,width_z,phi);
     Finalize();
     PetscFinalize(); 
