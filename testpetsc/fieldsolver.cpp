@@ -25,13 +25,13 @@
 using namespace std;
 
 extern "C" {
-  void  GetRho(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, double ***a);
+  void  GetRho(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, float *a);
   void  SendPhi(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, float*a);
   void  Finalize();
 }
 
 
-int testpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz){
+int testpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5][5][5]){
     
     
     PetscErrorCode ierr = 0;
@@ -59,8 +59,8 @@ int testpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz){
     material[2]=&dielectric;
     for(int i=0;i<3;i++)
     {
-        cout<<"epsilon"<<material[i]->epsilon<<endl;
-         cout<<"epsilon"<<vacuum.epsilon<<endl;
+        // cout<<"epsilon"<<material[i]->epsilon<<endl;
+        //  cout<<"epsilon"<<vacuum.epsilon<<endl;
     }
 
    
@@ -118,20 +118,28 @@ int testpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz){
                 }
                 else {
                     col[0].i = i-1; col[0].j = j;   col[0].k = k;
-                    col[1].i = i;   col[1].j = j;   col[1].k = k;
-                    col[2].i = i+1; col[2].j = j;   col[2].k = k;
-                    col[3].i = i;   col[3].j = j-1; col[3].k = k;
-                    col[4].i = i;   col[4].j = j+1; col[4].k = k;
-                    col[5].i = i;   col[5].j = j;   col[5].k = k-1;
-                    col[6].i = i;   col[6].j = j;   col[6].k = k+1;
+                    col[1].i = i+1; col[1].j = j;   col[1].k = k;
+                    col[2].i = i;   col[2].j = j-1; col[2].k = k;
+                    col[3].i = i;   col[3].j = j+1; col[3].k = k;
+                    col[4].i = i;   col[4].j = j;   col[4].k = k-1;
+                    col[5].i = i;   col[5].j = j;   col[5].k = k+1;
+                    col[6].i = i;   col[6].j = j;   col[6].k = k;
 
-                    v[0] = -1;
-                    v[1] =  6;
-                    v[2] = -1;
-                    v[3] = -1;
-                    v[4] = -1;
-                    v[5] = -1;
-                    v[6] = -1;
+                    v[0] = -1*material[data[i-1][j][k]]->epsilon;
+                    v[1] = -1*material[data[i+1][j][k]]->epsilon;
+                    v[2] = -1*material[data[i][j-1][k]]->epsilon;
+                    v[3] = -1*material[data[i][j+1][k]]->epsilon;
+                    v[4] = -1*material[data[i][j][k-1]]->epsilon;
+                    v[5] = -1*material[data[i][j][k+1]]->epsilon;
+                    v[6] =  -(v[0]+v[1]+v[2]+v[3]+v[4]+v[5]);
+                    // v[0] = -1;
+                    // v[1] = -1;
+                    // v[2] = -1;
+                    // v[3] = -1;
+                    // v[4] = -1;
+                    // v[5] = -1;
+                    // v[6] = 6;
+                     cout<<" "<<data[i][j][k]<<' '<<v[6];
                     MatSetValuesStencil(A, 1, &row, 7, col, v, INSERT_VALUES);
                     //将泊松方程置入，其中col的i,j,k为变量坐标，row设置第几个方程
                 }
@@ -142,7 +150,7 @@ int testpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz){
     MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY);
 
-
+    GetRho(coord_x, coord_y, coord_z, width_x,width_y,width_z,rho);
     DMDAVecGetArray(dm, b, &barray);
      for (auto i =  coord_x; i < coord_x + width_x; i++) {
         for (auto j = coord_y; j < coord_y +width_y; j++) {
@@ -160,8 +168,8 @@ int testpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz){
                     barray[k][j][i] = k / (Mz - 1.0);
                 }
                 else {
-                    // barray[k][j][i] = rho[width_x*(i-coord_x)+width_y*(j-coord_y)+k-coord_z];
-                     barray[k][j][i]=0;
+                      barray[k][j][i] = rho[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z];
+                    //   barray[k][j][i]=0;
                 }
             }
         }
@@ -189,7 +197,7 @@ int testpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz){
                 phi[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z]=array[k][j][i];
             log<<array[k][j][i]<<" ";}
         log<<std::endl;}}
-//   GetRho(coord_x, coord_y, coord_z, width_x,width_y,width_z,array);
+  
     DMDAVecRestoreArray(dm,x,&array);
      
     SendPhi(coord_x, coord_y, coord_z,width_x,width_y,width_z,phi);

@@ -20,10 +20,10 @@ implicit none
      
 contains
 
-subroutine GetRho(xstart, ystart,zstart,  width_x,  width_y, width_z,  rho1)bind(C, name="GetRho")
+subroutine GetRho( xstart, ystart,zstart,  width_x,  width_y, width_z,  rho)bind(C, name="GetRho")
     
-    integer(C_INT), value :: xstart, ystart,zstart,  width_x,  width_y, width_z
-    real(C_Double) rho1(width_z,width_y,width_x)
+    integer(C_INT), value ::  xstart, ystart,zstart, width_x,  width_y, width_z
+    real(C_float) rho(width_z*width_y*width_x)
 
     integer(8) xend,yend,zend
     xend=xstart-1+width_x
@@ -34,14 +34,19 @@ subroutine GetRho(xstart, ystart,zstart,  width_x,  width_y, width_z,  rho1)bind
     FO%RhoOne=0
  !设置电荷密度,后期耦合粒子后添加，暂时设置为0
     !  rho1=0
-    write(*,"(3f9.3,/)")rho1
-    ! do  i = xstart, xend
-    !     do j=ystart, yend
-    !         do k=zstart,zend
-    !             rho(width_x*(i-xstart)+width_y*(j-ystart)+k-zstart+1)=FO%RhoOne(i,j,k)
-    !         end do
-    !     end do
-    ! end do    
+    ! write(*,"(3f9.3,/)")rho1
+    do  i = xstart,xend
+        do j=ystart,yend
+            do k=zstart,zend
+                p=i-xstart
+                q=j-ystart
+                m=k-zstart
+                rho(p*width_y*width_z+q*width_z+m+1)=FO%RhoOne(xstart,ystart,zstart)
+   
+            end do
+                
+        end do 
+    end do
 end subroutine GetRho
 
 subroutine SendPhi( coor_x, coor_y,coor_z,  width_x,  width_y, width_z, phi)bind(C, name="SendPhi")
