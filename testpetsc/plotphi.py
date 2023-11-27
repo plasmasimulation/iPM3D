@@ -71,7 +71,7 @@ yy=np.arange(0,5)
 X1,Y1=np.meshgrid(xx,yy)
 # fig = plt.figure()  #定义新的三维坐标轴
 fig,ax = plt.subplots(figsize=(6,8))
-h=f[:,3,:]
+h=f[:,:,4]
 # print(h)
 sm = plt.cm.ScalarMappable(cmap='hot', norm=plt.Normalize(vmin=0, vmax=1))  
 sm.set_array([])
@@ -79,9 +79,9 @@ sm.set_array([])
 plt.imshow(h, cmap='RdBu', norm=plt.Normalize(vmin=0, vmax=1),extent=[0, 5, 0, 5])  
 plt.colorbar(label="phi")  
 
-plt.xlabel('Z')  
-plt.ylabel('X')  
-plt.title('phi x-z surface y=1')  
+plt.xlabel('X')  
+plt.ylabel('Y')  
+plt.title('phi x-y surface z=1')  
 print(h)
 plt.savefig("kk.png")
 

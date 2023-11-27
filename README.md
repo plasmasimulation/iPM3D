@@ -3,6 +3,10 @@ plasma simulation 3d
 schedule   
 test domain 3d
 
+运行前请安装hdf5并确保bashrc文件添加环境变量：
+    export PATH_HDF5=/home/user/hdf5  
+    
+
 test petsc 使用方法:  
 
 cd testpetsc  
