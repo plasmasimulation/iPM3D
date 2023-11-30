@@ -37,7 +37,7 @@ Dielectric::Dielectric(){
   
     hid_t file_id, dataset_id, memspace_id;  
     herr_t status;  
-    hsize_t start[2], count[2];  
+    hsize_t start[3], count[3];  
     //  float data[5][5][5];  
     hsize_t dims[3] = {5,5,5};
      
