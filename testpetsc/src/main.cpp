@@ -1,4 +1,3 @@
-
 #include <iostream>
  #include <mpi.h>
 
@@ -10,6 +9,12 @@
 #include"material.h"
 #include"fieldsolver.h"
 #include "hdf5.h" 
+#include"particle.h"
+#include"create_particles.h"
+#include"domain.h"
+//  #include"create_particles.h"
+// #include"sparta.h"
+//  #include"pointers.h"
  
 /*本测试测试petsc三维场求解，整体网格为5x5x5(包含边界),电荷密度设置为0，边界条件
 设置z方向上边界电势为1，下边界电势为0，然后中间区域插值获得电势，petsc求解电势后
@@ -24,15 +29,39 @@ int main(int argc, char** argv) {
  
    PetscInt Mx, My, Mz;
  int rank;
+ int id=1; int ispecies=1;int icell=1;
+   double *x; double *v; double erot=1; double evib=1;
   int data[5][5][5];
+  int xyz_np[3];
+   Particle* particle=new Particle();
+   CreateParticles* createparticles=new CreateParticles(); 
+   FieldSolver* fieldsolver=new FieldSolver();
+     MPI_Init(nullptr, nullptr);
+     PetscInitialize(NULL, NULL, (char *)0, NULL);
+     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+  
+   x=new double[3];
+   v=new double[3];
+   x[2]=2;
+   v[1]=1;
+    // CreateParticles createparticles(sparta);
     // 初始化MPI环境
     // parameter set
     Mx = 5;
     My = 5;
     Mz = 5; //包含边界
-  MPI_Init(nullptr, nullptr);
-  PetscInitialize(NULL, NULL, (char *)0, NULL);
-  MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+ 
+  Domain* domain=new Domain(xyz_np,Mx,My,Mz,rank);
+
+ load_material(data);
+   fieldsolver->initpetsc(Mx, My, Mz, data);
+    particle->init(domain->lo,domain->hi);
+   particle->grow(10);
+   particle->add_particle(id,ispecies,icell,x,v,erot,evib);
+   createparticles->create_local(particle);
+   particle->particle_move_comm();
+
+   
   cout<<"ok";
  
 
@@ -68,10 +97,15 @@ if(rank==0)
     cout << "Data written to " <<"example.h5" << " successfully!" << endl;  
   
    }
-    load_material(data);
-    testpetsc(Mx, My, Mz, data);
+    
+    
+     fieldsolver->fieldsolve();
+     fieldsolver->fieldsolve();
       PetscFinalize(); 
 
      MPI_Finalize();
+     delete particle;
+     delete createparticles;
+     delete fieldsolver;
    return 0;
 }

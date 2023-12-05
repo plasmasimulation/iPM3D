@@ -31,11 +31,15 @@ set_property(TARGET cxx-call-f-f PROPERTY LINKER_LANGUAGE Fortran)
 target_link_libraries(cxx-call-f-f MPI::MPI_Fortran)
 
 # add_executable(cxx-call-f-c ${CMAKE_CURRENT_SOURCE_DIR}/cxx-call-f.c)
-# target_link_libraries(cxx-call-f-c cxx-call-f-f)
-# set_property(TARGET cxx-call-f-c PROPERTY LINKER_LANGUAGE C)
+# target_link_libraries(cxx-call-f-c cxx-call-f-f)main.cpp fieldsolver.cpp material.cpp
+# set_property(TARGET cxx-call-f-c PROPERTY LINKER_LANGUAGE C) ${SOURCES}
 include_directories ("${MPI_CXX_INCLUDE_DIRS}")
-
-add_executable(cxx-call-f-cxx ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp fieldsolver.cpp material.cpp )
+# file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/ main.cpp fieldsolver.cpp material.cpp )  
+add_executable(cxx-call-f-cxx ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/particle.cpp 
+${CMAKE_CURRENT_SOURCE_DIR}/src/fieldsolver.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/material.cpp 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/create_particles.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/domain.cpp  )
+# ${CMAKE_CURRENT_SOURCE_DIR}/src/particle.cpp 
+# ${CMAKE_CURRENT_SOURCE_DIR}/src/mixture.cpp  )
 target_link_libraries(cxx-call-f-cxx cxx-call-f-f)
 target_link_libraries(cxx-call-f-cxx ${MPI_LIBRARIES})
 target_link_libraries(cxx-call-f-cxx ${PETSc_LIB})
