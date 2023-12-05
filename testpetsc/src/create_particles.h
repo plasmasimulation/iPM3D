@@ -30,7 +30,7 @@ CreateParticles();
   char *vstrx_copy,*vstry_copy,*vstrz_copy;
 
    void create_single();
-   void create_local(Particle* particle);
+   void create_local(Particle* particle,double lo[3],double hi[3]);
   //  void particle_move(Particle* particle);
   void create_local_twopass();
   int species_variable(double *);

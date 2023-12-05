@@ -386,16 +386,18 @@ void Particle::particle_move_comm( ){
 double dt;
 // local=particle->nlocal;
 dt=0.5;
-OnePart* psend,precv;
+char *psend=NULL,*precv=NULL;
 int sendnum,recnum,xyz_np[3],rank,index;
-int **Indx,l[6],indexmax[6];
-Indx=new int*[6];
+int **plist,l[6],indexmax[6];
+plist=new int*[6];
 int particle_number_send[2],particle_number_recv[2];
 int negb_rank[6];
 int boundarytest,temp1,temp2,test[2];
+int offset = 0;
+int nbytes_particle = sizeof(Particle::OnePart);
 for(int i = 0; i < 6; i++) {  
     indexmax[i]=100;
-    Indx[i] = new int[indexmax[i]]; 
+    plist[i] = new int[indexmax[i]]; 
     l[i]=0;
     
 }
@@ -403,26 +405,36 @@ xyz_np[0]=2;
 xyz_np[1]=2;
 xyz_np[2]=2;
 MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  
 
 for (int i = 0; i<nlocal ; i++) {
+   if(particles[i].flag==1){
+    while(particles[nlocal-1].flag==1&&nlocal>1)
+    nlocal--;
+     memcpy(&particles[i],&particles[nlocal-1],sizeof(OnePart));
+     nlocal--;
+     continue;
+   }
 particles[i].x[0]+=dt*particles[i].v[0];
 particles[i].x[1]+=dt*particles[i].v[1];
 particles[i].x[2]+=dt*particles[i].v[2];
 
- index=particle_domain_index(i);
+ index=particle_domain_index(&particles[i]);
 // index=-1;
 if(index>=0)
 {
  if(l[index]==indexmax[index])
- { delete[] Indx[index];
+ { delete[] plist[index];
  indexmax[index]=indexmax[index]*2;
- Indx[index]=new int[indexmax[index]];
+ plist[index]=new int[indexmax[index]];
  }
-  Indx[index][l[index]]=i;
+  plist[index][l[index]]=i;
   l[index]++;
 }
 
 }
+// if(nlocal==0)
+// return ;
 for(int dim=0;dim<=2;dim++)
   { test[0]=0;
     test[1]=0;
@@ -472,64 +484,88 @@ for(int dim=0;dim<=2;dim++)
     MPI_Recv(&particle_number_recv[i], 1, MPI_INT,negb_rank[i], 0, MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
   }}
   if(particle_number_recv[0]>1)
-  printf("particle_number_recv,%d",particle_number_recv[0]);}
+  printf("particle_number_recv,%d",particle_number_recv[0]);
     
-for(int i=0;i<=1;i++)
+     for(int i=0;i<=1;i++)
 {if(test[i]==1) {
+  if(particle_number_send[i]>0)
   
+  psend = (char *) malloc(nbytes_particle*particle_number_send[i]);
+  if(particle_number_recv[i]>0)
+  precv = (char *) malloc(nbytes_particle*particle_number_recv[i]);
+}}
+  for(int i = 0;i<=1;i++)
+   {if(test[i]==1)
+    {if(l[i+dim*2]>=1) 
+  {offset=0;
+  for(int j=0;j<l[i+dim*2];j++)
+   { //  { psend[j]=particles[plist[i+dim*2][j]]; 
+      memcpy(&psend[offset],&particles[plist[i+dim*2][j]],nbytes_particle);
+      offset += nbytes_particle;
+     particles[plist[i+dim*2][j]].flag=1;
+         printf("testx[0],%.2f  \t", particles[plist[i+dim*2][j]].x[0]); 
+         }        
+ }}}
+ for(int i=0;i<=1;i++)
+ { if(test[i]==1&&l[i+dim*2]>=1) {
+  offset=0;
+    if (particle_number_send[i] > 0) 
+     MPI_Send(&psend[offset], particle_number_send[i]*nbytes_particle, MPI_CHAR, negb_rank[i],0, MPI_COMM_WORLD);
+
+     if (particle_number_recv[i] > 0) 
+    MPI_Recv(&precv[offset], particle_number_recv[i]*nbytes_particle, MPI_CHAR, negb_rank[i], 0,  MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+ } }                          
+// }
+ 
+
+for(int i=0;i<=1;i++)
+{int start=nlocal;
+offset=0;
+if(test[i]==1)
+  {
+  for(int j=0;j<particle_number_recv[i];j++)
+{
+  // particles[nlocal]=precv[j];
+  
+  memcpy(&particles[nlocal],&precv[offset],nbytes_particle);
+      offset += nbytes_particle;
+      // nlocal++;
+       add_particle();
+}
+  for(int j=0;j<particle_number_recv[i];j++)
+{index=particle_domain_index(&particles[j+start]);
+// index=-1;
+if(index>=0)
+{
+ if(l[index]==indexmax[index])
+ { delete[] plist[index];
+ indexmax[index]=indexmax[index]*2;
+ plist[index]=new int[indexmax[index]];
+ }
+  plist[index][l[index]]=i;
+  l[index]++;
 }
 
-}
 
-//  ! send and recv buffer
-                do i = 1, 2
-                    ! if (test(i)==1) then!检测邻居节点是否存在
-                    call particle_send_buff(i)%init(particle_number_send(i))
-                    call particle_recv_buff(i)%init(particle_number_recv(i))
-                ! end if
+  }}
+  // if (psend != NULL)
+  // free(psend);
+  // if (precv != NULL)
+  // free(precv);
+}}
 
-                    
-                end do
-               
-                do i = 1, 2
-                    if(l(i+dim*2-2)>1) then
-                    do j=1,(l(i+dim*2-2)-1)
-                
-                    call particle_send_buff(i)%addone(pb%PO(Indx(i+dim*2-2,j)))
-                    end do
-                    
-                    !  write(*,*)"particle_send_buff(i)%PO%X" ,particle_send_buff(i)%PO(particle_number_send(i)-1)%X,particle_number_send(i)
-                 end if
-                end do
-
-                ! send and recv
-                do i = 1, 2    
-                    if (test(i)==1) then!检测邻居节点是否存在
-                       
-                        if (particle_number_send(i) > 0) &
-                        call MPI_SEND(particle_send_buff(i)%PO, particle_number_send(i), &
-                                   this%mpi_type_particle_one, negb_rank(i), &
-                                   1, MPI_COMM_WORLD, this%reqs_send(i), ierr)
-
-                    if (particle_number_recv(i) > 0) &
-                    call MPI_RECV(particle_recv_buff(i)%PO, particle_number_recv(i), &
-                                   this%mpi_type_particle_one, negb_rank(i), 1, &
-                                   MPI_COMM_WORLD, this%reqs_recv(i), ierr)
-                     end if
-                end do
-
-
+ 
 // int message = world_rank;
 //     int dest = (world_rank + 1) % world_size;
 //     MPI_Send(&message, 1, MPI_INT, dest, 0, MPI_COMM_WORLD);
 }
 
-int Particle::particle_domain_index(int i){
-if (particles[i].x[0] < lo[0])  return 0 ; 
-else if (particles[i].x[0] > hi[0])  return 1 ;
-else if (particles[i].x[1] < lo[1])  return 2 ; 
-else if (particles[i].x[1] > hi[1])  return 3 ;
-else if (particles[i].x[2] < lo[2])  return 4 ; 
-else if (particles[i].x[2] > hi[2])  return 5 ;
+int Particle::particle_domain_index(OnePart* particle){
+if (particle->x[0] < lo[0])  return 0 ; 
+else if (particle->x[0] > hi[0])  return 1 ;
+else if (particle->x[1] < lo[1])  return 2 ; 
+else if (particle->x[1] > hi[1])  return 3 ;
+else if (particle->x[2] < lo[2])  return 4 ; 
+else if (particle->x[2] > hi[2])  return 5 ;
 return -1;
 }

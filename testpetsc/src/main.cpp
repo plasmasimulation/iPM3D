@@ -32,13 +32,14 @@ int main(int argc, char** argv) {
  int id=1; int ispecies=1;int icell=1;
    double *x; double *v; double erot=1; double evib=1;
   int data[5][5][5];
-  int xyz_np[3];
+  int xyz_np[3]={2,2,2};
    Particle* particle=new Particle();
    CreateParticles* createparticles=new CreateParticles(); 
    FieldSolver* fieldsolver=new FieldSolver();
      MPI_Init(nullptr, nullptr);
      PetscInitialize(NULL, NULL, (char *)0, NULL);
      MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+   
   
    x=new double[3];
    v=new double[3];
@@ -58,9 +59,12 @@ int main(int argc, char** argv) {
     particle->init(domain->lo,domain->hi);
    particle->grow(10);
    particle->add_particle(id,ispecies,icell,x,v,erot,evib);
-   createparticles->create_local(particle);
-   particle->particle_move_comm();
-
+    createparticles->create_local(particle,domain->lo,domain->hi);
+    particle->particle_move_comm();
+    cout<<"first"<<endl;
+      particle->particle_move_comm();
+       cout<<"second"<<endl;
+ particle->particle_move_comm();
    
   cout<<"ok";
  

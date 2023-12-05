@@ -47,7 +47,7 @@ enum{UNKNOWN,OUTSIDE,INSIDE,OVERLAP};   // same as Grid
    attributes of created particle depend on number of procs
 ------------------------------------------------------------------------- */
 
-void CreateParticles::create_local(Particle* particle )
+void CreateParticles::create_local(Particle* particle ,double lo[3],double hi[3])
 {
   // int dimension = domain->dimension;
 
@@ -57,7 +57,9 @@ void CreateParticles::create_local(Particle* particle )
   int nglocal =particle->nlocal;
 
   srand(1);
-  double random_num = rand() / RAND_MAX;  
+   double random_num1 = rand() / RAND_MAX; 
+    double random_num2 = rand() / RAND_MAX; 
+    double random_num3 = rand() / RAND_MAX; 
   // loop over cells I own
   // only add particles to cells eligible for insertion
   // ntarget = floating point # of particles to create in one cell
@@ -78,7 +80,7 @@ void CreateParticles::create_local(Particle* particle )
   int npercell,ncreate,isp,ispecies,id,pflag,subcell,icell;
   double x[3],v[3],xcell[3],vstream_variable[3];
   double ntarget,scale,rn,vn,vr,theta1,theta2,erot,evib;
-  double *lo,*hi;
+  // double *lo,*hi;
 
   double tempscale = 1.0;
   double sqrttempscale = 1.0;
@@ -87,14 +89,14 @@ void CreateParticles::create_local(Particle* particle )
   bigint nprev = 0;
   icell=0;
   ncreate=10;
-  lo=new double[3];
-  hi=new double[3];
-  lo[0]=0;
-  lo[1]=0;
-  lo[2]=0;
-  hi[0]=1;
-  hi[1]=1;
-  hi[2]=1;
+  // lo=new double[3];
+  // hi=new double[3];
+  // lo[0]=0;
+  // lo[1]=0;
+  // lo[2]=0;
+  // hi[0]=1;
+  // hi[1]=1;
+  // hi[2]=1;
 
 
     // if surfs in cell, use xcell for all created particle attempts
@@ -103,9 +105,9 @@ void CreateParticles::create_local(Particle* particle )
 
       // generate random position X for new particle
 
-      x[0] = lo[0] + random_num  * (hi[0]-lo[0]);
-      x[1] = lo[1] + random_num * (hi[1]-lo[1]);
-      x[2] = lo[2] + random_num  * (hi[2]-lo[2]);
+      x[0] = lo[0] + random_num1  * (hi[0]-lo[0])*90;
+      x[1] = lo[1] + random_num2 * (hi[1]-lo[1])*90;
+      x[2] = lo[2] + random_num3  * (hi[2]-lo[2])*90;
     
         
       // rn = random->uniform();
@@ -137,9 +139,9 @@ void CreateParticles::create_local(Particle* particle )
       // v[0]=rand() / RAND_MAX +10;
       // v[1]=rand() / RAND_MAX +10;
       // v[2]=rand() / RAND_MAX +10;
-       v[0]=30;
-       v[1]=30;
-       v[2]=30;
+       v[0]=10;
+       v[1]=10;
+       v[2]=10;
 
       // erot = particle->erot(ispecies,temp_rot*tempscale,random);
       // evib = particle->evib(ispecies,temp_vib*tempscale,random);

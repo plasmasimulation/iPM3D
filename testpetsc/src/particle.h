@@ -53,11 +53,11 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
     int id;                 // particle ID
     int ispecies;           // particle species index
     int icell;              // which local Grid::cells the particle is in
+    int flag;               // used for migration status
     double x[3];            // particle position
     double v[3];            // particle velocity
     double erot;            // rotational energy
     double evib;            // vibrational energy
-    int flag;               // used for migration status
     double dtremain;        // portion of move timestep remaining
     double weight;          // particle or cell weight, if weighting enabled
   };
@@ -118,7 +118,7 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
   int clone_particle(int);
   void add_species(int, char **);
   void particle_move_comm( );
-  int particle_domain_index(int i );
+  int particle_domain_index(OnePart* particle );
 
 
  protected:
