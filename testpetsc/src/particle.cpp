@@ -386,7 +386,7 @@ void Particle::particle_move_comm( ){
 double dt;
 // local=particle->nlocal;
 dt=0.5;
-char *psend=NULL,*precv=NULL;
+char *psend[2]={NULL,NULL},*precv[2]={NULL,NULL};
 int sendnum,recnum,xyz_np[3],rank,index;
 int **plist,l[6],indexmax[6];
 plist=new int*[6];
@@ -394,10 +394,12 @@ int particle_number_send[2],particle_number_recv[2];
 int negb_rank[6];
 int boundarytest,temp1,temp2,test[2];
 int offset = 0;
-int nbytes_particle = sizeof(Particle::OnePart);
+int nbytes_particle = sizeof(OnePart);
 for(int i = 0; i < 6; i++) {  
     indexmax[i]=100;
-    plist[i] = new int[indexmax[i]]; 
+    plist[i]=(int*)malloc(indexmax[i]*sizeof(int));
+  memset(plist[i],0,indexmax[i]*sizeof(int));
+    // plist[i] = new int[indexmax[i]]; 
     l[i]=0;
     
 }
@@ -415,19 +417,26 @@ for (int i = 0; i<nlocal ; i++) {
      nlocal--;
      continue;
    }
-particles[i].x[0]+=dt*particles[i].v[0];
-particles[i].x[1]+=dt*particles[i].v[1];
-particles[i].x[2]+=dt*particles[i].v[2];
+particles[i].x[0]=particles[i].x[0]+dt*particles[i].v[0];
+particles[i].x[1]=particles[i].x[1]+dt*particles[i].v[1];
+particles[i].x[2]=particles[i].x[2]+dt*particles[i].v[2];
 
  index=particle_domain_index(&particles[i]);
 // index=-1;
 if(index>=0)
 {
  if(l[index]==indexmax[index])
- { delete[] plist[index];
- indexmax[index]=indexmax[index]*2;
- plist[index]=new int[indexmax[index]];
+{//  { delete[] plist[index];
+ 
+//  plist[index]=new int[indexmax[index]];
+//  plist[index]=(int*)malloc((sizeof(int))*indexmax[index]);
+  realloc(plist[index],(sizeof(int))*indexmax[index]);
+  memset(&plist[index][indexmax[index]],0,indexmax[index]*sizeof(int));
+  indexmax[index]=indexmax[index]*2;
+
  }
+  // realloc(particles,maxlocal*sizeof(OnePart));
+  // memset(&particles[oldmax],0,(maxlocal-oldmax)*sizeof(OnePart));
   plist[index][l[index]]=i;
   l[index]++;
 }
@@ -472,7 +481,7 @@ for(int dim=0;dim<=2;dim++)
                         // !此部分利用取余操作判断了边界上的网格所包含的邻居节点个数，为避免重复判断将结果保存在test数组中
                        
  // 发送消息给其他进程
-    int message = 3;
+    // int message = 3;
 
     // int dest = (world_rank + 1) % world_size;
     for(int i=0;i<=1;i++)
@@ -482,17 +491,19 @@ for(int dim=0;dim<=2;dim++)
                        
     MPI_Send(&particle_number_send[i], 1, MPI_INT,negb_rank[i], 0, MPI_COMM_WORLD);
     MPI_Recv(&particle_number_recv[i], 1, MPI_INT,negb_rank[i], 0, MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+   if(particle_number_recv[i]>=1)
+  printf("particle_number_recv,%d",particle_number_recv[i]);
+  //  printf("particle_number_recv,%d",particle_number_recv[i]);
   }}
-  if(particle_number_recv[0]>1)
-  printf("particle_number_recv,%d",particle_number_recv[0]);
+ 
     
      for(int i=0;i<=1;i++)
 {if(test[i]==1) {
   if(particle_number_send[i]>0)
   
-  psend = (char *) malloc(nbytes_particle*particle_number_send[i]);
+  psend[i] = (char *) malloc(nbytes_particle*particle_number_send[i]);
   if(particle_number_recv[i]>0)
-  precv = (char *) malloc(nbytes_particle*particle_number_recv[i]);
+  precv[i] = (char *) malloc(nbytes_particle*particle_number_recv[i]);
 }}
   for(int i = 0;i<=1;i++)
    {if(test[i]==1)
@@ -500,37 +511,59 @@ for(int dim=0;dim<=2;dim++)
   {offset=0;
   for(int j=0;j<l[i+dim*2];j++)
    { //  { psend[j]=particles[plist[i+dim*2][j]]; 
-      memcpy(&psend[offset],&particles[plist[i+dim*2][j]],nbytes_particle);
+      memcpy(&(psend[i][offset]),&particles[plist[i+dim*2][j]],nbytes_particle);
       offset += nbytes_particle;
      particles[plist[i+dim*2][j]].flag=1;
-         printf("testx[0],%.2f  \t", particles[plist[i+dim*2][j]].x[0]); 
-         }        
+        //  printf("plist[i+dim*2][j],%.2f  \t", particles[plist[i+dim*2][j]].v[0]); 
+          }        
  }}}
  for(int i=0;i<=1;i++)
- { if(test[i]==1&&l[i+dim*2]>=1) {
+ { if(test[i]==1) {
+  //  printf("recv[0]");
   offset=0;
-    if (particle_number_send[i] > 0) 
-     MPI_Send(&psend[offset], particle_number_send[i]*nbytes_particle, MPI_CHAR, negb_rank[i],0, MPI_COMM_WORLD);
+  double x=9;
+     if (particle_number_send[i] > 0) 
+     MPI_Send(&(psend[i][offset]), (particle_number_send[i]*96), MPI_CHAR, negb_rank[i],0, MPI_COMM_WORLD);
 
-     if (particle_number_recv[i] > 0) 
-    MPI_Recv(&precv[offset], particle_number_recv[i]*nbytes_particle, MPI_CHAR, negb_rank[i], 0,  MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+ 
+      if (particle_number_recv[i] > 0) 
+  { MPI_Recv(&(precv[i][offset]), (particle_number_recv[i]*96), MPI_CHAR, negb_rank[i], 0,  MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+//  memcpy(&x,&(precv[i][offset+4*sizeof(int)]),sizeof(double));
+//      printf("recv[0],%d ,%f \t",nbytes_particle, x);
+     }
  } }                          
 // }
  
 
 for(int i=0;i<=1;i++)
 {int start=nlocal;
-offset=0;
+
 if(test[i]==1)
+  {if(particle_number_recv[i]>=1)
   {
-  for(int j=0;j<particle_number_recv[i];j++)
+    int offset=0;
+    for(int j=0;j<particle_number_recv[i];j++)
 {
   // particles[nlocal]=precv[j];
-  
-  memcpy(&particles[nlocal],&precv[offset],nbytes_particle);
+    //  printf("recv[0],%.2f  \t", particles[nlocal].x[0]); 
+ 
+     double x=9;
+      //  memcpy(&precv[i][offset+4*sizeof(int)],&x,sizeof(double));
+     memcpy(&particles[nlocal],&(precv[i][offset]),nbytes_particle);
+     printf("recv[0],%d ,%f \t",nbytes_particle,particles[nlocal].x[0]);
+     
+
       offset += nbytes_particle;
-      // nlocal++;
-       add_particle();
+       nlocal++;
+      // char*ptr=&precv[i][offset];
+      //  ptr +=5*sizeof(int);
+      // memcpy(&particles[nlocal].v[0],ptr,sizeof(double));
+       
+     
+    }
+     
+          
+      //  add_particle();
 }
   for(int j=0;j<particle_number_recv[i];j++)
 {index=particle_domain_index(&particles[j+start]);
@@ -538,13 +571,19 @@ if(test[i]==1)
 if(index>=0)
 {
  if(l[index]==indexmax[index])
- { delete[] plist[index];
- indexmax[index]=indexmax[index]*2;
- plist[index]=new int[indexmax[index]];
+ {
+  //  delete[] plist[index];
+//  indexmax[index]=indexmax[index]*2;
+// //  plist[index]=new int[indexmax[index]];
+//  realloc(plist[index],(sizeof(int))*indexmax[index]);
+//  memset(plist[index],0,indexmax[index]*sizeof(int));
+  realloc(plist[index],(sizeof(int))*indexmax[index]);
+  memset(&plist[index][indexmax[index]],0,indexmax[index]*sizeof(int));
+  indexmax[index]=indexmax[index]*2;
  }
-  plist[index][l[index]]=i;
+  plist[index][l[index]]=j+start;
   l[index]++;
-}
+}}
 
 
   }}
@@ -553,12 +592,12 @@ if(index>=0)
   // if (precv != NULL)
   // free(precv);
 }}
-
+  
  
 // int message = world_rank;
 //     int dest = (world_rank + 1) % world_size;
 //     MPI_Send(&message, 1, MPI_INT, dest, 0, MPI_COMM_WORLD);
-}
+
 
 int Particle::particle_domain_index(OnePart* particle){
 if (particle->x[0] < lo[0])  return 0 ; 

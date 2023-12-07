@@ -18,6 +18,7 @@
 #include "create_particles.h"
  #include "particle.h"
 #include "math_const.h"
+#include"stdio.h"
 
 
 
@@ -57,9 +58,9 @@ void CreateParticles::create_local(Particle* particle ,double lo[3],double hi[3]
   int nglocal =particle->nlocal;
 
   srand(1);
-   double random_num1 = rand() / RAND_MAX; 
-    double random_num2 = rand() / RAND_MAX; 
-    double random_num3 = rand() / RAND_MAX; 
+   double random_num1 =rand() /( RAND_MAX*1.0); 
+    double random_num2 = rand() /( RAND_MAX*1.0); 
+    double random_num3 = rand() /( RAND_MAX*1.0); 
   // loop over cells I own
   // only add particles to cells eligible for insertion
   // ntarget = floating point # of particles to create in one cell
@@ -105,13 +106,16 @@ void CreateParticles::create_local(Particle* particle ,double lo[3],double hi[3]
 
       // generate random position X for new particle
 
-      x[0] = lo[0] + random_num1  * (hi[0]-lo[0])*90;
-      x[1] = lo[1] + random_num2 * (hi[1]-lo[1])*90;
-      x[2] = lo[2] + random_num3  * (hi[2]-lo[2])*90;
-    
+      // x[0] = lo[0] + random_num1  * (hi[0]-lo[0]);
+      // x[1] = lo[1] + random_num2 * (hi[1]-lo[1]);
+      // x[2] = lo[2] + random_num3  * (hi[2]-lo[2]);
+      // printf("%f,%f,suijishu",random_num1,random_num2);
+    x[0] =  random_num1*2;
+      x[1] =random_num2*2;
+      x[2] =random_num3*2;
         
       // rn = random->uniform();
-      rn =rand() / RAND_MAX; 
+      rn =rand() /( RAND_MAX*1.0); 
 
       // isp = 0;
       // while (cummulative[isp] < rn) isp++;
@@ -139,9 +143,9 @@ void CreateParticles::create_local(Particle* particle ,double lo[3],double hi[3]
       // v[0]=rand() / RAND_MAX +10;
       // v[1]=rand() / RAND_MAX +10;
       // v[2]=rand() / RAND_MAX +10;
-       v[0]=10;
-       v[1]=10;
-       v[2]=10;
+       v[0]=1;
+       v[1]=-1;
+       v[2]=0.8;
 
       // erot = particle->erot(ispecies,temp_rot*tempscale,random);
       // evib = particle->evib(ispecies,temp_vib*tempscale,random);

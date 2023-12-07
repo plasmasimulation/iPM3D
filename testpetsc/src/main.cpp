@@ -44,7 +44,11 @@ int main(int argc, char** argv) {
    x=new double[3];
    v=new double[3];
    x[2]=2;
-   v[1]=1;
+   x[0]=1;
+    x[1]=2;
+    v[1]=1;
+    v[2]=2;
+    v[0]=1;
     // CreateParticles createparticles(sparta);
     // 初始化MPI环境
     // parameter set
@@ -57,16 +61,16 @@ int main(int argc, char** argv) {
  load_material(data);
    fieldsolver->initpetsc(Mx, My, Mz, data);
     particle->init(domain->lo,domain->hi);
-   particle->grow(10);
-   particle->add_particle(id,ispecies,icell,x,v,erot,evib);
-    createparticles->create_local(particle,domain->lo,domain->hi);
-    particle->particle_move_comm();
-    cout<<"first"<<endl;
-      particle->particle_move_comm();
-       cout<<"second"<<endl;
- particle->particle_move_comm();
+    particle->grow(50);
+    particle->add_particle(id,ispecies,icell,x,v,erot,evib);
+    // createparticles->create_local(particle,domain->lo,domain->hi);
+     particle->particle_move_comm();
+    //   cout<<"first"<<endl;
+    //   particle->particle_move_comm();
+    //      cout<<"second"<<endl;
+    // particle->particle_move_comm();
    
-  cout<<"ok";
+  // cout<<"ok";
  
 
 
