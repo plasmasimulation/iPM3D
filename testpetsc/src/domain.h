@@ -6,6 +6,7 @@ double hi[3];
 int rank;
 int col,row,layer;
 int Mx,My,Mz;
-Domain(int* xyz_np ,int Mx,int My, int Mz,int rank);
+double dx,dy,dz;
+Domain(int* xyz_np ,int Mx,int My, int Mz,double dx,double dy ,double dz ,int rank);
 
 };

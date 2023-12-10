@@ -18,13 +18,14 @@
 #include "stdlib.h"
 #include "ctype.h"
 #include "particle.h"
+#include "math_const.h"
 // #include "mixture.h"
 
 // #include "memory.h"
-
-
-
-
+using namespace MathConst;
+extern "C" {
+void getE(double* x, double* y,double* z);
+}
 
 enum{PKEEP,PINSERT,PDONE,PDISCARD,PENTRY,PEXIT,PSURF};  // several files
 
@@ -133,7 +134,7 @@ Particle::~Particle()
 
 /* ---------------------------------------------------------------------- */
 
-void Particle::init(double lo[3],double hi[3])
+void Particle::init(double lo[3],double hi[3],double dx,double dy,double dz,double dt)
 {
   this->lo[0]=lo[0];
   this->lo[1]=lo[1];
@@ -141,6 +142,10 @@ void Particle::init(double lo[3],double hi[3])
   this->hi[0]=hi[0];
   this->hi[1]=hi[1];
   this->hi[2]=hi[2];
+  this->dx=dx;
+  this->dy=dy;
+  this->dz=dz;
+  this->dt=dt;
 
 }
 
@@ -381,11 +386,11 @@ int Particle::find_species(char *id)
    return -1 if not found
 ------------------------------------------------------------------------- */
 
-void Particle::particle_move_comm( ){
+void Particle::particle_move_comm(double ***barray ){
 
-double dt;
+// double dt;
 // local=particle->nlocal;
-dt=0.5;
+// dt=0.5;
 char *psend[2]={NULL,NULL},*precv[2]={NULL,NULL};
 int sendnum,recnum,xyz_np[3],rank,index;
 int **plist,l[6],indexmax[6];
@@ -395,6 +400,10 @@ int negb_rank[6];
 int boundarytest,temp1,temp2,test[2];
 int offset = 0;
 int nbytes_particle = sizeof(OnePart);
+double Ex,Ey,Ez;
+int int_x,int_y,int_z;
+double double_x,double_y,double_z ; 
+
 for(int i = 0; i < 6; i++) {  
     indexmax[i]=100;
     plist[i]=(int*)malloc(indexmax[i]*sizeof(int));
@@ -410,18 +419,38 @@ MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   
 
 for (int i = 0; i<nlocal ; i++) {
-   if(particles[i].flag==1){
-    while(particles[nlocal-1].flag==1&&nlocal>1)
-    nlocal--;
-     memcpy(&particles[i],&particles[nlocal-1],sizeof(OnePart));
-     nlocal--;
-     continue;
-   }
-particles[i].x[0]=particles[i].x[0]+dt*particles[i].v[0];
-particles[i].x[1]=particles[i].x[1]+dt*particles[i].v[1];
-particles[i].x[2]=particles[i].x[2]+dt*particles[i].v[2];
+   
+//weighting
 
- index=particle_domain_index(&particles[i]);
+
+
+//move
+   Ex=particles[i].x[0]/dx; //假定x,y,z是真实电子坐标，设定粒子相对网格位置；
+   Ey=particles[i].x[1]/dy;
+   Ez=particles[i].x[2]/dz;
+   //传给E需要的粒子相对网格位置,返回对应的电场大小；
+  //  Ex=lo[0];
+  //  Ey=lo[1];
+  //  Ez=lo[2];
+  //  printf("Ez,%f",Ez);
+  index=particle_domain_index(&particles[i]);
+  if(index<0)
+    getE(&Ex,&Ey,&Ez);
+
+   double EFactor= ECharge/EMass*dt/(dx/dt);
+   Ex*=EFactor;
+   Ey*=EFactor;
+   Ez*=EFactor;
+   particles[i].v[0]+=Ex;
+   particles[i].v[1]+=Ey;
+   particles[i].v[2]+=Ez;
+
+particles[i].x[0]+=particles[i].v[0];
+particles[i].x[1]+=particles[i].v[1];
+particles[i].x[2]+=particles[i].v[2];
+
+//particle comm
+//  index=particle_domain_index(&particles[i]);
 // index=-1;
 if(index>=0)
 {
@@ -491,8 +520,8 @@ for(int dim=0;dim<=2;dim++)
                        
     MPI_Send(&particle_number_send[i], 1, MPI_INT,negb_rank[i], 0, MPI_COMM_WORLD);
     MPI_Recv(&particle_number_recv[i], 1, MPI_INT,negb_rank[i], 0, MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
-   if(particle_number_recv[i]>=1)
-  printf("particle_number_recv,%d",particle_number_recv[i]);
+  //  if(particle_number_recv[i]>=1)
+  // printf("particle_number_recv,%d",particle_number_recv[i]);
   //  printf("particle_number_recv,%d",particle_number_recv[i]);
   }}
  
@@ -550,7 +579,7 @@ if(test[i]==1)
      double x=9;
       //  memcpy(&precv[i][offset+4*sizeof(int)],&x,sizeof(double));
      memcpy(&particles[nlocal],&(precv[i][offset]),nbytes_particle);
-     printf("recv[0],%d ,%f \t",nbytes_particle,particles[nlocal].x[0]);
+    //  printf("recv[0],%d ,%f \t",nbytes_particle,particles[nlocal].x[0]);
      
 
       offset += nbytes_particle;
@@ -591,7 +620,53 @@ if(index>=0)
   // free(psend);
   // if (precv != NULL)
   // free(precv);
-}}
+}
+for (int i = 0; i<nlocal ; i++) {
+if(particles[i].flag==1){
+    while(particles[nlocal-1].flag==1&&nlocal>1)
+    nlocal--;
+     memcpy(&particles[i],&particles[nlocal-1],sizeof(OnePart));
+     nlocal--;
+     continue;
+   }
+   //weighting
+int int_x,int_y,int_z;
+double double_x,double_y,double_z ; 
+double nx,ny,nz;
+double xfactor[6];
+nx=particles->x[0]/dx;
+ny=particles->x[1]/dy;
+nz=particles->x[2]/dz;
+int_x=static_cast<int>(std::floor(nx));
+int_y=static_cast<int>(std::floor(ny));
+int_z=static_cast<int>(std::floor(nz));
+double_x=nx-int_x;
+double_y=ny-int_y;
+double_z=nz-int_z;
+
+barray[int_z][int_y][int_x]+=1*double_x*double_y*double_z;
+barray[int_z][int_y][int_x+1]+=1*(1-double_x)*double_y*double_z;
+barray[int_z][int_y+1][int_x]+=1*double_x*(1-double_y)*double_z;
+barray[int_z+1][int_y][int_x]+=1*double_x*double_y*(1-double_z);
+barray[int_z][int_y+1][int_x+1]+=1*(1-double_x)*(1-double_y)*double_z;
+barray[int_z+1][int_y][int_x+1]+=1*(1-double_x)*double_y*(1-double_z);
+barray[int_z+1][int_y+1][int_x]+=1*double_x*(1-double_y)*(1-double_z);
+barray[int_z+1][int_y+1][int_x+1]+=1*(1-double_x)*(1-double_y)*(1-double_z);
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+}
   
  
 // int message = world_rank;

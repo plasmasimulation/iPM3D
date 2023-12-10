@@ -13,7 +13,7 @@ class FieldSolver{
      double *lo;
      double *hi;
     double ***barray = nullptr,***array=nullptr,***geometry=nullptr;
-    int initpetsc(PetscInt Mx,  PetscInt My, PetscInt Mz,int data [5][5][5]);
+    int initpetsc(PetscInt Mx,  PetscInt My, PetscInt Mz,int data [5][5][5],int* xyz_np);
      int fieldsolve(); 
     // int petscfinalsize();
 

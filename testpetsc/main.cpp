@@ -25,6 +25,7 @@ int main(int argc, char** argv) {
    PetscInt Mx, My, Mz;
  int rank;
   int data[5][5][5];
+  // int dx,dy,dz,d;
     // 初始化MPI环境
     // parameter set
     Mx = 5;

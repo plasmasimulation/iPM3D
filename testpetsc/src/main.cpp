@@ -31,8 +31,11 @@ int main(int argc, char** argv) {
  int rank;
  int id=1; int ispecies=1;int icell=1;
    double *x; double *v; double erot=1; double evib=1;
-  int data[5][5][5];
-  int xyz_np[3]={2,2,2};
+  int data2[5][5][5];
+  int *xyz_np=new int[3]{2,2,2};
+  int dx,dy,dz,dt;
+  // xyz_np={2,2,2};
+  int data[64][64][64];
    Particle* particle=new Particle();
    CreateParticles* createparticles=new CreateParticles(); 
    FieldSolver* fieldsolver=new FieldSolver();
@@ -55,16 +58,21 @@ int main(int argc, char** argv) {
     Mx = 5;
     My = 5;
     Mz = 5; //包含边界
+    dx=1;
+    dy=1;
+    dz=1;
+    dt=1;
  
-  Domain* domain=new Domain(xyz_np,Mx,My,Mz,rank);
+  Domain* domain=new Domain(xyz_np,Mx,My,Mz,dx,dy,dz,rank);
 
- load_material(data);
-   fieldsolver->initpetsc(Mx, My, Mz, data);
-    particle->init(domain->lo,domain->hi);
+ load_material(data2);
+   fieldsolver->initpetsc(Mx, My, Mz, data2,xyz_np);
+    particle->init(domain->lo,domain->hi,domain->dx,domain->dy,domain->dz,dt);
     particle->grow(50);
     particle->add_particle(id,ispecies,icell,x,v,erot,evib);
-    // createparticles->create_local(particle,domain->lo,domain->hi);
-     particle->particle_move_comm();
+     createparticles->create_local(particle,domain->lo,domain->hi);
+     fieldsolver->fieldsolve();
+      particle->particle_move_comm(fieldsolver->barray);
     //   cout<<"first"<<endl;
     //   particle->particle_move_comm();
     //      cout<<"second"<<endl;
@@ -80,16 +88,24 @@ if(rank==0)
     hid_t file_id = H5Fcreate("material.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);  
   
     // 创建数据集  
-    hsize_t dims[3] = {5,5,5}; // 定义数据集的大小为10  
+    hsize_t dims[3] = {64,64,64}; // 定义数据集的大小为10  
     hid_t dataspace_id = H5Screate_simple(3, dims, NULL);  
     hid_t dataset_id = H5Dcreate2(file_id, "my_dataset", H5T_NATIVE_INT, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);  
   
+    for(int i=0;i<64;i++)
+    for(int j=0;j<64;j++)
+    for(int k=0;k<64;k++)
+    {if(i==0||i==63)
+      data[i][j][k]=1;
+      else
+      data[i][j][k]=0;
+    }
     // 写入数据  
-    int data[5][5][5] =     {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-                          }, {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
-                          }, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                          }, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                          }, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};  
+    // int data[5][5][5] =     {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    //                       }, {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+    //                       }, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    //                       }, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    //                       }, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};  
     herr_t status = H5Dwrite(dataset_id, H5T_NATIVE_INT, dataspace_id, dataspace_id, H5P_DEFAULT, data);  
   
     // 关闭数据集、数据空间和文件  
@@ -107,8 +123,8 @@ if(rank==0)
    }
     
     
-     fieldsolver->fieldsolve();
-     fieldsolver->fieldsolve();
+    
+       fieldsolver->fieldsolve();
       PetscFinalize(); 
 
      MPI_Finalize();

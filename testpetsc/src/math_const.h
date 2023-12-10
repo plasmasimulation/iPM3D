@@ -9,5 +9,7 @@ namespace MathConst {
   static const double MY_PI3 = 1.04719755119659774615; // pi/3
   static const double MY_PI4 = 0.78539816339744830962; // pi/4
   static const double MY_PIS = 1.77245385090551602729; // sqrt(pi)
+  static const double ECharge=-1.6022e-19;
+  static const double EMass=9.1095e-31;
 }
 

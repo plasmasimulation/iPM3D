@@ -88,6 +88,7 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
   double ***edarray;        // pointer to each double array
   double lo[3];
   double hi[3];
+  double dx,dy,dz,dt;
   // restart buffers, filled by read_restart
 
   int nlocal_restart;
@@ -104,7 +105,7 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
   // virtual
   Particle();
    ~Particle();
-  void init(double* lo,double* hi);
+  void init(double* lo,double* hi,double dx,double dy,double dz,double dt);
 
    void grow(int);
    void grow_species();
@@ -117,7 +118,7 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
    int find_species(char *);
   int clone_particle(int);
   void add_species(int, char **);
-  void particle_move_comm( );
+  void particle_move_comm(double ***barray);
   int particle_domain_index(OnePart* particle );
 
 

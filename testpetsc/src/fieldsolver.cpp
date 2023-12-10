@@ -28,10 +28,11 @@ extern "C" {
   void  GetRho(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, float *a);
   void  SendPhi(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, float*a);
   void  Finalize();
+  void  PhiInit(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z,int lx1,int ly1,int lz1,int *c_xyz_np);
 }
 
 
-int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5][5][5]){
+int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5][5][5],int* xyz_np){
     
     
     // PetscErrorCode ierr = 0;
@@ -187,6 +188,12 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
 
     // solve once
     ierr = KSPSetOperators(ksp, A, A); CHKERRQ(ierr);
+    int lx=(Mx-2+xyz_np[0]-1)/xyz_np[0];
+    int ly=(My-2+xyz_np[1]-1)/xyz_np[1];
+    int lz=(Mz-2+xyz_np[2]-1)/xyz_np[2];
+
+    PhiInit(coord_x, coord_y, coord_z,width_x,width_y,width_z,lx,ly,lz,xyz_np);
+
   
  }
  int FieldSolver::fieldsolve(){
@@ -210,8 +217,9 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
   
     DMDAVecRestoreArray(dm,x,&array);
      
-    // SendPhi(coord_x, coord_y, coord_z,width_x,width_y,width_z,phi);
-    // Finalize();
+    //  int lx,ly,lz
+     SendPhi(coord_x, coord_y, coord_z,width_x,width_y,width_z,phi);
+    //  Finalize();
 //     PetscFinalize(); 
  }
 
