@@ -1,0 +1,20 @@
+##equation:     HSiO+O->SiO+OH
+##
+##
+##ref.title: Plasma chemistry of He/O2/SiH4 and He/N2O/SiH4 mixture for remotes plasma-activated 
+##           chemical-vapor deposition of silicon dioxide.
+##ref.auth: Mark J. Kushner
+##            
+##ref.journal: J. Appl. Phys. 74(11) 6538-6553 (1993)
+##
+516019
+HSiO+O->SiO+OH
+0.0
+4
+532   3080   533   88
+ -1   -1    +1    +1
+10
+ 1
+   0.0e-01    0.0e-18
+ 1
+1.66e-10  0.00E+00   0.00E+00

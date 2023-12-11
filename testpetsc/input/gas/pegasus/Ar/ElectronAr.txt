@@ -1,0 +1,6 @@
+1  5
+180000  Elastic 0.0
+180001  Elastic 1.0
+180006  Elastic 2.0
+180007  Elastic 3.0
+180008  Ionization 4.0

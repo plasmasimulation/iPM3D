@@ -1,0 +1,18 @@
+##eqation:     H+Si_2H_6->SiH_3+SiH_4
+##
+##ref.auth:    J. Perrin, O. Leroy, and M.C. Bordage
+##ref.journal: Contrib. Plasma Phys. 36, 3 (1996)
+##
+#  2009.4.16  Matsunaga
+#  ƒŒ[ƒgŒW”ŒvŽZ‚Ì’è” C ‚ð -0.1078 ‚©‚ç +0.1078 ‚ÉC³(bug)
+512003
+H+Si_2H_6->SiH_3+SiH_4
+0.0
+4
+521   10   514  510
+ -1   -1    +1   +1
+255
+ 1
+   0.0e-01    0.0e-18
+ 1
+0.80E-10  0.00E+00  0.1078

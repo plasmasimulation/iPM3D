@@ -21,7 +21,9 @@
 传电势回去求解出电场并输出，此部分结果包含电场数据以及电势数据，
 保存在run/solve文件夹内*/
 using namespace std;
- 
+ extern "C" {
+  void MCCBundleInit();
+}
   
 
   
@@ -64,7 +66,7 @@ int main(int argc, char** argv) {
     dt=1;
  
   Domain* domain=new Domain(xyz_np,Mx,My,Mz,dx,dy,dz,rank);
-
+ MCCBundleInit();
  load_material(data2);
    fieldsolver->initpetsc(Mx, My, Mz, data2,xyz_np);
     particle->init(domain->lo,domain->hi,domain->dx,domain->dy,domain->dz,dt);

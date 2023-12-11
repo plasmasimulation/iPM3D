@@ -1,0 +1,4 @@
+1  3
+20000 Elastic 0.0
+20001 Excitation 1.0
+20002 Ionization 1.0

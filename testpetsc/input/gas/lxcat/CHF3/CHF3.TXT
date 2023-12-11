@@ -1,0 +1,11 @@
+&GasPhysicsfile
+ GP%Name      =           CHF3,
+ GP%MCModel   =           2,
+ GP%NAtom     =           5,
+ GP%Ns        =           2,
+ GP%Mass      =           70.01,
+ GP%Radius    =           1.3075d-10,
+ GP%BetaMax   =           3.d0
+ GP%SP(1)     =           CHF3+,5, 1, 70.01,1.3075d-10,
+ GP%SP(2)     =           CHF3-,5,-1, 70.01,1.3075d-10,
+ /

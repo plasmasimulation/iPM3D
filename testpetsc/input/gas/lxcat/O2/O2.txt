@@ -1,0 +1,10 @@
+&GasPhysicsfile
+ GP%Name      =  O2
+ GP%MCModel   =           1,
+ GP%NAtom     =           2,
+ GP%Ns    =           2,
+ GP%Mass      =           31.999,
+ GP%Radius      =         173.d-12,
+ GP%SP(1)     =  O-,1,-1,15.999,74.d-12
+GP%SP(2)     =  O2+,2,1, 31.999,173.d-12
+ /

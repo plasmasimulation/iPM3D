@@ -1,0 +1,14 @@
+ &GasPhysicsfile
+ GP%Name      =           SF6,
+ GP%MCModel   =           2,
+ GP%NAtom     =           7,
+ GP%Ns        =           5,
+ GP%Mass      =           146.0554,
+ GP%Radius    =           2.385d-10,
+ GP%BetaMax   =           3.d0
+ GP%SP(1)     =           F-  ,1,-1,18.9984032,1.47d-10,
+ GP%SP(2)     =           F+  ,1, 1,18.9984032,1.47d-10,
+ GP%SP(3)     =           SF5-,6,-1,127.0570  ,2.385d-10,
+ GP%SP(4)     =           SF5+,6, 1,127.0570  ,2.385d-10,
+ GP%SP(5)     =           SF6-,7,-1,146.0554  ,2.385d-10,
+ /

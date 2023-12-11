@@ -1,0 +1,539 @@
+&MRList
+Model     =     1,
+NReaction  =   12,
+/
+!LXCat, www.lxcat.net
+!Generated on 19 Mar 2021. All rights reserved.
+!
+!RECOMMENDED REFERENCE FORMAT
+!- TRINITI database, www.lxcat.net, retrieved on March 19, 2021.
+!
+!CROSS SECTION DATA FORMAT
+!In downloaded files, each collision process is defined by a block consisting of
+!1st line
+!Keyword in capitals indicating the type of the collision. Possible collision types are elastic, effective, excitation,
+!ionization, or attachment (capital letters required, key words are case sensitive), where "elastic" is used to denote
+!the elastic momentum transfer cross section and where "effective" denotes the total momentum transfer cross section (sum
+!of elastic momentum transfer and total inelastic cross sections).  The latter is useful for solving the Boltzmann
+!equation in the 2-term approximation.
+!2nd line
+!Name of the target particle species. This name is a character string, freely chosen by the user, e.g. "Ar". Optionally
+!for excitation processes, the name of the corresponding excited state can be specified on the same line, separated from
+!the first name either by arrow "->" (dash + greater than) or by double-head arrow "<->" (less than + dash +
+!greater than), e.g. "Ar -> Ar*" and "Ar <-> Ar*", respectively. In the later case BOLSIG+ will automatically
+!define the inverse superelastic process, constructing the superelastic cross-section by detailed balancing, and
+!considering the indicated excited state as the target. In this case, the ratio of statistical weights must be input in
+!the 3rd line (see below).
+!3rd line
+!For elastic and effective collisions, the ratio of the electron mass to the target particle mass. For excitation or
+!ionization collisions, the electron energy loss (nominally the threshold energy) in eV. For attachment, the 3rd line is
+!missing. In case of an excitation process where an excited state has been indicated on the 2nd line using double-head
+!arrow "<->", the 3rd line must specify also ratio of the statistical weights of the final state to the initial state
+!as the second parameter in 3rd line this is needed by BOLSIG+ to calculate the de-excitation cross-section. The
+!statistical weight ratio, if given, will also be used by the automatic superelastics option in BOLSIG+. If this ratio is
+!not provided then BOLSIG+ will assume it unity.
+!from 4th line (optionally)
+!User comments and reference information, maximum 100 lines. The only constraint on format is that these comment lines
+!must not start with a number.
+!Finally
+!Table of the cross section as a function of energy. The table starts and ends by a line of dashes "------" (at least 5),
+!and has otherwise two numbers per line: the energy in eV and the cross section in m2.
+!
+!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+!DATABASE:         TRINITI database
+!PERMLINK:         www.lxcat.net/TRINITI
+!DESCRIPTION:      These cross sections retrieved from the EEDF software package for calculations of electron energy
+!                  distribution function developed by Prof. Napartovich A. P. and  Drs. Dyatko N. A., Kochetov I. V.,
+!                  Sukharev A. G. from The State Science Center Troitsk Institute for Innovation and Fusion Research,
+!                  Russia
+!CONTACT:          Contact person is Dr. Igor Kochetov
+!                  kochet@@triniti.ru
+!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+!
+!************************************************************************************************************************
+!
+!
+!********************************************************* CF3I *********************************************************
+!
+!ATTACHMENT
+!CF3I -> CF3 + I-
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> CF3 + I-, Attachment
+!PARAM.:  complete set
+!COMMENT: Marienfeld et al,J.Phys.B: At.Mol. Opt.Phys.39(2006)105–126+corr h eV.
+!UPDATED: 2017-01-18 17:50:58
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+&SRList
+SR(1)%Reaction            =           0,104,1,0.d0,
+SR(1)%EnergySigma     =
+ 0.000000e+0	1.557000e-16
+ 1.252000e-4	1.557000e-16
+ 1.603000e-4	1.304000e-16
+ 1.962000e-4	1.142000e-16
+ 2.687000e-4	9.152000e-17
+ 3.764000e-4	7.335000e-17
+ 5.272000e-4	5.623000e-17
+ 7.220000e-4	4.507000e-17
+ 9.669000e-4	3.612000e-17
+ 1.270000e-3	2.894000e-17
+ 1.770000e-3	2.319000e-17
+ 2.600000e-3	1.701000e-17
+ 4.160000e-3	1.093000e-17
+ 5.960000e-3	7.667000e-18
+ 7.640000e-3	6.422000e-18
+ 9.780000e-3	5.147000e-18
+ 1.280000e-2	4.125000e-18
+ 1.676000e-2	3.305000e-18
+ 2.099000e-2	2.649000e-18
+ 2.627000e-2	2.219000e-18
+ 3.289000e-2	1.859000e-18
+ 3.849000e-2	1.248000e-18
+ 4.712000e-2	8.756000e-19
+ 6.032000e-2	6.422000e-19
+ 7.384000e-2	4.711000e-19
+ 9.244000e-2	3.162000e-19
+ 1.132000e-1	1.859000e-19
+ 1.385000e-1	1.248000e-19
+ 1.734000e-1	7.667000e-20
+ 2.029000e-1	5.147000e-20
+ 2.270000e-1	3.612000e-20
+ 2.540000e-1	2.424000e-20
+ 2.779000e-1	1.628000e-20
+ 3.040000e-1	1.045000e-20
+ 3.326000e-1	6.144000e-21
+ 3.639000e-1	3.612000e-21
+ 3.981000e-1	2.219000e-21
+ 4.259000e-1	1.304000e-21
+ 4.355000e-1	9.152000e-22
+ 4.556000e-1	6.422000e-22
+ 4.765000e-1	4.711000e-22
+ 5.097000e-1	3.305000e-22
+ 1.343000e+0	8.500000e-23
+ 1.563000e+0	7.200000e-23
+ 2.028000e+0	6.500000e-23
+ 2.464000e+0	8.500000e-23
+ 2.868000e+0	1.100000e-22
+ 3.128000e+0	1.500000e-22
+ 3.267000e+0	2.300000e-22
+ 3.486000e+0	3.500000e-22
+ 3.641000e+0	4.600000e-22
+ 3.886000e+0	6.400000e-22
+ 4.238000e+0	7.500000e-22
+ 4.723000e+0	6.100000e-22
+ 5.151000e+0	5.400000e-22
+ 5.740000e+0	5.500000e-22
+ 6.681000e+0	4.900000e-22
+ 7.130000e+0	6.500000e-22
+ 7.287000e+0	2.400000e-22
+ 7.776000e+0	5.500000e-23
+ 8.000000e+0	0.000000e+0
+!-----------------------------
+!
+!EFFECTIVE
+!CF3I
+! 2.778600e-6
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> E + CF3I, Effective
+!PARAM.:  m/M = 0.0000027786, complete set
+!COMMENT: L.G.Christophorou and J.K.Olthoff, J.Phys.Chem.Ref.Data 29,553,2000.
+!UPDATED: 2017-01-18 17:50:58
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+  &SRList
+SR(2)%Reaction            =           0,101,0,0.d0,
+SR(2)%EnergySigma     =
+ 0.000000e+0	2.400000e-18
+ 1.044000e-2	2.372000e-18
+ 1.543000e-2	1.821000e-18
+ 2.486000e-2	1.243000e-18
+ 3.673000e-2	9.269000e-19
+ 5.426000e-2	6.710000e-19
+ 8.192000e-2	5.150000e-19
+ 1.159000e-1	4.193000e-19
+ 1.639000e-1	3.315000e-19
+ 2.221000e-1	2.948000e-19
+ 3.211000e-1	2.330000e-19
+ 4.445000e-1	1.843000e-19
+ 5.642000e-1	1.222000e-19
+ 7.981000e-1	9.106000e-20
+ 1.231000e+0	9.379000e-20
+ 1.819000e+0	1.118000e-19
+ 2.518000e+0	1.415000e-19
+ 3.412000e+0	1.954000e-19
+ 4.622000e+0	2.330000e-19
+ 6.977000e+0	2.400000e-19
+ 9.871000e+0	2.263000e-19
+ 1.396000e+1	2.072000e-19
+ 1.933000e+1	1.897000e-19
+ 2.676000e+1	1.296000e-19
+ 3.786000e+1	6.720000e-20
+ 5.356000e+1	5.760000e-20
+ 7.743000e+1	5.280000e-20
+ 1.119000e+2	4.656000e-20
+ 1.584000e+2	4.032000e-20
+ 2.289000e+2	3.504000e-20
+ 3.382000e+2	2.928000e-20
+ 4.387000e+2	2.496000e-20
+ 5.943000e+2	2.112000e-20
+ 1.000000e+3	1.920000e-20
+!-----------------------------
+!
+!EXCITATION
+!CF3I -> CF3I(v)
+! 1.400000e-1
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> E + CF3I(v), Excitation
+!PARAM.:  E = 0.14 eV, complete set
+!COMMENT: L.G.Christophorou and J.K.Olthoff, J.Phys.Chem.Ref.Data 29,553,2000.
+!UPDATED: 2017-01-18 17:50:58
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+  &SRList
+SR(3)%Reaction            =           0,102,0,0.14d0,
+SR(3)%EnergySigma     =
+ 1.400000e-1	0.000000e+0
+ 1.500000e-1	4.050000e-19
+ 2.000000e-1	3.300000e-19
+ 2.900000e-1	2.490000e-19
+ 3.800000e-1	1.920000e-19
+ 5.700000e-1	1.371000e-19
+ 7.800000e-1	1.050000e-19
+ 1.040000e+0	8.145000e-20
+ 1.380000e+0	6.750000e-20
+ 1.396000e+0	6.648000e-20
+ 1.487000e+0	6.255000e-20
+ 1.578000e+0	5.930000e-20
+ 1.700000e+0	5.637000e-20
+ 1.821000e+0	5.191000e-20
+ 1.943000e+0	4.764000e-20
+ 2.034000e+0	4.455000e-20
+ 2.155000e+0	4.079000e-20
+ 2.337000e+0	3.649000e-20
+ 2.428000e+0	3.307000e-20
+ 2.550000e+0	2.998000e-20
+ 2.793000e+0	2.742000e-20
+ 3.096000e+0	2.536000e-20
+ 3.521000e+0	2.638000e-20
+ 3.855000e+0	2.998000e-20
+ 4.067000e+0	3.529000e-20
+ 4.280000e+0	4.028000e-20
+ 4.462000e+0	4.506000e-20
+ 4.644000e+0	1.012000e-19
+ 4.796000e+0	1.103000e-19
+ 5.099000e+0	1.203000e-19
+ 5.342000e+0	1.291000e-19
+ 5.585000e+0	1.345000e-19
+ 5.980000e+0	1.315000e-19
+ 6.465000e+0	1.256000e-19
+ 6.860000e+0	1.198000e-19
+ 7.315000e+0	1.141000e-19
+ 7.740000e+0	1.083000e-19
+ 8.287000e+0	5.089000e-20
+ 8.651000e+0	4.678000e-20
+ 8.924000e+0	4.181000e-20
+ 9.015000e+0	3.788000e-20
+ 9.137000e+0	3.324000e-20
+ 9.410000e+0	2.896000e-20
+ 9.653000e+0	2.553000e-20
+ 1.014000e+1	2.158000e-20
+ 1.056000e+1	1.867000e-20
+ 1.120000e+1	1.525000e-20
+ 1.184000e+1	1.234000e-20
+ 1.260000e+1	9.425000e-21
+ 1.348000e+1	7.368000e-21
+ 1.424000e+1	5.655000e-21
+ 1.506000e+1	5.311000e-21
+ 1.591000e+1	4.798000e-21
+ 1.663000e+1	4.798000e-21
+ 1.700000e+1	0.000000e+0
+ 1.000000e+2	0.000000e+0
+ 1.000000e+3	0.000000e+0
+!-----------------------------
+!
+!EXCITATION
+!CF3I -> CF3I(e1)
+! 4.700000e+0
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> E + CF3I(e1), Excitation
+!PARAM.:  E = 4.7 eV, complete set
+!COMMENT: Threshold 4.7 eV from L.G.Christophorou et al, s(u) like O2 new n8.
+!UPDATED: 2017-01-18 17:50:58
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+   &SRList
+SR(4)%Reaction            =           0,102,0,4.7d0,
+SR(4)%EnergySigma     = 
+ 4.700000e+0	0.000000e+0
+ 6.170000e+0	1.200000e-21
+ 6.680000e+0	2.800000e-21
+ 7.460000e+0	4.000000e-21
+ 1.151000e+1	5.000000e-21
+ 1.210000e+1	5.100000e-21
+ 1.257000e+1	5.000000e-21
+ 1.964000e+1	3.760000e-21
+ 2.082000e+1	3.560000e-21
+ 2.526000e+1	2.640000e-21
+ 2.589000e+1	2.560000e-21
+ 3.865000e+1	1.360000e-21
+ 4.564000e+1	8.400000e-22
+ 4.765000e+1	6.000000e-22
+ 1.400000e+2	4.000000e-23
+ 1.500000e+2	0.000000e+0
+ 3.000000e+2	0.000000e+0
+!-----------------------------
+!
+!EXCITATION
+!CF3I -> CF3I(e2)
+! 7.200000e+0
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> E + CF3I(e2), Excitation
+!PARAM.:  E = 7.2 eV, complete set
+!COMMENT: Threshold 7.2 eV from L.G.Christophorou et al, s(u) like O2 n2.
+!UPDATED: 2017-01-18 17:50:58
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+     &SRList
+SR(5)%Reaction            =           0,102,0, 7.2d0,
+SR(5)%EnergySigma     = 
+ 7.200000e+0	0.000000e+0
+ 9.400000e+0	3.200000e-21
+ 1.500000e+1	1.600000e-20
+ 3.000000e+1	1.920000e-20
+ 5.000000e+1	1.872000e-20
+ 1.000000e+2	1.504000e-20
+ 1.000000e+3	4.000000e-21
+ 1.100000e+3	0.000000e+0
+!-----------------------------
+!
+!EXCITATION
+!CF3I -> CF3I(e3)
+! 8.100000e+0
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> E + CF3I(e3), Excitation
+!PARAM.:  E = 8.1 eV, complete set
+!COMMENT: Threshold 8.1 eV from L.G.Christophorou et al, s(u) like O2 n2.
+!UPDATED: 2017-01-18 17:50:58
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+   &SRList
+SR(6)%Reaction            =           0,102,0, 8.1d0,
+SR(6)%EnergySigma     = 
+ 8.100000e+0	0.000000e+0
+ 1.040000e+1	5.200000e-21
+ 1.600000e+1	2.600000e-20
+ 3.100000e+1	3.120000e-20
+ 5.100000e+1	3.042000e-20
+ 1.010000e+2	2.444000e-20
+ 1.000000e+3	6.500000e-21
+ 1.100000e+3	0.000000e+0
+!-----------------------------
+!
+!EXCITATION
+!CF3I -> CF3I(e4)
+! 9.000000e+0
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> E + CF3I(e4), Excitation
+!PARAM.:  E = 9 eV, complete set
+!COMMENT: Threshold 9.0 eV from L.G.Christophorou et al, s(u) like O2 n2.
+!UPDATED: 2017-01-18 17:50:58
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+  &SRList
+SR(7)%Reaction            =           0,102,0, 9d0,
+SR(7)%EnergySigma     = 
+ 9.000000e+0	0.000000e+0
+ 1.140000e+1	3.600000e-21
+ 1.700000e+1	1.800000e-20
+ 3.200000e+1	2.160000e-20
+ 5.200000e+1	2.106000e-20
+ 1.020000e+2	1.692000e-20
+ 1.000000e+3	4.500000e-21
+ 1.100000e+3	0.000000e+0
+!-----------------------------
+!
+!EXCITATION
+!CF3I -> CF3I(e5)
+! 9.800000e+0
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> E + CF3I(e5), Excitation
+!PARAM.:  E = 9.8 eV, complete set
+!COMMENT: Threshold 9.8 eV from L.G.Christophorou et al, s(u) like O2 n2.
+!UPDATED: 2017-01-18 17:50:58
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+   &SRList
+SR(8)%Reaction            =           0,102,0,9.8d0,
+SR(8)%EnergySigma     = 
+ 9.800000e+0	0.000000e+0
+ 1.220000e+1	4.800000e-21
+ 1.780000e+1	2.400000e-20
+ 3.280000e+1	2.880000e-20
+ 5.280000e+1	2.808000e-20
+ 1.028000e+2	2.256000e-20
+ 1.000000e+3	6.000000e-21
+ 1.100000e+3	0.000000e+0
+!-----------------------------
+!
+!IONIZATION
+!CF3I -> CF3I(+)
+! 1.023000e+1
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> E + E + CF3I(+), Ionization
+!PARAM.:  E = 10.23 eV, complete set
+!COMMENT: L.G.Christophorou and J.K.Olthoff, J.Phys.Chem.Ref.Data 29,553,2000.
+!UPDATED: 2017-01-18 17:50:58
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+  &SRList
+SR(9)%Reaction            =           0,103,4,10.23d0,
+SR(9)%EnergySigma     = 
+ 1.023000e+1	0.000000e+0
+ 1.200000e+1	1.452000e-21
+ 1.400000e+1	5.220000e-21
+ 1.600000e+1	1.224000e-20
+ 1.800000e+1	2.196000e-20
+ 2.000000e+1	2.832000e-20
+ 2.200000e+1	2.952000e-20
+ 2.400000e+1	3.096000e-20
+ 2.600000e+1	3.264000e-20
+ 2.800000e+1	3.408000e-20
+ 3.000000e+1	3.468000e-20
+ 3.200000e+1	3.528000e-20
+ 3.400000e+1	3.552000e-20
+ 3.600000e+1	3.660000e-20
+ 3.800000e+1	3.744000e-20
+ 4.000000e+1	3.756000e-20
+ 4.500000e+1	3.756000e-20
+ 5.000000e+1	3.804000e-20
+ 5.500000e+1	3.804000e-20
+ 6.000000e+1	3.828000e-20
+ 6.500000e+1	3.828000e-20
+ 7.000000e+1	3.840000e-20
+ 1.000000e+2	3.600000e-20
+ 2.000000e+2	1.800000e-20
+ 3.000000e+2	1.560000e-20
+!-----------------------------
+!
+!IONIZATION
+!CF3I -> CF3(+) + I
+! 1.100000e+1
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> E + E + CF3(+) + I, Ionization
+!PARAM.:  E = 11 eV, complete set
+!COMMENT: L.G.Christophorou and J.K.Olthoff, J.Phys.Chem.Ref.Data 29,553,2000.
+!UPDATED: 2021-03-02 11:49:54
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+   &SRList
+SR(10)%Reaction            =           0,103,3,11d0,
+SR(10)%EnergySigma     = 
+ 1.100000e+1	0.000000e+0
+ 1.200000e+1	2.952000e-22
+ 1.400000e+1	1.174000e-21
+ 1.600000e+1	3.324000e-21
+ 1.800000e+1	6.564000e-21
+ 2.000000e+1	8.640000e-21
+ 2.200000e+1	9.108000e-21
+ 2.400000e+1	9.600000e-21
+ 2.600000e+1	1.022000e-20
+ 2.800000e+1	1.075000e-20
+ 3.000000e+1	1.103000e-20
+ 3.200000e+1	1.128000e-20
+ 3.400000e+1	1.150000e-20
+ 3.600000e+1	1.194000e-20
+ 3.800000e+1	1.236000e-20
+ 4.000000e+1	1.248000e-20
+ 4.500000e+1	1.260000e-20
+ 5.000000e+1	1.296000e-20
+ 5.500000e+1	1.308000e-20
+ 6.000000e+1	1.332000e-20
+ 6.500000e+1	1.332000e-20
+ 7.000000e+1	1.332000e-20
+ 1.000000e+2	1.200000e-20
+ 2.000000e+2	9.600000e-21
+ 3.000000e+2	8.400000e-21
+!-----------------------------
+!
+!IONIZATION
+!CF3I -> CF2I(+) + F
+! 1.200000e+1
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> E + E + CF2I(+) + F, Ionization
+!PARAM.:  E = 12 eV, complete set
+!COMMENT: L.G.Christophorou and J.K.Olthoff, J.Phys.Chem.Ref.Data 29,553,2000.
+!UPDATED: 2021-03-02 11:50:13
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+     &SRList
+SR(11)%Reaction            =           0,103,6,12d0,
+SR(11)%EnergySigma     = 
+ 1.200000e+1	0.000000e+0
+ 1.340000e+1	0.000000e+0
+ 1.400000e+1	0.000000e+0
+ 1.600000e+1	1.932000e-22
+ 1.800000e+1	1.115000e-21
+ 2.000000e+1	2.628000e-21
+ 2.200000e+1	3.756000e-21
+ 2.400000e+1	4.704000e-21
+ 2.600000e+1	5.676000e-21
+ 2.800000e+1	6.660000e-21
+ 3.000000e+1	7.248000e-21
+ 3.200000e+1	8.280000e-21
+ 3.400000e+1	9.000000e-21
+ 3.600000e+1	9.840000e-21
+ 3.800000e+1	1.062000e-20
+ 4.000000e+1	1.110000e-20
+ 4.500000e+1	1.200000e-20
+ 5.000000e+1	1.296000e-20
+ 5.500000e+1	1.356000e-20
+ 6.000000e+1	1.404000e-20
+ 6.500000e+1	1.452000e-20
+ 7.000000e+1	1.488000e-20
+ 1.000000e+2	1.200000e-20
+ 2.000000e+2	1.080000e-20
+ 3.000000e+2	9.600000e-21
+!-----------------------------
+!
+!IONIZATION
+!CF3I -> CF3 + I(+)
+! 1.300000e+1
+!SPECIES: e / CF3I
+!PROCESS: E + CF3I -> E + E + CF3 + I(+), Ionization
+!PARAM.:  E = 13 eV, complete set
+!COMMENT: L.G.Christophorou and J.K.Olthoff, J.Phys.Chem.Ref.Data 29,553,2000.
+!UPDATED: 2021-03-02 11:49:28
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+       &SRList
+SR(12)%Reaction            =           0,103,2,13d0,
+SR(12)%EnergySigma     = 
+ 1.300000e+1	0.000000e+0
+ 1.400000e+1	2.160000e-22
+ 1.600000e+1	7.548000e-22
+ 1.800000e+1	2.496000e-21
+ 2.000000e+1	5.100000e-21
+ 2.200000e+1	7.680000e-21
+ 2.400000e+1	1.049000e-20
+ 2.600000e+1	1.344000e-20
+ 2.800000e+1	1.608000e-20
+ 3.000000e+1	1.788000e-20
+ 3.200000e+1	1.980000e-20
+ 3.400000e+1	2.148000e-20
+ 3.600000e+1	2.340000e-20
+ 3.800000e+1	2.532000e-20
+ 3.800000e+1	2.532000e-20
+ 4.000000e+1	2.652000e-20
+ 4.500000e+1	2.892000e-20
+ 5.000000e+1	3.108000e-20
+ 5.500000e+1	3.216000e-20
+ 6.000000e+1	3.324000e-20
+ 6.500000e+1	3.384000e-20
+ 7.000000e+1	3.468000e-20
+ 1.000000e+2	3.000000e-20
+ 2.000000e+2	2.400000e-20
+ 3.000000e+2	1.800000e-20
+ 4.000000e+2	1.560000e-20
+!-----------------------------
+!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+/

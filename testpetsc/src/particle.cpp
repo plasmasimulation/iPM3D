@@ -644,14 +644,14 @@ double_x=nx-int_x;
 double_y=ny-int_y;
 double_z=nz-int_z;
 
-barray[int_z][int_y][int_x]+=1*double_x*double_y*double_z;
-barray[int_z][int_y][int_x+1]+=1*(1-double_x)*double_y*double_z;
-barray[int_z][int_y+1][int_x]+=1*double_x*(1-double_y)*double_z;
-barray[int_z+1][int_y][int_x]+=1*double_x*double_y*(1-double_z);
-barray[int_z][int_y+1][int_x+1]+=1*(1-double_x)*(1-double_y)*double_z;
-barray[int_z+1][int_y][int_x+1]+=1*(1-double_x)*double_y*(1-double_z);
-barray[int_z+1][int_y+1][int_x]+=1*double_x*(1-double_y)*(1-double_z);
-barray[int_z+1][int_y+1][int_x+1]+=1*(1-double_x)*(1-double_y)*(1-double_z);
+// barray[int_z][int_y][int_x]+=1*double_x*double_y*double_z;
+// barray[int_z][int_y][int_x+1]+=1*(1-double_x)*double_y*double_z;
+// barray[int_z][int_y+1][int_x]+=1*double_x*(1-double_y)*double_z;
+// barray[int_z+1][int_y][int_x]+=1*double_x*double_y*(1-double_z);
+// barray[int_z][int_y+1][int_x+1]+=1*(1-double_x)*(1-double_y)*double_z;
+// barray[int_z+1][int_y][int_x+1]+=1*(1-double_x)*double_y*(1-double_z);
+// barray[int_z+1][int_y+1][int_x]+=1*double_x*(1-double_y)*(1-double_z);
+// barray[int_z+1][int_y+1][int_x+1]+=1*(1-double_x)*(1-double_y)*(1-double_z);
 
 
 
