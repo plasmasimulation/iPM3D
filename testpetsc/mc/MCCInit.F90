@@ -165,6 +165,7 @@ Module ModuleMCCInitialization
                         end do
                     end do
                     Max=MAXVAL(Probility)
+                  
                     Probility=Probility/Max
                     MCB%SigmaMax=Max
                     Call MCB%Dump

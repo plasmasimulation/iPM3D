@@ -25,6 +25,7 @@
 using namespace MathConst;
 extern "C" {
 void getE(double* x, double* y,double* z);
+void MCC(double*x1,double*v1,double*x2,double*v2,double*x3,double*v3,int*flag);
 }
 
 enum{PKEEP,PINSERT,PDONE,PDISCARD,PENTRY,PEXIT,PSURF};  // several files
@@ -621,6 +622,9 @@ if(index>=0)
   // if (precv != NULL)
   // free(precv);
 }
+double x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
+int *flag;
+MCC(x1,v1,x2,v2,x3,v3,flag);
 for (int i = 0; i<nlocal ; i++) {
 if(particles[i].flag==1){
     while(particles[nlocal-1].flag==1&&nlocal>1)

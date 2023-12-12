@@ -1,6 +1,6 @@
 Module ModuleTypeMCC
     Use ModuleParticleOne
-    ! use ModuleParticleOneIndex
+     use ModuleParticleOneIndex
     Use ModuleSpecyOne
     ! use ModuleFileName
     !Use GasModule
@@ -41,7 +41,7 @@ Module ModuleTypeMCC
         
                           Type(ParticleOne) :: POT
                           Integer(4) :: NPONew=0
-                        !   Type(ParticleOneIndex),Allocatable :: PON(:)
+                           Type(ParticleOneIndex),Allocatable :: PON(:)
                     contains
                           procedure :: Select=>SelectMCCParticleOne
                           procedure :: Updater=>UpdateMCCParticleOne

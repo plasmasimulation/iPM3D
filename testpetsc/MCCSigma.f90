@@ -178,6 +178,7 @@ Module ModuleMCCSigma
                                               S2=1.d0-S1
 
                                               SN%Sigma(j,i)=S2*TempRaw%EnergySigma(2,k)+S1*TempRaw%EnergySigma(2,k+1)
+                                            !   write(*,*)"TempRaw%EnergySigma(2,k)",TempRaw%EnergySigma(2,k)
                                           end if
                                     end do
                                     !SR(j)%EnergySigma(2,:)=SR(j)%EnergySigma(2,:)*1.d-20
@@ -215,6 +216,7 @@ Module ModuleMCCSigma
                               End Do
                                 PSum=SUM(PTemp)
                                 SN%Sigma(:,i)=PTemp/PSum
+                                ! write(*,*)"PTemp",PTemp,PSum
                           ENd Do
                      END Associate       
         return

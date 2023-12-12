@@ -51,7 +51,7 @@ Module ModuleMCCInitialization
             Type(GasOne),intent(in),Target :: GO(1:Ng)
              Type(MCCBundle),intent(inout)  :: MCCB(1:Ng)
             real(8) elegas_ratio
-            integer(8) Ns,Ng  
+            integer(4) Ns,Ng  
             Type(SigmaNormalized) :: SN 
             Integer(4) ::  i
             Logical :: Inited
@@ -70,7 +70,7 @@ Module ModuleMCCInitialization
                             
                         !Call UpdateReactionIndex(SN,GO(i))
                          Call ProbilityNonReactive(MCCB(i),SN,SO,GO(i))
-                         MCCB(i)%CollisionRatio=1.d0-DExp(-MCCB(i)%SigmaMax*0.01)
+                         MCCB(i)%CollisionRatio=1.d0-DExp(-MCCB(i)%SigmaMax*1e-10)
                         !  *CF%dt
                 End Do
             ! End Associate
@@ -78,51 +78,57 @@ Module ModuleMCCInitialization
         End subroutine MCCBundleElelctronInit
 
    
-        ! subroutine  MCCBundleIonInit(CF,SO,GO,MCCB) 
-        !     Implicit none
-        !     Class(ControlFlow), intent(in) :: CF
-        !     Type(SpecyOne),intent(in),Target  :: SO(1:CF%Ns)
-        !     Type(GasOne),intent(in),Target  :: GO(1:CF%Ng)
-        !     Type(MCCBundle),intent(inout)  :: MCCB(1:CF%Ns,1:CF%Ng)
-        !     Type(SigmaNormalized) :: SN 
-        !     Integer(4) ::  i,j
-        !     Logical :: Inited
-        !     Associate(Ns=>CF%Ns,Ng=>CF%Ng)
-        !         Do i=1,Ng
-        !                 Do j=1,Ns
-        !                     MCCB(j,i)%SO=>SO(j)
-        !                     MCCB(j,i)%GO=>GO(i)
-        !                     Call UpdateReactionIndex(SN,GO(i),GO(SO(j)%GasIndex))
-        !                     If (SO(j)%GasIndex==i) Then
-        !                             Select Case (GO(i)%CSModel)
-        !                             Case(1)
-        !                                 Call SigmaNormalization(SN,SO(j),GO(i),Inited)
-        !                             Case(2)
-        !                                 Call SigmaNormalizationPegasus(SN,SO(j),GO(i),Inited)
-        !                         ENd Select
-                                
-        !                         If (Inited) Then
-        !                             If(SN%Model==3) Then
-        !                                 Call ProbilityReactive(MCCB(j,i),SN,GO(i),SO(j),CF)
-        !                             Else   
-        !                             Call ProbilityNonReactive(MCCB(j,i),SN,SO(j),GO(i))
-        !                             MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*CF%dt)
-        !                             ENd If
-        !                         Else    
-        !                             Call  ProbilityHardShpere(MCCB(j,i),SN,SO(j),GO(i))
-        !                             MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*CF%dt)
-        !                         ENd If
-        !                     Else
-        !                         !MCCB(j,i)%Model=0
-        !                         Call  ProbilityHardShpere(MCCB(j,i),SN,SO(j),GO(i))
-        !                         MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*CF%dt)
-        !                     ENd IF
+        subroutine  MCCBundleIonInit(Ns,Ng,SO,GO,MCCB) 
+            Implicit none
+            integer(4)::Ns,Ng
+            ! Class(ControlFlow), intent(in) :: CF
+            Type(SpecyOne),intent(in),Target  :: SO(1:Ns)
+            Type(GasOne),intent(in),Target  :: GO(1:Ng)
+            Type(MCCBundle),intent(inout)  :: MCCB(1:Ns,1:Ng)
+            Type(SigmaNormalized) :: SN 
+            Integer(4) ::  i,j
+            Logical :: Inited
+            ! Associate(Ns=>CF%Ns,Ng=>CF%Ng)
+            ! write(*,*)"Ng",Ng,Ns
+                Do i=1,Ng
+                        Do j=1,Ns
+                            MCCB(j,i)%SO=>SO(j)
+                            MCCB(j,i)%GO=>GO(i)
+                            Call UpdateReactionIndex(SN,GO(i),GO(SO(j)%GasIndex))
+                             If (SO(j)%GasIndex==i) Then
+                               
+                                    Select Case (GO(i)%CSModel)
+                                    Case(1)
+                                         Call SigmaNormalization(SN,SO(j),GO(i),Inited)
+                                    Case(2)
+                                         Call SigmaNormalizationPegasus(SN,SO(j),GO(i),Inited)
+                                ENd Select
+                               
+                                If (Inited) Then
+                                    If(SN%Model==3) Then
+                                        Call ProbilityReactive(MCCB(j,i),SN,GO(i),SO(j),Ns,Ng)
+                                    Else   
+                                    Call ProbilityNonReactive(MCCB(j,i),SN,SO(j),GO(i))
+                                    MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*1e-10)
+                                    write(*,*)"SigmaMax",MCCB(j,i)%SigmaMax
+                                    ENd If
+                                Else    
+                                    Call  ProbilityHardShpere(MCCB(j,i),SN,SO(j),GO(i))
+                                    MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*1e-10)
+                                ENd If
+                             Else
+                               
+                                !MCCB(j,i)%Model=0
+                                Call  ProbilityHardShpere(MCCB(j,i),SN,SO(j),GO(i))
+                                MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*1e-10)
+                                !CF%dt
+                            ENd IF
                         
-        !                 End Do
-        !         End DO
-        !     End Associate
-        !     return
-        ! End subroutine MCCBundleIonInit
+                        End Do
+                End DO
+            ! End Associate
+            return
+        End subroutine MCCBundleIonInit
       
         subroutine  ProbilityNonReactive(MCB,SN,SO,GO)
             Implicit none
@@ -139,21 +145,22 @@ Module ModuleMCCInitialization
             MCB%EnergyMin=SN%EnergyMin
             MCB%EnergyInterval=SN%EnergyInterval
             MCB%EnergyMax=10.d0**SN%EnergyMax
-            !If(Allocated(SN%Reaction)) Deallocate(SN%Reaction)
+            If(Allocated(MCB%Reaction)) Deallocate(MCB%Reaction)
             Allocate(MCB%Reaction(SN%NReaction))
             MCB%Reaction=SN%Reaction
-            !If(Allocated(SN%Sigma)) Deallocate(SN%Sigma)
+            If(Allocated(MCB%Probility)) Deallocate(MCB%Probility)
             Allocate(MCB%Probility(SN%NReaction,SN%NSigma))
             Associate(Sigma=>SN%Sigma,Emin=>MCB%EnergyMin,Eint=>MCB%EnergyInterval,Nr=>MCB%NReaction,Ns=>MCB%NSigma,Probility=>MCB%Probility)
                     !Probility=SN%Sigma
                     Miu=SO%Mass*GO%Mass/(SO%Mass+GO%Mass)
-
+                    ! write(*,*)"Miu",Miu
                     do i=1,Ns
                             NEnergy=dble(i-1)
                             Energy=10.d0**(Emin+dble(i-1)*Eint)
                             V=DSqrt(2.d0*Energy*JtoeV/Miu)
                             do j=1,Nr
                                 Probility(j,i)=Sigma(j,i)*V*GO%InitDensity
+                                  
                             end do
                     end do
                     
@@ -166,6 +173,7 @@ Module ModuleMCCInitialization
                     Max=MAXVAL(Probility)
                     Probility=Probility/Max
                     MCB%SigmaMax=Max
+                   
                     ! Call MCB%Dump
             End Associate
             return 

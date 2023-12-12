@@ -50,10 +50,11 @@ Module ModuleReactionOnePegasus
                     !NAMELIST /SRList/ SR
                     
                     !GO%Name="Ar"
-                        
+                   
                     Filename="./input/gas/pegasus/"//Trim(GO%Name)//"/"//Trim(SO%Name)//Trim(GO%Name)//".txt"
 
                     Inquire(file=Filename,exist=Inited)
+                    ! write(*,*)"exist",Inited,GO%Name
                     If(Inited) then
                          OPEN(17,FILE=Filename)
                          Read(17,*) Model,NReaction
@@ -66,6 +67,7 @@ Module ModuleReactionOnePegasus
                             !OPEN(18,FILE=CSname)
                             Call ROP%Load(CSname)
                             Call ROP%Convert2SR(GO%SOP(1:),SR(i))
+                            
                             !close(18)
                         End Do
                            close(17)
@@ -85,6 +87,7 @@ Module ModuleReactionOnePegasus
                         Call SigmaNormalizedInit(SN,2,1)
                           !Inited=.true.
                   End If
+                 
                   return
       End  subroutine SigmaNormalizationPegasus
        
@@ -465,8 +468,10 @@ Module ModuleReactionOnePegasus
                 Integer(4) ::i,j,NSOP
                 logical :: Alive
                 
-                Filename="./input/gas/pegasus/"//Trim(GasName)//"/"//Trim(GasName)//".txt"
+                ! Filename="./input/gas/pegasus/"//Trim(GasName)//"/"//Trim(GasName)//".txt"
+                Filename="./input/gas/pegasus/Ar/Ar.txt"
                 Inquire(file=Filename,exist=alive)
+                ! write(*,*)"Fileopen",alive
                 If(Alive) then
                     Inited=.false.
                     GP%CSModel=2

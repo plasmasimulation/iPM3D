@@ -28,7 +28,7 @@ find_library(HDF5_LIB hdf5 $ENV{PATH_HDF5}/lib)
 find_package(MPI REQUIRED)
 add_library(cxx-call-f-f ${CMAKE_CURRENT_SOURCE_DIR}/FieldInterface.f90 FieldEM.f90 FieldOne.f90 PICFieldCom3d.f90
  MCCinterface.f90 SpecyOne.F90 Constants.F90 ReactionOnePegasus.f90 Numrical.F90  MCCSigma.f90 TypeMCC.f90 ParticleOne.f90
- MCCInit.F90) 
+ MCCInit.F90 ParticleOneIndex.f90 MCCChi.f90 MCCElectron.F90 MCCIon.F90) 
 set_property(TARGET cxx-call-f-f PROPERTY LINKER_LANGUAGE Fortran)
 target_link_libraries(cxx-call-f-f MPI::MPI_Fortran)
 
@@ -48,3 +48,7 @@ target_link_libraries(cxx-call-f-cxx ${PETSc_LIB})
 target_link_libraries(cxx-call-f-cxx ${HDF5_LIB})
 # target_link_libraries(cxx-call-f-cxx ${PETSC_LIBRARIES})
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/run)
+file(COPY
+${CMAKE_CURRENT_SOURCE_DIR}/input/
+    DESTINATION
+    ${PROJECT_SOURCE_DIR}/run/input)
