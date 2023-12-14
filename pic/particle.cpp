@@ -26,6 +26,7 @@ using namespace MathConst;
 extern "C" {
 void getE(double* x, double* y,double* z);
 void MCC(double*x1,double*v1,double*x2,double*v2,double*x3,double*v3,int*flag);
+void weighting(double*x,double*y,double*z,double *weight);
 }
 
 enum{PKEEP,PINSERT,PDONE,PDISCARD,PENTRY,PEXIT,PSURF};  // several files
@@ -625,6 +626,27 @@ if(index>=0)
 double x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
 int *flag;
 MCC(x1,v1,x2,v2,x3,v3,flag);
+   double weight=1;
+// int int_x,int_y,int_z;
+// double double_x,double_y,double_z ;
+int a ;
+ double nx,ny,nz;
+//  a=particle_domain_index(&particles[i]);
+// double xfactor[6];
+//  nx=particles[i].x[0]/dx;
+//  ny=particles[i].x[1]/dy;
+//  nz=particles[i].x[2]/dz;
+//  printf("%d,aa",a);
+ nx=lo[0]+0.1;
+ ny=lo[1]+0.1;
+ nz=lo[2]+0.1;
+ for(int i=0;i<100;i++)
+   weighting(&nx,&ny,&nz,&weight);
+   nx=lo[0]+0.8;
+ ny=lo[1]+0.8;
+ nz=lo[2]+0.8;
+ for(int i=0;i<100;i++)
+   weighting(&nx,&ny,&nz,&weight);
 for (int i = 0; i<nlocal ; i++) {
 if(particles[i].flag==1){
     while(particles[nlocal-1].flag==1&&nlocal>1)
@@ -634,19 +656,16 @@ if(particles[i].flag==1){
      continue;
    }
    //weighting
-int int_x,int_y,int_z;
-double double_x,double_y,double_z ; 
-double nx,ny,nz;
-double xfactor[6];
-nx=particles->x[0]/dx;
-ny=particles->x[1]/dy;
-nz=particles->x[2]/dz;
-int_x=static_cast<int>(std::floor(nx));
-int_y=static_cast<int>(std::floor(ny));
-int_z=static_cast<int>(std::floor(nz));
-double_x=nx-int_x;
-double_y=ny-int_y;
-double_z=nz-int_z;
+
+  //  printf("weighting over");
+   
+
+// int_x=static_cast<int>(std::floor(nx));
+// int_y=static_cast<int>(std::floor(ny));
+// int_z=static_cast<int>(std::floor(nz));
+// double_x=nx-int_x;
+// double_y=ny-int_y;
+// double_z=nz-int_z;
 
 // barray[int_z][int_y][int_x]+=1*double_x*double_y*double_z;
 // barray[int_z][int_y][int_x+1]+=1*(1-double_x)*double_y*double_z;

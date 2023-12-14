@@ -28,7 +28,51 @@ Dielectric::Dielectric(){
     conductivity=0;
 }
 
-
+int create_material_file(int rank){
+     int data[64][64][64];
+     // 创建HDF5文件  
+if(rank==0)
+   {// 创建HDF5文件  
+    hid_t file_id = H5Fcreate("material.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);  
+  
+    // 创建数据集  
+    hsize_t dims[3] = {64,64,64}; // 定义数据集的大小为10  
+    hid_t dataspace_id = H5Screate_simple(3, dims, NULL);  
+    hid_t dataset_id = H5Dcreate2(file_id, "my_dataset", H5T_NATIVE_INT, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);  
+  
+    for(int i=0;i<64;i++)
+    for(int j=0;j<64;j++)
+    for(int k=0;k<64;k++)
+    {if(i==0||i==63)
+      data[i][j][k]=1;
+      else
+      data[i][j][k]=0;
+    }
+    // 写入数据  
+    // int data[5][5][5] =     {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    //                       }, {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+    //                       }, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    //                       }, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    //                       }, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};  
+    herr_t status = H5Dwrite(dataset_id, H5T_NATIVE_INT, dataspace_id, dataspace_id, H5P_DEFAULT, data);  
+  
+    // 关闭数据集、数据空间和文件  
+    status = H5Dclose(dataset_id);  
+    status = H5Sclose(dataspace_id);  
+    status = H5Fclose(file_id);  
+  
+    if (status < 0) {  
+        cerr << "Failed to write data or close file/dataset/dataspace" << endl;  
+        return -1;  
+    }  
+  
+    cout << "Data written to " <<"example.h5" << " successfully!" << endl;  
+  
+   }
+    
+    
+    
+}
  void load_material( int data[5][5][5]){
 
       int rank, size;  

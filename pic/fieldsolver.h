@@ -9,7 +9,7 @@ class FieldSolver{
     PetscMPIInt size, rank;
     PetscScalar v[7];
     MatStencil row, col[7];
-     PetscInt coord_x, coord_y, coord_z, width_x, width_y, width_z;
+     PetscInt coord_x, coord_y, coord_z, width_x, width_y, width_z,Mx,My,Mz;
      double *lo;
      double *hi;
     double ***barray = nullptr,***array=nullptr,***geometry=nullptr;

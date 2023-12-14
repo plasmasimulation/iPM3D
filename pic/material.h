@@ -21,3 +21,4 @@ class  Dielectric :public Material
     Dielectric();
 };
  void load_material(int data[5][5][5]);
+ int create_material_file();
