@@ -65,7 +65,7 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
   
 
   bigint nglobal;           // global # of particles
-  int nlocal;               // # of particles I own
+  bigint nlocal;               // # of particles I own
   int maxlocal;             // max # particles list can hold
   OnePart *particles;       // list of particles I own
 
@@ -120,6 +120,8 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
   void add_species(int, char **);
   void particle_move_comm(double ***barray);
   int particle_domain_index(OnePart* particle );
+  void *srealloc(void *ptr, bigint nbytes, const char *name, int align);
+  void *Particle::smalloc(bigint nbytes, const char *name, int align);
 
 
  protected:

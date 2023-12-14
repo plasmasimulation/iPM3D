@@ -19,6 +19,8 @@
  #include "particle.h"
 #include "math_const.h"
 #include"stdio.h"
+#include"time.h"
+#include<random>
 
 
 
@@ -56,11 +58,13 @@ void CreateParticles::create_local(Particle* particle ,double lo[3],double hi[3]
 
   // int nglocal = grid->nlocal;
   int nglocal =particle->nlocal;
-
-  srand(1);
-   double random_num1 =rand() /( RAND_MAX*1.0); 
-    double random_num2 = rand() /( RAND_MAX*1.0); 
-    double random_num3 = rand() /( RAND_MAX*1.0); 
+srand((unsigned)time(NULL));
+std::random_device e;
+std::uniform_real_distribution<double> randu(0, 1);
+  // srand(1);
+   double random_num1 =randu(e); 
+    double random_num2 = randu(e); 
+    double random_num3 = randu(e); 
   // loop over cells I own
   // only add particles to cells eligible for insertion
   // ntarget = floating point # of particles to create in one cell
@@ -85,11 +89,12 @@ void CreateParticles::create_local(Particle* particle ,double lo[3],double hi[3]
 
   double tempscale = 1.0;
   double sqrttempscale = 1.0;
+  ispecies=0;
 
   double volsum = 0.0;
   bigint nprev = 0;
   icell=0;
-  ncreate=10;
+  ncreate=6000;
   // lo=new double[3];
   // hi=new double[3];
   // lo[0]=0;
@@ -115,7 +120,7 @@ void CreateParticles::create_local(Particle* particle ,double lo[3],double hi[3]
       x[2] =random_num3*2;
         
       // rn = random->uniform();
-      rn =rand() /( RAND_MAX*1.0); 
+      rn =randu(e); 
 
       // isp = 0;
       // while (cummulative[isp] < rn) isp++;

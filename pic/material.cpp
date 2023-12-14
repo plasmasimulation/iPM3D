@@ -108,7 +108,7 @@ if(rank==0)
   
     /* Read data in parallel */  
      status = H5Dread(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);  
-   cout<<" "<<data[1][1][1]<<" hdf5 ";
+  //  cout<<" "<<data[1][1][1]<<" hdf5 ";
     /* Process the data as needed */  
     // ...  
   

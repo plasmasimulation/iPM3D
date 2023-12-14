@@ -11,7 +11,7 @@
 
    See the README file in the top-level SPARTA directory.
 ------------------------------------------------------------------------- */
-
+#define MIN(A,B) ((A) < (B) ? (A) : (B))
 #include "mpi.h"
 #include "math.h"
 #include "string.h"
@@ -19,6 +19,9 @@
 #include "ctype.h"
 #include "particle.h"
 #include "math_const.h"
+#include <cstring> 
+#include<random>
+#include<malloc.h>
 // #include "mixture.h"
 
 // #include "memory.h"
@@ -26,7 +29,7 @@ using namespace MathConst;
 extern "C" {
 void getE(double* x, double* y,double* z);
 void MCC(double*x1,double*v1,double*x2,double*v2,double*x3,double*v3,int*flag);
-void weighting(double*x,double*y,double*z,double *weight);
+void weighting(double*x,double*y,double*z,int *weight);
 }
 
 enum{PKEEP,PINSERT,PDONE,PDISCARD,PENTRY,PEXIT,PSURF};  // several files
@@ -151,7 +154,26 @@ void Particle::init(double lo[3],double hi[3],double dx,double dy,double dz,doub
 
 }
 
+  void  Particle:: add_species(int num, char **name)
+  {
+    
+    species=(Species *)
+    // memory->srealloc(particles,maxlocal*sizeof(OnePart),
+    //                  "particle:particles",SPARTA_GET_ALIGN(OnePart));
+  realloc(species,2*sizeof(Species));
+    for(int i=0;i<num;i++)
+    {
+      
+       strcpy(species[i].id,name[i]);
+      //  printf("%s",species[i].id);
+  }
+  species[0].charge=-1.6022e-19;
+  species[0].mass=9.1095e-31;
+  species[1].charge=1.6022e-19;
+  species[1].mass=39.948*AtomicMass;
 
+
+  }
 
 /* ----------------------------------------------------------------------
    set the initial weight of each particle
@@ -243,20 +265,38 @@ void Particle::post_weight()
 void Particle::grow(int nextra)
 {
   bigint target = (bigint) nlocal + nextra;
+  // maxlocal=100000;
   if (target <= maxlocal) return;
 
   int oldmax = maxlocal;
   bigint newmax = maxlocal;
-  while (newmax < target) newmax += 1234;
+  while (newmax < target) newmax += 42344;
 //DELTA
   // if (newmax > MAXSMALLINT)
   //   error->one(FLERR,"Per-processor particle count is too big");
 
   maxlocal = newmax;
-  particles = (OnePart *)
-    // memory->srealloc(particles,maxlocal*sizeof(OnePart),
+  // particles = (OnePart *)  
+  // realloc(particles,maxlocal*sizeof(OnePart));
+  // memory->srealloc(particles,maxlocal*sizeof(OnePart),
     //                  "particle:particles",SPARTA_GET_ALIGN(OnePart));
-  realloc(particles,maxlocal*sizeof(OnePart));
+    // bigint nbytes=maxlocal*sizeof(OnePart);
+    // int align=64;
+
+   particles = (OnePart *)
+    srealloc(particles,maxlocal*sizeof(OnePart),
+                     "particle:particles",64);
+//  ptr = realloc(ptr,nbytes);
+
+  // if (ptr == NULL) {
+  //   char str[128];
+  //   sprintf(str,"Failed to reallocate " BIGINT_FORMAT " bytes for array %s",
+  //           nbytes,name);
+    // error->one(FLERR,str);
+  // }
+
+
+
   memset(&particles[oldmax],0,(maxlocal-oldmax)*sizeof(OnePart));
 
   // if (ncustom == 0) return;
@@ -266,6 +306,64 @@ void Particle::grow(int nextra)
   //   grow_custom(i,oldmax,maxlocal);
   // }
 }
+
+void *Particle::smalloc(bigint nbytes, const char *name, int align)
+{
+  if (nbytes == 0) return NULL;
+
+  void *ptr;
+
+  if (align) {
+    int retval = posix_memalign(&ptr, align, nbytes);
+    if (retval) ptr = NULL;
+  } else {
+    ptr = malloc(nbytes);
+  }
+
+  if (ptr == NULL) {
+    char str[128];
+    // printf(str,"Failed to allocate " BIGINT_FORMAT " bytes for array %s", nbytes,name);
+    // error->one(FLERR,str);
+  }
+  return ptr;
+}
+
+/* ----------------------------------------------------------------------
+   safe realloc
+------------------------------------------------------------------------- */
+
+void *Particle::srealloc(void *ptr, bigint nbytes, const char *name, int align)
+{
+  if (nbytes == 0) {
+    // destroy(ptr);
+    return NULL;
+  }
+
+  if (align) {
+    ptr = realloc(ptr, nbytes);
+    uintptr_t offset = ((uintptr_t)(const void *)(ptr)) % align;
+    if (offset) {
+      void *optr = ptr;
+      ptr = smalloc(nbytes, name, align);
+#if defined(__APPLE__)
+      memcpy(ptr, optr, MIN(nbytes,malloc_size(optr)));
+#else
+      memcpy(ptr, optr, MIN(nbytes,malloc_usable_size(optr)));
+#endif
+      free(optr);
+    }
+  } else
+    ptr = realloc(ptr,nbytes);
+
+  if (ptr == NULL) {
+    char str[128];
+    // sprintf(str,"Failed to reallocate " BIGINT_FORMAT " bytes for array %s",
+    //         nbytes,name);
+    // error->one(FLERR,str);
+  }
+  return ptr;
+}
+
 
 /* ----------------------------------------------------------------------
    insure species list can hold maxspecies species
@@ -398,16 +496,20 @@ int sendnum,recnum,xyz_np[3],rank,index;
 int **plist,l[6],indexmax[6];
 plist=new int*[6];
 int particle_number_send[2],particle_number_recv[2];
-int negb_rank[6];
+int negb_rank[6],speciesid;
 int boundarytest,temp1,temp2,test[2];
 int offset = 0;
 int nbytes_particle = sizeof(OnePart);
 double Ex,Ey,Ez;
 int int_x,int_y,int_z;
 double double_x,double_y,double_z ; 
-
+double EFactor[2];
+std::random_device e;
+std::uniform_real_distribution<double> randu(0, 1);
+for(int i=0;i<2;i++)
+{EFactor[i]=species[i].charge*species[i].mass*dt/(dx/dt);}
 for(int i = 0; i < 6; i++) {  
-    indexmax[i]=100;
+    indexmax[i]=10000;
     plist[i]=(int*)malloc(indexmax[i]*sizeof(int));
   memset(plist[i],0,indexmax[i]*sizeof(int));
     // plist[i] = new int[indexmax[i]]; 
@@ -438,11 +540,11 @@ for (int i = 0; i<nlocal ; i++) {
   index=particle_domain_index(&particles[i]);
   if(index<0)
     getE(&Ex,&Ey,&Ez);
-
-   double EFactor= ECharge/EMass*dt/(dx/dt);
-   Ex*=EFactor;
-   Ey*=EFactor;
-   Ez*=EFactor;
+speciesid=particles[i].ispecies;
+  //  double EFactor= species[particles[i].ispecies].charge* ECharge/EMass*dt/(dx/dt);
+   Ex*=EFactor[speciesid];
+   Ey*=EFactor[speciesid];
+   Ez*=EFactor[speciesid];
    particles[i].v[0]+=Ex;
    particles[i].v[1]+=Ey;
    particles[i].v[2]+=Ez;
@@ -458,10 +560,11 @@ if(index>=0)
 {
  if(l[index]==indexmax[index])
 {//  { delete[] plist[index];
- 
+
+//  printf("(sizeof(int))*indexmax[index]%d",(sizeof(int))*indexmax[index]);
 //  plist[index]=new int[indexmax[index]];
 //  plist[index]=(int*)malloc((sizeof(int))*indexmax[index]);
-  realloc(plist[index],(sizeof(int))*indexmax[index]);
+  plist[index]=(int*)realloc(plist[index],(sizeof(int))*indexmax[index]*2);
   memset(&plist[index][indexmax[index]],0,indexmax[index]*sizeof(int));
   indexmax[index]=indexmax[index]*2;
 
@@ -547,7 +650,26 @@ for(int dim=0;dim<=2;dim++)
      particles[plist[i+dim*2][j]].flag=1;
         //  printf("plist[i+dim*2][j],%.2f  \t", particles[plist[i+dim*2][j]].v[0]); 
           }        
- }}}
+ }}
+ else
+ {//dealing with boundary  specular reflection
+ if(l[i+dim*2]>=1) 
+ {for(int j=0;j<l[i+dim*2];j++)
+ {
+   if(particles[plist[i+dim*2][j]].x[0]<lo[0]||particles[plist[i+dim*2][j]].x[0]>hi[0])
+   particles[plist[i+dim*2][j]].x[0]=lo[0]+randu(e)*(hi[0]-lo[0]);
+   if(particles[plist[i+dim*2][j]].x[1]<lo[1]||particles[plist[i+dim*2][j]].x[1]>hi[1])
+particles[plist[i+dim*2][j]].x[1]=lo[1]+randu(e)*(hi[1]-lo[1]);
+ if(particles[plist[i+dim*2][j]].x[1]<lo[1]||particles[plist[i+dim*2][j]].x[1]>hi[1])
+particles[plist[i+dim*2][j]].x[2]=lo[2]+randu(e)*(hi[2]-lo[2]);
+
+ }
+ l[i+dim*2]=0;
+
+ }
+  }
+ 
+ }
  for(int i=0;i<=1;i++)
  { if(test[i]==1) {
   //  printf("recv[0]");
@@ -579,10 +701,11 @@ if(test[i]==1)
     //  printf("recv[0],%.2f  \t", particles[nlocal].x[0]); 
  
      double x=9;
+     
       //  memcpy(&precv[i][offset+4*sizeof(int)],&x,sizeof(double));
      memcpy(&particles[nlocal],&(precv[i][offset]),nbytes_particle);
     //  printf("recv[0],%d ,%f \t",nbytes_particle,particles[nlocal].x[0]);
-     
+
 
       offset += nbytes_particle;
        nlocal++;
@@ -608,7 +731,12 @@ if(index>=0)
 // //  plist[index]=new int[indexmax[index]];
 //  realloc(plist[index],(sizeof(int))*indexmax[index]);
 //  memset(plist[index],0,indexmax[index]*sizeof(int));
-  realloc(plist[index],(sizeof(int))*indexmax[index]);
+//  printf("(sizeof(int))*indexmax[index]%d",(sizeof(int))*indexmax[index]);
+//  int a=sizeof(int)*indexmax[index];
+//  plist[index]=new int[indexmax[index]];
+//  plist[index]=(int*)malloc((sizeof(int))*indexmax[index]);
+  plist[index]=(int*)realloc(plist[index],(sizeof(int))*indexmax[index]*2);
+//  plist[index]=(int*) realloc(plist[index],(sizeof(int))*indexmax[index]);
   memset(&plist[index][indexmax[index]],0,indexmax[index]*sizeof(int));
   indexmax[index]=indexmax[index]*2;
  }
@@ -626,7 +754,7 @@ if(index>=0)
 double x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
 int *flag;
 MCC(x1,v1,x2,v2,x3,v3,flag);
-   double weight=1;
+   int weight=1;
 // int int_x,int_y,int_z;
 // double double_x,double_y,double_z ;
 int a ;
@@ -655,7 +783,21 @@ if(particles[i].flag==1){
      nlocal--;
      continue;
    }
+        if(particles[i].x[0]<lo[0]||particles[i].x[0]>hi[0])
+   particles[i].x[0]=lo[0]+randu(e)*(hi[0]-lo[0]);
+   if(particles[i].x[1]<lo[1]||particles[i].x[1]>hi[1])
+particles[i].x[1]=lo[1]+randu(e)*(hi[1]-lo[1]);
+ if(particles[i].x[2]<lo[2]||particles[i].x[2]>hi[2])
+particles[i].x[2]=lo[2]+randu(e)*(hi[2]-lo[2]);
    //weighting
+   weight=particles[i].ispecies;
+  //  weight=0;
+    nx=particles[i].x[0];
+ ny=particles[i].x[1];
+ nz=particles[i].x[2];
+  // printf("%f ,%f ,%f /n",nx,ny,nz);
+//  printf("%f,%f,%f/n",nx,ny,nz);
+ weighting(&nx,&ny,&nz,&weight);
 
   //  printf("weighting over");
    

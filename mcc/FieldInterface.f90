@@ -4,6 +4,7 @@ use ModuleFieldOne
 use ModuleFieldEM
 use ModulePICFieldCom
 use iso_c_binding
+use Constants
 implicit none
     ! real(8),allocatable:: Field(:,:,:,:)
     integer(8):: dimension=3,i,j,k,p,q,m
@@ -154,9 +155,9 @@ subroutine SendPhi( coor_x, coor_y,coor_z,  width_x,  width_y, width_z, phi)bind
 
 end subroutine SendPhi
 
-subroutine weighting(x,y,z,weight)bind(C,name="weighting")
-    real(C_DOUBLE):: x,y,z ,weight
-    integer(8):: int_x,int_y,int_z
+subroutine weighting(x,y,z,species)bind(C,name="weighting")
+    real(C_DOUBLE):: x,y,z,weight
+    integer(c_int):: int_x,int_y,int_z,species
     real(C_DOUBLE):: double_x,double_y,double_z 
     double_x=x
     double_y=y
@@ -168,6 +169,12 @@ subroutine weighting(x,y,z,weight)bind(C,name="weighting")
    double_x=x-int_x
    double_y=y-int_y
    double_z=z-int_z
+   if(species==0) then
+    species=-1
+   end if
+!    write(*,*)species,"species"
+   weight=species*ElectronCharge
+    
  FO%RhoOne(int_x,int_y,int_z)=FO%RhoOne(int_x,int_y,int_z)+weight*double_x*double_y*double_z;
  FO%RhoOne(int_x+1,int_y,int_z)=FO%RhoOne(int_x+1,int_y,int_z)+weight*(1-double_x)*double_y*double_z;
  FO%RhoOne(int_x,int_y+1,int_z)=FO%RhoOne(int_x,int_y+1,int_z)+weight*double_x*(1-double_y)*double_z;
@@ -223,7 +230,7 @@ subroutine getE(x,y,z)bind(C ,name="getE")
     double_x=x-int_x
     double_y=y-int_y
     double_z=z-int_z
-      write(*,*) double_z
+    !   write(*,*) double_z
     VlumFactor(1)=double_x*double_y*double_z
     VlumFactor(2)=(1-double_x)*double_y*double_z
     VlumFactor(3)=double_x*(1-double_y)*double_z

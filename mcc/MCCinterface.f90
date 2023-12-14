@@ -69,7 +69,7 @@ subroutine MCC(x1,v1,x2,v2,x3,v3,flag)bind(C ,name="MCC")
    !   Vx=Vx*VFactor
    !   Vy=Vy*VFactor
    !   Vz=Vz*VFactor
-     write(*,*)One%POT%X
+    !  write(*,*)One%POT%X
    !   PB%VFactor = PB%dx / PB%dt
      VFactor=1
     call  One%POI%VelRes(VFactor)
@@ -79,7 +79,7 @@ subroutine MCC(x1,v1,x2,v2,x3,v3,flag)bind(C ,name="MCC")
      Index=One%ReactionIndex
       ! If (Index>0) Then
      Index=13
-     write(*,*)"11_4",11_4
+    !  write(*,*)"11_4",11_4
     !  MCCBundleGlobal(0,1)%Reaction(Index)=1
           Call  SelectCollisionElectron(One,SpecyGlobal(0),GasGlobal(1),MCCBundleGlobal(0,1)%Reaction(Index))
       ! End If

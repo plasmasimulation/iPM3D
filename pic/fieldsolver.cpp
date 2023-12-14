@@ -146,7 +146,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
                     // v[4] = -1;
                     // v[5] = -1;
                     // v[6] = 6;
-                     cout<<" "<<data[i][j][k]<<' '<<v[6];
+                    //  cout<<" "<<data[i][j][k]<<' '<<v[6];
                     MatSetValuesStencil(A, 1, &row, 7, col, v, INSERT_VALUES);
                     //将泊松方程置入，其中col的i,j,k为变量坐标，row设置第几个方程
                 }
@@ -226,7 +226,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
                 }
                 else {
                       barray[k][j][i] = rho[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z];
-                    //   barray[k][j][i]=0;
+                    //  cout<<barray[k][j][i]<<endl;
                 }
             }
         }
@@ -239,7 +239,8 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
     DMDAVecGetArray(dm,x,&array);
 
    phi=new float[width_x*width_y*width_z];
-     std::ofstream log("./solve/petscphi"+std::to_string(rank)+".txt", std::ios_base::app | std::ios_base::out);
+    //  std::ofstream log("./solve/petscphi"+std::to_string(rank)+".txt", std::ios::trunc std::ios_base::app | std::ios_base::out);
+     std::ofstream log("./solve/petscphi"+std::to_string(rank)+".txt", std::ios::trunc);
      log<< width_x << " " << width_y << " " << width_z << " "<<std::endl;
     //  log<<"电势 存储顺序：先遍历z,再遍历x和y"<<std::endl;
      for (auto i =  coord_x; i < coord_x + width_x; i++) {

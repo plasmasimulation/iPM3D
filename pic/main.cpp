@@ -12,6 +12,7 @@
 #include"particle.h"
 #include"create_particles.h"
 #include"domain.h"
+#include <cstring> 
 //  #include"create_particles.h"
 // #include"sparta.h"
 //  #include"pointers.h"
@@ -64,17 +65,30 @@ int main(int argc, char** argv) {
     dy=1;
     dz=1;
     dt=1;
+    int num =2;
+    char**name;
+    name=new char*[2];
+    name[0]=new char[16];
+    name[1]=new char[16];
+    strcpy(name[0],"electron");
+    strcpy(name[1],"Ar+");
+
  
   Domain* domain=new Domain(xyz_np,Mx,My,Mz,dx,dy,dz,rank);
  MCCBundleInit();
  load_material(data2);
    fieldsolver->initpetsc(Mx, My, Mz, data2,xyz_np);
     particle->init(domain->lo,domain->hi,domain->dx,domain->dy,domain->dz,dt);
+    particle->add_species(num,name);
     particle->grow(50);
     particle->add_particle(id,ispecies,icell,x,v,erot,evib);
      createparticles->create_local(particle,domain->lo,domain->hi);
-     fieldsolver->fieldsolve();
+int step=100 ;//循环100次。
+     for(int i=0;i<step;i++)
+     {fieldsolver->fieldsolve();
       particle->particle_move_comm(fieldsolver->barray);
+       cout<<i<<endl;
+      }
     //   cout<<"first"<<endl;
     //   particle->particle_move_comm();
     //      cout<<"second"<<endl;
