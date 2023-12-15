@@ -11,6 +11,7 @@ use iso_c_binding
  use ModuleSpecyOne
  use ModuleReactionOnePegasus
  use ModuleMCCInitialization
+ use ModuleParticleOne
 implicit none
 Type(MCCBundle),Allocatable :: MCCBundleGlobal(:,:)
 real(8) :: gas_pressure, gas_temperature, ele_temperature,dt
@@ -18,6 +19,8 @@ character(len=99), dimension(1) :: gas_name
 real(8) iongas_ratio,elegas_ratio
 integer(4) model_type,Ng,Ns,collision_section_type
 real(8) ,dimension(1)::gas_ratio
+type(ParticleOne) aParticle
+
 contains
 
 subroutine  MCCBundleInit(coll_ratio)bind(C,name="MCCBundleInit")
@@ -160,7 +163,16 @@ end subroutine
 
 
 
+subroutine InitParticleOne(x1,v1,ispecies)bind(C,name="InitParticleOne")
+   real(c_double) :: x1(3),v1(3)
+   integer(c_int)::ispecies
+   real(8) mass,temperature
+if(ispecies=0) then
+end if
+   
+   ! aParticle%VelMaxInit()
 
+end subroutine
 
 end module MCCInterface
 
