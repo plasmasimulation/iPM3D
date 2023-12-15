@@ -154,7 +154,7 @@ void Particle::init(double lo[3],double hi[3],double dx,double dy,double dz,doub
 
 }
 
-  void  Particle:: add_species(int num, char **name)
+  void  Particle:: add_species(int num, char **name,double *coll_ratio)
   {
     
     species=(Species *)
@@ -165,7 +165,9 @@ void Particle::init(double lo[3],double hi[3],double dx,double dy,double dz,doub
     {
       
        strcpy(species[i].id,name[i]);
+       species[i].coll_ratio=coll_ratio[i];
       //  printf("%s",species[i].id);
+      // printf("%f,collisionratio\n", species[i].coll_ratio);
   }
   species[0].charge=-1.6022e-19;
   species[0].mass=9.1095e-31;
@@ -701,6 +703,11 @@ if(test[i]==1)
     //  printf("recv[0],%.2f  \t", particles[nlocal].x[0]); 
  
      double x=9;
+     int reallocflag = 0;
+  if (nlocal == maxlocal) {
+    grow(1);
+    reallocflag = 1;
+  }
      
       //  memcpy(&precv[i][offset+4*sizeof(int)],&x,sizeof(double));
      memcpy(&particles[nlocal],&(precv[i][offset]),nbytes_particle);
@@ -775,6 +782,7 @@ int a ;
  nz=lo[2]+0.8;
  for(int i=0;i<100;i++)
    weighting(&nx,&ny,&nz,&weight);
+  
 for (int i = 0; i<nlocal ; i++) {
 if(particles[i].flag==1){
     while(particles[nlocal-1].flag==1&&nlocal>1)
@@ -801,7 +809,14 @@ particles[i].x[2]=lo[2]+randu(e)*(hi[2]-lo[2]);
 
   //  printf("weighting over");
    
+ double x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
+int ispecies[3];
+ispecies[0]=particles[i].ispecies;
+ispecies[1]=-1;
+ispecies[2]=-1;
 
+if(randu(e)>species[ispecies[0]].coll_ratio);
+MCC(x1,v1,x2,v2,x3,v3,ispecies);
 // int_x=static_cast<int>(std::floor(nx));
 // int_y=static_cast<int>(std::floor(ny));
 // int_z=static_cast<int>(std::floor(nz));

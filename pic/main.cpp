@@ -23,7 +23,7 @@
 保存在run/solve文件夹内*/
 using namespace std;
  extern "C" {
-  void MCCBundleInit();
+  void MCCBundleInit(double *coll_ratio);
 }
   
 
@@ -37,6 +37,7 @@ int main(int argc, char** argv) {
   int data2[5][5][5];
   int *xyz_np=new int[3]{2,2,2};
   int dx,dy,dz,dt;
+  double *coll_ratio=new double[2];
   // xyz_np={2,2,2};
 
    Particle* particle=new Particle();
@@ -47,14 +48,14 @@ int main(int argc, char** argv) {
      MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
    
   
-   x=new double[3];
-   v=new double[3];
-   x[2]=2;
-   x[0]=1;
-    x[1]=2;
-    v[1]=1;
-    v[2]=2;
-    v[0]=1;
+  //  x=new double[3];
+  //  v=new double[3];
+  //  x[2]=2;
+  //  x[0]=1;
+  //   x[1]=2;
+  //   v[1]=1;
+  //   v[2]=2;
+  //   v[0]=1;
     // CreateParticles createparticles(sparta);
     // 初始化MPI环境
     // parameter set
@@ -75,15 +76,15 @@ int main(int argc, char** argv) {
 
  
   Domain* domain=new Domain(xyz_np,Mx,My,Mz,dx,dy,dz,rank);
- MCCBundleInit();
+ MCCBundleInit(coll_ratio);
  load_material(data2);
    fieldsolver->initpetsc(Mx, My, Mz, data2,xyz_np);
     particle->init(domain->lo,domain->hi,domain->dx,domain->dy,domain->dz,dt);
-    particle->add_species(num,name);
+    particle->add_species(num,name,coll_ratio);
     particle->grow(50);
-    particle->add_particle(id,ispecies,icell,x,v,erot,evib);
+    // particle->add_particle(id,ispecies,icell,x,v,erot,evib);
      createparticles->create_local(particle,domain->lo,domain->hi);
-int step=100 ;//循环100次。
+int step=1 ;//循环100次。
      for(int i=0;i<step;i++)
      {fieldsolver->fieldsolve();
       particle->particle_move_comm(fieldsolver->barray);

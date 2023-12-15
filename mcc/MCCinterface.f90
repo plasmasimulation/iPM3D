@@ -20,8 +20,8 @@ integer(4) model_type,Ng,Ns,collision_section_type
 real(8) ,dimension(1)::gas_ratio
 contains
 
-subroutine  MCCBundleInit()bind(C,name="MCCBundleInit")
-   
+subroutine  MCCBundleInit(coll_ratio)bind(C,name="MCCBundleInit")
+   real(c_double) coll_ratio(2)
  
 gas_pressure=25
 gas_temperature=300
@@ -45,12 +45,13 @@ Ns=1
 Ng=1
    call MCCBundleIonInit(Ns,Ng,SpecyGlobal(1:Ns),GasGlobal(1:Ng),MCCBundleGlobal(1:Ns,1:Ng)) 
 !    write(*,*)"Collisionratio 2 ",MCCBundleGlobal(1,1)%CollisionRatio
-
+coll_ratio(1)=MCCBundleGlobal(0,1)%CollisionRatio
+coll_ratio(2)=MCCBundleGlobal(1,1)%CollisionRatio
  end subroutine MCCBundleInit
 
-subroutine MCC(x1,v1,x2,v2,x3,v3,flag)bind(C ,name="MCC")
+subroutine MCC(x1,v1,x2,v2,x3,v3,ispecies)bind(C ,name="MCC")
     Implicit none
-     real(c_double) :: x1(3),v1(3),x2(3),v2(3),x3(3),v3(3)
+     real(c_double) :: x1(3),v1(3),x2(3),v2(3),x3(3),v3(3),ispecies(3)
      Real(8) :: CollisionRatio,R,VFactor
      integer(8):: flag
      integer(4) Index
@@ -72,6 +73,7 @@ subroutine MCC(x1,v1,x2,v2,x3,v3,flag)bind(C ,name="MCC")
     !  write(*,*)One%POT%X
    !   PB%VFactor = PB%dx / PB%dt
      VFactor=1
+     write(*,*)"output",x1(1);
     call  One%POI%VelRes(VFactor)
      call One%Updater(SpecyGlobal(0),GasGlobal(1))
 

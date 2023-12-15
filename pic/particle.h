@@ -25,6 +25,7 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
     int internaldof;        // 1 if either rotdof or vibdof != 0
     int vibdiscrete_read;   // 1 if species.vib file read for this species
     double magmoment;       // magnetic moment, set by species_modify command
+    double coll_ratio;
   };
 
   struct RotFile {          // extra rotation info read from rotfile
@@ -117,7 +118,7 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
    int add_particle();
    int find_species(char *);
   int clone_particle(int);
-  void add_species(int, char **);
+  void add_species(int, char **,double *);
   void particle_move_comm(double ***barray);
   int particle_domain_index(OnePart* particle );
   void *srealloc(void *ptr, bigint nbytes, const char *name, int align);

@@ -94,7 +94,7 @@ std::uniform_real_distribution<double> randu(0, 1);
   double volsum = 0.0;
   bigint nprev = 0;
   icell=0;
-  ncreate=6000;
+  ncreate=100000;
   // lo=new double[3];
   // hi=new double[3];
   // lo[0]=0;
