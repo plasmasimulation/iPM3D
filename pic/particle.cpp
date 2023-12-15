@@ -655,20 +655,20 @@ for(int dim=0;dim<=2;dim++)
  }}
  else
  {//dealing with boundary  specular reflection
- if(l[i+dim*2]>=1) 
- {for(int j=0;j<l[i+dim*2];j++)
- {
-   if(particles[plist[i+dim*2][j]].x[0]<lo[0]||particles[plist[i+dim*2][j]].x[0]>hi[0])
-   particles[plist[i+dim*2][j]].x[0]=lo[0]+randu(e)*(hi[0]-lo[0]);
-   if(particles[plist[i+dim*2][j]].x[1]<lo[1]||particles[plist[i+dim*2][j]].x[1]>hi[1])
-particles[plist[i+dim*2][j]].x[1]=lo[1]+randu(e)*(hi[1]-lo[1]);
- if(particles[plist[i+dim*2][j]].x[1]<lo[1]||particles[plist[i+dim*2][j]].x[1]>hi[1])
-particles[plist[i+dim*2][j]].x[2]=lo[2]+randu(e)*(hi[2]-lo[2]);
+//  if(l[i+dim*2]>=1) 
+//  {for(int j=0;j<l[i+dim*2];j++)
+//  {
+//    if(particles[plist[i+dim*2][j]].x[0]<lo[0]||particles[plist[i+dim*2][j]].x[0]>hi[0])
+//    particles[plist[i+dim*2][j]].x[0]=lo[0]+randu(e)*(hi[0]-lo[0]);
+//    if(particles[plist[i+dim*2][j]].x[1]<lo[1]||particles[plist[i+dim*2][j]].x[1]>hi[1])
+// particles[plist[i+dim*2][j]].x[1]=lo[1]+randu(e)*(hi[1]-lo[1]);
+//  if(particles[plist[i+dim*2][j]].x[1]<lo[1]||particles[plist[i+dim*2][j]].x[1]>hi[1])
+// particles[plist[i+dim*2][j]].x[2]=lo[2]+randu(e)*(hi[2]-lo[2]);
 
- }
- l[i+dim*2]=0;
+//  }
+//  l[i+dim*2]=0;
 
- }
+//  }
   }
  
  }
@@ -758,9 +758,9 @@ if(index>=0)
   // if (precv != NULL)
   // free(precv);
 }
-double x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
-int *flag;
-MCC(x1,v1,x2,v2,x3,v3,flag);
+// double x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
+// int *flag;
+// MCC(x1,v1,x2,v2,x3,v3,flag);
    int weight=1;
 // int int_x,int_y,int_z;
 // double double_x,double_y,double_z ;
@@ -816,7 +816,8 @@ ispecies[1]=-1;
 ispecies[2]=-1;
 
 if(randu(e)>species[ispecies[0]].coll_ratio);
-MCC(x1,v1,x2,v2,x3,v3,ispecies);
+{//printf("%f,x3",particles[i].x[2]);
+  MCC(particles[i].x,particles[i].v,x2,v2,x3,v3,ispecies);}
 // int_x=static_cast<int>(std::floor(nx));
 // int_y=static_cast<int>(std::floor(ny));
 // int_z=static_cast<int>(std::floor(nz));

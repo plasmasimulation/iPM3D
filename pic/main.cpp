@@ -87,8 +87,8 @@ int main(int argc, char** argv) {
 int step=1 ;//循环100次。
      for(int i=0;i<step;i++)
      {fieldsolver->fieldsolve();
-      particle->particle_move_comm(fieldsolver->barray);
-       cout<<i<<endl;
+       particle->particle_move_comm(fieldsolver->barray);
+      //  cout<<i<<endl;
       }
     //   cout<<"first"<<endl;
     //   particle->particle_move_comm();

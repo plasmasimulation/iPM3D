@@ -13,7 +13,7 @@ use iso_c_binding
  use ModuleMCCInitialization
 implicit none
 Type(MCCBundle),Allocatable :: MCCBundleGlobal(:,:)
-real(8) :: gas_pressure, gas_temperature, ele_temperature
+real(8) :: gas_pressure, gas_temperature, ele_temperature,dt
 character(len=99), dimension(1) :: gas_name
 real(8) iongas_ratio,elegas_ratio
 integer(4) model_type,Ng,Ns,collision_section_type
@@ -29,66 +29,106 @@ ele_temperature=30000
 gas_name(1)="Ar"
 collision_section_type=2
 model_type=2
-Ns=1
+Ns=0
 Ng=1
 gas_ratio(1)=1
+dt=1d-10
 
 
- Allocate(MCCBundleGlobal(0:Ns,Ng))
+
  
  call GasInitPegasus(Ng,Ns,gas_pressure, gas_temperature, ele_temperature, gas_name, gas_ratio, collision_section_type)
- Ns=1
-Ng=1
+ Allocate(MCCBundleGlobal(0:Ns,Ng))
+!  Ns=1
+! Ng=1
  call MCCBundleElelctronInit(Ns,Ng,SpecyGlobal(0),GasGlobal(1:Ng),MCCBundleGlobal(0,1:Ng))
 ! write(*,*)"Collisionratio 1 ",MCCBundleGlobal(0,1)%CollisionRatio
-Ns=1
-Ng=1
+! Ns=1
+! Ng=1
    call MCCBundleIonInit(Ns,Ng,SpecyGlobal(1:Ns),GasGlobal(1:Ng),MCCBundleGlobal(1:Ns,1:Ng)) 
 !    write(*,*)"Collisionratio 2 ",MCCBundleGlobal(1,1)%CollisionRatio
 coll_ratio(1)=MCCBundleGlobal(0,1)%CollisionRatio
 coll_ratio(2)=MCCBundleGlobal(1,1)%CollisionRatio
+! write(*,*)"Ng,Ns",Ng,Ns,"  "
  end subroutine MCCBundleInit
 
 subroutine MCC(x1,v1,x2,v2,x3,v3,ispecies)bind(C ,name="MCC")
     Implicit none
-     real(c_double) :: x1(3),v1(3),x2(3),v2(3),x3(3),v3(3),ispecies(3)
+     real(c_double) :: x1(3),v1(3),x2(3),v2(3),x3(3),v3(3)
      Real(8) :: CollisionRatio,R,VFactor
      integer(8):: flag
-     integer(4) Index
+     integer(c_int) Index,ispecies(3)
      type(MCCParticleOne) :: One
      type(ParticleOne),target::  particle
      Call Random_Number(R)
-     x1(1)=2
-     One%POT%X=x1(1)
-     If (R<CollisionRatio) Then
-       
-        One%POT%X=0
-     end if 
-     particle%X=1
-     particle%Vx=1
+   !   write(*,*)"output",x1(1),x1(2),x1(3),v1(1),v1(2),v1(3);
+   !   x1(1)=2
+   !   One%POT%X=x1(1)
+     particle%X=x1(1)
+     particle%Y=x1(2)
+     particle%Z=x1(3)
+     particle%Vx=v1(1)
+     particle%Vy=v1(2)
+     particle%Vz=v1(3)
       One%POI=>particle
+      VFactor=1.0
+
+     If (ispecies(1)==0) Then
+      call  One%POI%VelRes(VFactor)
+      call One%Updater(SpecyGlobal(0),GasGlobal(1))
+        One%POT%X=0
+        Call SelectProbility(One,MCCBundleGlobal(0,1))
+     Index=One%ReactionIndex
+     Call  SelectCollisionElectron(One,SpecyGlobal(0),GasGlobal(1),MCCBundleGlobal(0,1)%Reaction(Index))
+     if(Index>0) then
+     write(*,*)"Newnumber ispecies(1)",ispecies(1),Index,MCCBundleGlobal(0,1)%Reaction(Index)%ReactionType 
+     end if
+   else
+      call  One%POI%VelRes(VFactor)
+      call One%Updater(SpecyGlobal(1),GasGlobal(1))
+        One%POT%X=0
+        Call SelectProbility(One,MCCBundleGlobal(1,1))
+        Index=One%ReactionIndex
+        Call  SelectCollisionIon(One,SpecyGlobal(1),GasGlobal(1),MCCBundleGlobal(1,1)%Reaction(Index))
+        call One%POI%VelRes(1.d0/VFactor)
+     
+ Index=One%ReactionIndex
+
+     end if 
+
+     x1(1)=particle%X
+     x1(2)=particle%Y
+     x1(3)=particle%Z
+     v1(1)=particle%Vx
+     v1(2)=particle%Vy
+     v1(3)=particle%Vz
+   !   Do m=1,MCCParticleBundle(k)%NPONew
+      ! Call PBIGlobal%AddOne(MCCParticleBundle(k)%PON(m))
+   !   if(One%NPONew>0) then
+     
+   !   end if
    !   Vx=Vx*VFactor
    !   Vy=Vy*VFactor
    !   Vz=Vz*VFactor
     !  write(*,*)One%POT%X
    !   PB%VFactor = PB%dx / PB%dt
-     VFactor=1
-     write(*,*)"output",x1(1);
-    call  One%POI%VelRes(VFactor)
-     call One%Updater(SpecyGlobal(0),GasGlobal(1))
+   !   VFactor=1
+   !   write(*,*)"output",x1(1);
+   !  call  One%POI%VelRes(VFactor)
+   !   call One%Updater(SpecyGlobal(0),GasGlobal(1))
 
-      Call SelectProbility(One,MCCBundleGlobal(0,1))
-     Index=One%ReactionIndex
+   !    Call SelectProbility(One,MCCBundleGlobal(0,1))
+   !   Index=One%ReactionIndex
       ! If (Index>0) Then
-     Index=13
-    !  write(*,*)"11_4",11_4
-    !  MCCBundleGlobal(0,1)%Reaction(Index)=1
-          Call  SelectCollisionElectron(One,SpecyGlobal(0),GasGlobal(1),MCCBundleGlobal(0,1)%Reaction(Index))
-      ! End If
-          Index=113
-          ! MCCBundleGlobal(1,1)%Reaction(Index)=1
-          Call  SelectCollisionIon(One,SpecyGlobal(1),GasGlobal(1),MCCBundleGlobal(1,1)%Reaction(Index))
-      call One%POI%VelRes(1.d0/VFactor)
+   !   Index=13
+   !  !  write(*,*)"11_4",11_4
+   !  !  MCCBundleGlobal(0,1)%Reaction(Index)=1
+         
+   !    ! End If
+   !        Index=113
+   !        ! MCCBundleGlobal(1,1)%Reaction(Index)=1
+   !        Call  SelectCollisionIon(One,SpecyGlobal(1),GasGlobal(1),MCCBundleGlobal(1,1)%Reaction(Index))
+   !    call One%POI%VelRes(1.d0/VFactor)
 
   
     ! ! j is the Particle Index;
