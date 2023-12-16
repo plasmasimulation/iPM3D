@@ -1,5 +1,7 @@
  *.mod  
+ # 忽略 build 文件夹
  /build/  
+ # 忽略 run文件夹
  /run/  
  build*/
  run*/
