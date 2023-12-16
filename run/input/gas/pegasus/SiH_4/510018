@@ -1,0 +1,49 @@
+#eqation:     e+Si_2H_6->Si_2H_4+2H+e
+#
+#update:      2020/03/04 
+#
+#ref[1]:    J. Perrin, J.P.M. Schmitt, G. De Rosny, B. Drevillon,J. Huc and A. Lloret
+#           ``Dissociation cross sections of silane and disilane by electron impact''
+#           Chemical Physics 73 (1982) 383-394
+#
+#ref[2]:    J. R. Doyle, D.A. Doughty, and Alan Gallagher    
+#           ``Plasma chmistry in disilane discharges''
+#           J. Appl. Phys. 71, 4771-4780 (1992)  
+#
+#           (a)Total dissociation cross section of Si2H6 into neutrals : Fig.7 in ref[1]
+#           (b)Probability of Si2H6 dissociation into SiH4 : Fig.8 in ref[1]
+#           (c)From ref[2] branching ratio e + Si2H6 --> H3SiSiH +2H + e      (0.1)
+#                                          e + Si2H6 --> SiH3 + SiH2 + H + e  (0.9)
+#           Then we use (a)*(1-(b))*0.1
+#           
+#           Threshold energy is estimated from the first excited state 7 eV. 
+#
+510018
+e(-)+Si_2H_6->Si_2H_4+2H+e(-)
+7.0
+4
+521   1  1019  10
+ -1   0   +1   +2
+255
+   19
+  13.3   1.7713E-17
+  16.9   1.8570E-17
+  20.5   2.3725E-17
+  27.6   5.3390E-17
+  31.2   6.6627E-17
+  38.3   8.4904E-17
+  41.9   9.1326E-17
+  45.5   9.7388E-17
+  49.0   1.0256E-16
+  52.6   1.0634E-16
+  64.2   1.1323E-16
+  77.7   1.1742E-16
+  81.2   1.1738E-16
+  88.4   1.1678E-16
+  91.9   1.1511E-16
+  95.5   1.1465E-16
+ 102.7   1.1237E-16
+ 109.8   1.1058E-16
+ 113.4   1.1001E-16
+-1
+0.00E+00  0.00E+00  0.00E+00

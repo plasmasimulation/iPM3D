@@ -1,0 +1,547 @@
+&MRList
+Model     =     1,
+NReaction  =    8,
+/
+!LXCat, www.lxcat.net
+!Generated on 04 Apr 2021. All rights reserved.
+!
+!RECOMMENDED REFERENCE FORMAT
+!- Bordage database, www.lxcat.net, retrieved on April 4, 2021.
+!
+!CROSS SECTION DATA FORMAT
+!In downloaded files, each collision process is defined by a block consisting of
+!1st line
+!Keyword in capitals indicating the type of the collision. Possible collision types are elastic, effective, excitation,
+!ionization, or attachment (capital letters required, key words are case sensitive), where "elastic" is used to denote
+!the elastic momentum transfer cross section and where "effective" denotes the total momentum transfer cross section (sum
+!of elastic momentum transfer and total inelastic cross sections).  The latter is useful for solving the Boltzmann
+!equation in the 2-term approximation.
+!2nd line
+!Name of the target particle species. This name is a character string, freely chosen by the user, e.g. "Ar". Optionally
+!for excitation processes, the name of the corresponding excited state can be specified on the same line, separated from
+!the first name either by arrow "->" (dash + greater than) or by double-head arrow "<->" (less than + dash +
+!greater than), e.g. "Ar -> Ar*" and "Ar <-> Ar*", respectively. In the later case BOLSIG+ will automatically
+!define the inverse superelastic process, constructing the superelastic cross-section by detailed balancing, and
+!considering the indicated excited state as the target. In this case, the ratio of statistical weights must be input in
+!the 3rd line (see below).
+!3rd line
+!For elastic and effective collisions, the ratio of the electron mass to the target particle mass. For excitation or
+!ionization collisions, the electron energy loss (nominally the threshold energy) in eV. For attachment, the 3rd line is
+!missing. In case of an excitation process where an excited state has been indicated on the 2nd line using double-head
+!arrow "<->", the 3rd line must specify also ratio of the statistical weights of the final state to the initial state
+!as the second parameter in 3rd line this is needed by BOLSIG+ to calculate the de-excitation cross-section. The
+!statistical weight ratio, if given, will also be used by the automatic superelastics option in BOLSIG+. If this ratio is
+!not provided then BOLSIG+ will assume it unity.
+!from 4th line (optionally)
+!User comments and reference information, maximum 100 lines. The only constraint on format is that these comment lines
+!must not start with a number.
+!Finally
+!Table of the cross section as a function of energy. The table starts and ends by a line of dashes "------" (at least 5),
+!and has otherwise two numbers per line: the energy in eV and the cross section in m2.
+!
+!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+!DATABASE:         Bordage database
+!PERMLINK:         www.lxcat.net/Bordage
+!DESCRIPTION:      All the cross sections were derived by using a multiterm solution of the Boltzmann equation in the
+!                  approximation of the hydrodynamic regime. (see for exemple S茅gur P., Yousfi M., Kadri M. and  Bordage
+!                  M.C., "A survey of the numerical methods currently in use to describe the motion of an electron swarm
+!                  in a weakly ionised gas", Transport Theory and Statistical. Physics, Vol-15, Issue-67, pp-705-757, 
+!                  1986. And S茅gur P. and Bordage M.C., "Recent advances in the solution of the Boltzmann equation for
+!                  the motion of electrons in a weakly ionized gas", Invited paper, XIX ICPIG, Belgrade, 86-107, 1989.)
+!CONTACT:          Marie-Claude Bordage, Laplace Laboratory Toulouse, France. Email:
+!                  marie-claude.bordage@@laplace.univ-tlse.fr
+!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+!
+!************************************************************************************************************************
+!
+!COMMENT: Bordage M.C. and Segur P., quotSwarm determination of electron CHF3 collision cross sectionsquot, ICPIG XXV, 2001,
+!         III, 253, Nagoya (Japan).
+!         Total neutral dissociation (with a scale factor) and total ionisation cross sections came from the recommended values of
+!         Christophorou et al. (J. Chem Phys. Ref Data 1999 26,1 and 28,4).
+!         Over a large energy range, elastic momentum transfer cross sections where calculated by integration of the differential
+!         cross sections (J. Chem Phys. Ref Data 1999 28,4 and references within).
+!         Attachment cross section is based on Kushner et al. work (JAP 2000 88).
+!         The fit of the drift velocity in pure CHF3 and Ar-CHF3 mixtures (Wang et al. Chem Phys Lett 1999 304) and effective
+!         ionisation coefficient in CHF3 (de Urquijo et al. Phys Rev E 1999 60).
+!
+!********************************************************* CHF3 *********************************************************
+!
+!ATTACHMENT
+!CHF3 -> CHF3^-
+!SPECIES: e / CHF3
+!PROCESS: E + CHF3 -> CHF3-, Attachment
+!PARAM.:  E = 0 eV, complete set
+!COMMENT: 11.5 eV threshold.
+!UPDATED: 2010-06-23 12:55:48
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+
+&SRList
+
+SR(1)%Reaction            =           0,14,2,11.5,
+SR(1)%EnergySigma         =
+ 1.150000e+1	0.000000e+0
+ 1.160800e+1	7.720000e-25
+ 1.171900e+1	1.560000e-24
+ 1.182900e+1	2.350000e-24
+ 1.194000e+1	3.140000e-24
+ 1.205000e+1	3.930000e-24
+ 1.216100e+1	4.720000e-24
+ 1.227100e+1	5.510000e-24
+ 1.238200e+1	6.300000e-24
+ 1.249200e+1	7.090000e-24
+ 1.260300e+1	7.880000e-24
+ 1.271400e+1	8.670000e-24
+ 1.282400e+1	9.460000e-24
+ 1.293500e+1	1.020000e-23
+ 1.304500e+1	1.100000e-23
+ 1.315600e+1	1.180000e-23
+ 1.326600e+1	1.260000e-23
+ 1.337700e+1	1.340000e-23
+ 1.348700e+1	1.420000e-23
+ 1.359800e+1	1.500000e-23
+ 1.370900e+1	1.580000e-23
+ 1.381900e+1	1.660000e-23
+ 1.393000e+1	1.740000e-23
+ 1.404000e+1	1.810000e-23
+ 1.415100e+1	1.890000e-23
+ 1.426100e+1	1.970000e-23
+ 1.437200e+1	2.050000e-23
+ 1.448200e+1	2.130000e-23
+ 1.459300e+1	2.210000e-23
+ 1.470400e+1	2.290000e-23
+ 1.481400e+1	2.370000e-23
+ 1.492500e+1	2.450000e-23
+ 1.503500e+1	2.480000e-23
+ 1.514600e+1	2.430000e-23
+ 1.525600e+1	2.370000e-23
+ 1.536700e+1	2.320000e-23
+ 1.547700e+1	2.260000e-23
+ 1.558800e+1	2.210000e-23
+ 1.569800e+1	2.150000e-23
+ 1.580900e+1	2.100000e-23
+ 1.592000e+1	2.040000e-23
+ 1.603000e+1	1.980000e-23
+ 1.614100e+1	1.930000e-23
+ 1.625100e+1	1.870000e-23
+ 1.636200e+1	1.820000e-23
+ 1.647200e+1	1.760000e-23
+ 1.658300e+1	1.710000e-23
+ 1.669300e+1	1.650000e-23
+ 1.680400e+1	1.600000e-23
+ 1.691500e+1	1.540000e-23
+ 1.702500e+1	1.490000e-23
+ 1.713600e+1	1.430000e-23
+ 1.724600e+1	1.380000e-23
+ 1.735700e+1	1.320000e-23
+ 1.746700e+1	1.270000e-23
+ 1.757800e+1	1.210000e-23
+ 1.768800e+1	1.160000e-23
+ 1.779900e+1	1.100000e-23
+ 1.791000e+1	1.050000e-23
+ 1.802000e+1	9.900000e-24
+ 1.813100e+1	9.350000e-24
+ 1.824100e+1	8.790000e-24
+ 1.835200e+1	8.240000e-24
+ 1.846200e+1	7.690000e-24
+ 1.857300e+1	7.140000e-24
+ 1.868300e+1	6.580000e-24
+ 1.879400e+1	6.030000e-24
+ 1.890500e+1	5.480000e-24
+ 1.901500e+1	4.920000e-24
+ 1.912600e+1	4.370000e-24
+ 1.923600e+1	3.820000e-24
+ 1.934700e+1	3.270000e-24
+ 1.945700e+1	2.710000e-24
+ 1.956800e+1	2.160000e-24
+ 1.967800e+1	1.610000e-24
+ 1.978900e+1	1.060000e-24
+ 1.989900e+1	5.030000e-25
+ 2.001000e+1	0.000000e+0
+!-----------------------------
+!
+!ATTACHMENT
+!CHF3 -> CHF3^-
+!SPECIES: e / CHF3
+!PROCESS: E + CHF3 -> CHF3-, Attachment
+!PARAM.:  E = 0 eV, complete set
+!COMMENT: 2.9 eV threshold.
+!UPDATED: 2010-06-23 12:55:23
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+  SR(2)%Reaction            =    0,14,2, 2.9,
+SR(2)%EnergySigma         =
+ 2.900000e+0	0.000000e+0
+ 2.984900e+0	7.950000e-25
+ 3.095500e+0	8.720000e-25
+ 3.206000e+0	9.490000e-25
+ 3.316600e+0	1.030000e-24
+ 3.427100e+0	1.100000e-24
+ 3.537700e+0	1.180000e-24
+ 3.648200e+0	1.260000e-24
+ 3.758800e+0	1.330000e-24
+ 3.869300e+0	1.410000e-24
+ 3.979900e+0	1.490000e-24
+ 4.090500e+0	1.500000e-24
+ 4.201000e+0	1.500000e-24
+ 4.311600e+0	1.500000e-24
+ 4.422100e+0	1.500000e-24
+ 4.532700e+0	1.500000e-24
+ 4.643200e+0	1.500000e-24
+ 4.753800e+0	1.500000e-24
+ 4.864300e+0	1.500000e-24
+ 4.974900e+0	1.500000e-24
+ 5.085400e+0	1.500000e-24
+ 5.196000e+0	1.500000e-24
+ 5.306500e+0	1.500000e-24
+ 5.417100e+0	1.500000e-24
+ 5.527600e+0	1.500000e-24
+ 5.638200e+0	1.500000e-24
+ 5.748700e+0	1.500000e-24
+ 5.859300e+0	1.500000e-24
+ 5.969800e+0	1.500000e-24
+ 6.080400e+0	1.440000e-24
+ 6.191000e+0	1.360000e-24
+ 6.301500e+0	1.270000e-24
+ 6.412100e+0	1.190000e-24
+ 6.522600e+0	1.110000e-24
+ 6.633200e+0	1.030000e-24
+ 6.743700e+0	9.420000e-25
+ 6.854300e+0	8.590000e-25
+ 6.964800e+0	7.760000e-25
+ 7.075400e+0	7.310000e-25
+ 7.185900e+0	7.040000e-25
+ 7.296500e+0	6.760000e-25
+ 7.407000e+0	6.480000e-25
+ 7.517600e+0	6.210000e-25
+ 7.628100e+0	5.930000e-25
+ 7.738700e+0	5.650000e-25
+ 7.849200e+0	5.380000e-25
+ 7.959800e+0	5.100000e-25
+ 8.070400e+0	8.870000e-25
+ 8.180900e+0	1.500000e-24
+ 8.291500e+0	2.100000e-24
+ 8.402000e+0	2.710000e-24
+ 8.512600e+0	3.320000e-24
+ 8.623100e+0	3.930000e-24
+ 8.733700e+0	4.540000e-24
+ 8.844200e+0	5.140000e-24
+ 8.954800e+0	5.750000e-24
+ 9.065300e+0	7.180000e-24
+ 9.175900e+0	9.170000e-24
+ 9.286400e+0	1.120000e-23
+ 9.397000e+0	1.310000e-23
+ 9.507500e+0	1.510000e-23
+ 9.618100e+0	1.710000e-23
+ 9.728600e+0	1.910000e-23
+ 9.839200e+0	2.110000e-23
+ 9.949700e+0	2.310000e-23
+ 1.006000e+1	2.330000e-23
+ 1.017100e+1	2.210000e-23
+ 1.028100e+1	2.090000e-23
+ 1.039200e+1	1.970000e-23
+ 1.050300e+1	1.840000e-23
+ 1.061300e+1	1.720000e-23
+ 1.072400e+1	1.610000e-23
+ 1.083400e+1	1.520000e-23
+ 1.094500e+1	1.440000e-23
+ 1.105500e+1	1.360000e-23
+ 1.116600e+1	1.280000e-23
+ 1.127600e+1	1.200000e-23
+ 1.138700e+1	1.130000e-23
+ 1.149700e+1	1.060000e-23
+ 1.160800e+1	9.950000e-24
+ 1.171900e+1	9.260000e-24
+ 1.182900e+1	8.570000e-24
+ 1.194000e+1	7.880000e-24
+ 1.205000e+1	7.310000e-24
+ 1.216100e+1	6.900000e-24
+ 1.227100e+1	6.480000e-24
+ 1.238200e+1	6.070000e-24
+ 1.249200e+1	5.650000e-24
+ 1.260300e+1	5.240000e-24
+ 1.271400e+1	4.820000e-24
+ 1.282400e+1	4.410000e-24
+ 1.293500e+1	4.000000e-24
+ 1.304500e+1	3.580000e-24
+ 1.315600e+1	3.170000e-24
+ 1.326600e+1	2.750000e-24
+ 1.337700e+1	2.340000e-24
+ 1.348700e+1	1.920000e-24
+ 1.359800e+1	1.510000e-24
+ 1.370900e+1	1.090000e-24
+ 1.381900e+1	6.780000e-25
+ 1.393000e+1	2.640000e-25
+ 1.404000e+1	0.000000e+0
+!-----------------------------
+!
+!ELASTIC
+!CHF3
+! 7.829000e-6
+!SPECIES: e / CHF3
+!PROCESS: E + CHF3 -> E + CHF3, Elastic
+!PARAM.:  m/M = 0.000007829, complete set
+!UPDATED: 2011-02-08 11:53:56
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+  SR(3)%Reaction            =           0,11,0,0.000000e+0,
+SR(3)%EnergySigma         =
+ 0.000000e+0	2.000000e-17
+ 1.000000e-9	2.000000e-17
+ 1.000000e-3	2.000000e-17
+ 5.000000e-3	2.000000e-17
+ 1.000000e-2	2.000000e-17
+ 5.000000e-2	3.000000e-18
+ 1.000000e-1	2.000000e-18
+ 2.000000e-1	1.200000e-18
+ 3.000000e-1	6.600000e-19
+ 4.000000e-1	4.000000e-19
+ 5.000000e-1	2.650000e-19
+ 6.000000e-1	2.400000e-19
+ 7.000000e-1	2.300000e-19
+ 8.000000e-1	2.200000e-19
+ 9.000000e-1	2.100000e-19
+ 1.000000e+0	2.000000e-19
+ 1.500000e+0	1.619000e-19
+ 2.000000e+0	1.350000e-19
+ 3.000000e+0	1.125000e-19
+ 4.000000e+0	1.080000e-19
+ 5.000000e+0	1.000000e-19
+ 6.000000e+0	9.000000e-20
+ 7.000000e+0	1.055000e-19
+ 8.000000e+0	1.400000e-19
+ 9.000000e+0	1.700000e-19
+ 1.000000e+1	2.000000e-19
+ 1.500000e+1	1.600000e-19
+ 2.000000e+1	1.200000e-19
+ 2.500000e+1	1.054000e-19
+ 3.000000e+1	1.013000e-19
+ 6.000000e+1	5.850000e-20
+ 1.000000e+2	2.720000e-20
+!-----------------------------
+!
+!EXCITATION
+!CHF3 -> CHF3(V1)(0.1435ev)
+! 1.435000e-1
+!SPECIES: e / CHF3
+!PROCESS: E + CHF3 -> E + CHF3(V1)(0.1435ev), Excitation
+!PARAM.:  E = 0.1435 eV, complete set
+!COMMENT: vib directe.
+!UPDATED: 2010-06-23 12:52:34
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+  SR(4)%Reaction            =           0,12,0, 0.1435,
+SR(4)%EnergySigma         =
+ 1.435000e-1	0.000000e+0
+ 1.508600e-1	3.000000e-21
+ 1.535000e-1	3.267800e-21
+ 1.635000e-1	3.909200e-21
+ 2.035000e-1	4.404200e-21
+ 2.235000e-1	4.317400e-21
+ 2.635000e-1	4.025600e-21
+ 3.135000e-1	3.645800e-21
+ 3.635000e-1	3.314400e-21
+ 4.635000e-1	2.799800e-21
+ 5.635000e-1	2.428600e-21
+ 6.635000e-1	2.149900e-21
+ 7.635000e-1	1.933000e-21
+ 8.635000e-1	1.759100e-21
+ 9.635000e-1	1.616400e-21
+ 1.063500e+0	1.497000e-21
+ 1.463500e+0	1.164800e-21
+ 1.663500e+0	1.052200e-21
+ 2.063500e+0	8.855000e-22
+ 2.563500e+0	7.433000e-22
+ 3.063500e+0	6.431000e-22
+ 4.063500e+0	5.103000e-22
+ 5.063500e+0	4.255000e-22
+ 6.063500e+0	3.664000e-22
+ 7.063500e+0	3.225000e-22
+ 8.063500e+0	2.887000e-22
+ 9.063500e+0	2.616000e-22
+ 1.006350e+1	2.395000e-22
+ 1.406350e+1	1.804000e-22
+ 1.606350e+1	1.610000e-22
+ 2.006350e+1	1.331000e-22
+ 2.506350e+1	1.099000e-22
+ 3.006350e+1	9.390000e-23
+ 4.006350e+1	7.320000e-23
+ 5.006350e+1	6.030000e-23
+ 6.006350e+1	5.140000e-23
+ 7.006350e+1	4.490000e-23
+ 8.006350e+1	3.990000e-23
+ 9.006350e+1	3.600000e-23
+ 1.000635e+2	0.000000e+0
+!-----------------------------
+!
+!EXCITATION
+!CHF3 -> CHF3(V2)(0.1708eV)
+! 1.708000e-1
+!SPECIES: e / CHF3
+!PROCESS: E + CHF3 -> E + CHF3(V2)(0.1708eV), Excitation
+!PARAM.:  E = 0.1708 eV, complete set
+!COMMENT: vib directe.
+!UPDATED: 2010-06-23 12:52:58
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+  SR(5)%Reaction            =           0,12,0, 0.1708,
+SR(5)%EnergySigma         =
+ 1.708000e-1	0.000000e+0
+ 1.709000e-1	1.000000e-26
+ 1.718000e-1	1.426500e-20
+ 1.739600e-1	2.000000e-20
+ 1.828600e-1	4.000000e-20
+ 1.961600e-1	6.000000e-20
+ 2.118000e-1	7.032100e-20
+ 2.618000e-1	8.047800e-20
+ 3.118000e-1	8.062300e-20
+ 4.118000e-1	7.460000e-20
+ 5.118000e-1	6.769600e-20
+ 6.118000e-1	6.161200e-20
+ 7.118000e-1	5.646200e-20
+ 8.118000e-1	5.211400e-20
+ 9.118000e-1	4.841500e-20
+ 1.011800e+0	4.523700e-20
+ 1.411800e+0	3.603500e-20
+ 1.611800e+0	3.280200e-20
+ 2.011800e+0	2.792600e-20
+ 2.511800e+0	2.367500e-20
+ 3.011800e+0	2.063100e-20
+ 4.011800e+0	1.653400e-20
+ 5.011800e+0	1.388200e-20
+ 6.011800e+0	1.201200e-20
+ 7.011800e+0	1.061800e-20
+ 8.011800e+0	9.533400e-21
+ 9.011800e+0	8.664400e-21
+ 1.001180e+1	7.951100e-21
+ 1.401180e+1	6.027900e-21
+ 1.601180e+1	5.395300e-21
+ 2.001180e+1	4.477700e-21
+ 2.501180e+1	3.711200e-21
+ 3.001180e+1	3.180400e-21
+ 4.001180e+1	2.489200e-21
+ 5.001180e+1	2.055700e-21
+ 6.001180e+1	1.756900e-21
+ 7.001180e+1	1.537700e-21
+ 8.001180e+1	1.369600e-21
+ 9.001180e+1	1.236300e-21
+ 1.000118e+2	1.127800e-21
+!-----------------------------
+!
+!EXCITATION
+!CHF3 -> CHF3*(3.1eV)
+! 3.100000e+0
+!SPECIES: e / CHF3
+!PROCESS: E + CHF3 -> E + CHF3*(3.1eV), Excitation
+!PARAM.:  E = 3.1 eV, complete set
+!COMMENT: excres res.
+!UPDATED: 2010-06-23 12:53:25
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+  SR(6)%Reaction            =           0,12,0, 3.1,
+SR(6)%EnergySigma         =
+ 3.100000e+0	0.000000e+0
+ 3.200000e+0	6.000000e-23
+ 3.390000e+0	1.440000e-22
+ 3.600000e+0	4.000000e-22
+ 3.780000e+0	9.000000e-22
+ 3.980000e+0	1.800000e-21
+ 4.160000e+0	2.060000e-21
+ 4.370000e+0	3.450000e-21
+ 4.540000e+0	4.000000e-21
+ 4.750000e+0	4.400000e-21
+ 4.940000e+0	4.600000e-21
+ 5.120000e+0	4.730000e-21
+ 5.330000e+0	4.700000e-21
+ 5.510000e+0	4.300000e-21
+ 5.740000e+0	3.700000e-21
+ 5.920000e+0	3.200000e-21
+ 6.120000e+0	2.650000e-21
+ 6.320000e+0	2.100000e-21
+ 6.530000e+0	1.600000e-21
+ 6.700000e+0	1.200000e-21
+ 6.930000e+0	9.000000e-22
+ 7.110000e+0	7.000000e-22
+ 7.350000e+0	5.000000e-22
+ 7.530000e+0	4.000000e-22
+ 7.730000e+0	3.000000e-22
+ 7.950000e+0	2.000000e-22
+ 8.120000e+0	1.500000e-22
+ 8.360000e+0	1.000000e-22
+ 8.560000e+0	6.000000e-23
+ 8.800000e+0	4.000000e-23
+ 9.000000e+0	2.700000e-23
+ 9.100000e+0	0.000000e+0
+!-----------------------------
+!
+!EXCITATION
+!CHF3 -> CHF3*(11.00eV)
+! 1.100000e+1
+!SPECIES: e / CHF3
+!PROCESS: E + CHF3 -> E + CHF3*(11.00eV), Excitation
+!PARAM.:  E = 11 eV, complete set
+!COMMENT: Diss neutre.
+!UPDATED: 2010-06-23 12:53:46
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+   SR(7)%Reaction            =           0,12,0,11,
+SR(7)%EnergySigma         =
+ 1.100000e+1	0.000000e+0
+ 1.110000e+1	1.000000e-24
+ 1.500000e+1	5.000000e-22
+ 2.000000e+1	9.100000e-22
+ 2.500000e+1	1.920000e-21
+ 3.000000e+1	2.870000e-21
+ 3.500000e+1	3.390000e-21
+ 4.000000e+1	3.850000e-21
+ 5.000000e+1	5.550000e-21
+ 6.000000e+1	6.600000e-21
+ 7.000000e+1	7.050000e-21
+ 8.000000e+1	6.970000e-21
+ 9.000000e+1	7.840000e-21
+ 1.000000e+2	8.000000e-21
+ 1.100000e+2	8.460000e-21
+ 1.200000e+2	7.990000e-21
+ 1.300000e+2	7.890000e-21
+ 1.400000e+2	7.830000e-21
+ 1.500000e+2	7.340000e-21
+ 1.600000e+2	7.610000e-21
+ 1.700000e+2	7.510000e-21
+ 1.800000e+2	7.730000e-21
+ 1.900000e+2	7.420000e-21
+ 2.000000e+2	7.750000e-21
+!-----------------------------
+!
+!IONIZATION
+!CHF3 -> CHF3^+
+! 1.480000e+1
+!SPECIES: e / CHF3
+!PROCESS: E + CHF3 -> E + E + CHF3+, Ionization
+!PARAM.:  E = 14.8 eV, complete set
+!COMMENT: Ionisation Total.
+!UPDATED: 2010-03-13 12:23:30
+!COLUMNS: Energy (eV) | Cross section (m2)
+!-----------------------------
+  SR(8)%Reaction            =           0,13,1, 14.8,
+SR(8)%EnergySigma         =
+ 1.480000e+1	0.000000e+0
+ 1.481000e+1	2.500000e-22
+ 1.500000e+1	4.000000e-22
+ 1.800000e+1	1.000000e-21
+ 2.000000e+1	2.700000e-21
+ 2.500000e+1	1.030000e-20
+ 3.000000e+1	1.940000e-20
+ 3.500000e+1	2.880000e-20
+ 4.000000e+1	3.720000e-20
+ 4.500000e+1	4.450000e-20
+ 5.000000e+1	5.110000e-20
+ 6.000000e+1	5.990000e-20
+ 7.000000e+1	6.630000e-20
+ 8.000000e+1	6.970000e-20
+ 9.000000e+1	7.210000e-20
+ 1.000000e+2	7.330000e-20
+ 1.100000e+2	7.460000e-20
+ 1.200000e+2	7.500000e-20
+!-----------------------------
+!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  /

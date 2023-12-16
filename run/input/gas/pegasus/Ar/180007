@@ -1,0 +1,46 @@
+##eqation:     e+Ar->Ar(*12.900eV)+e
+##type:        
+##unit:        eV, cm2
+##date:        2002/07/24
+##method:      numerical table
+##
+##             Y. Nakamura, Private Communication (2001)
+##             Y. Nakamura et al,
+##             1989 Technical Paper of Electrical Discharge,
+##             IEE, ED-89-72
+##             Data in above reference is based on A. Chutjian 
+##             and D.C. Cartwright, Phys. Rev. A23, 2178-2193 (1981)
+##ref.table:
+##ref.range:
+#
+180007
+e(-)+Ar->Ar(*)+e(-)
+12.900
+3
+180   1   186
+ -1   0    +1
+100
+ 21
+   1.290E+01  1.000E-30
+   1.300E+01  3.000E-19
+   1.310E+01  9.000E-19
+   1.340E+01  3.150E-18
+   1.400E+01  7.000E-18
+   1.500E+01  1.500E-17
+   1.600E+01  2.400E-17
+   1.700E+01  3.200E-17
+   1.800E+01  4.000E-17
+   2.000E+01  5.000E-17
+   2.200E+01  5.300E-17
+   2.500E+01  5.300E-17
+   3.000E+01  5.200E-17
+   3.500E+01  5.000E-17
+   4.000E+01  4.800E-17
+   5.000E+01  4.300E-17
+   6.000E+01  4.000E-17
+   7.000E+01  3.700E-17
+   8.000E+01  3.300E-17
+   1.000E+02  2.800E-17
+   1.200E+02  2.500E-17
+-1
+0.00E+00  0.00E+00  0.00E+00

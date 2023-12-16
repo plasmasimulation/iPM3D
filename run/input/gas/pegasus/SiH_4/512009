@@ -1,0 +1,17 @@
+##eqation:     SiH_3(-)+Si_2H_4(+)->SiH_3+2SiH_2
+##
+##ref.auth:    G.J. Nienhuis, W.J. Goedheer, 
+##             E.A.G. Hamers, W.G.J.H.M. van Sark, and J. Bezemer
+##ref.journal: J. Appl. Phys. 82, 2060 (1997)
+##
+512009
+SiH_3(-)+Si_2H_4(+)->SiH_3+2SiH_2
+0.0
+4
+526  515   514   519
+ -1   -1    +1    +2
+10
+ 1
+   0.0e-01    0.0e-18
+ 1
+1.00E-07  0.00E+00   0.00E+00

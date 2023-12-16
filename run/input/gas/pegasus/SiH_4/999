@@ -1,0 +1,17 @@
+##eqation:     SiH_3(+*)+SiH_4->SiH_3(+)+SiH_4(*)
+##type:        H - transfer
+##unit:        eV, cm2
+##date:        1999/11/11
+##method:      numerial table
+##
+##ref.auth:    J.M.S.Henis and G.W.Stewart and M.K.Tripodi and P.P.Gasper
+##ref.title:   Ion-Molecule Reactions in Silane
+##ref.journal: The Journal of Chemical Physics 57,1(1972)389-398
+##ref.table:   Table V
+##ref.range:   400K (one point)
+##
+##extrapolation: - 0.05eV -
+  3     
+0.01     2.90e-14
+0.05     2.90e-14
+1000.0   2.90e-14

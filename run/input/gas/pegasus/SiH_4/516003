@@ -1,0 +1,24 @@
+##equation:     SiH_4+OH->SiH_3+H_2O
+##
+##ref.title: RF discharge modelling in a N2O/SiH4 mixture for SiO2 deposition and comparison with experiment
+##ref.auth: K Radouane et al    
+##            
+##ref.journal: J. Phys. D: Appl. Phys. 33 1332-1341 (2000)
+##
+##ref.title: Plasma chemistry of He/O2/SiH4 and He/N2O/SiH4 mixture for remotes plasma-activated 
+##           chemical-vapor deposition of silicon dioxide.
+##ref.auth: Mark J. Kushner
+##            
+##ref.journal: J. Appl. Phys. 74(11) 6538-6553 (1993)
+##
+516003
+SiH_4+OH->SiH_3+H_2O
+0.0
+4
+510   88   514    89
+ -1   -1    +1    +1
+10
+ 1
+   0.0e-01    0.0e-18
+ 1
+1.3e-11  0.00E+00   0.00E+00

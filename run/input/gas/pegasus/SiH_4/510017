@@ -1,0 +1,43 @@
+#eqation:     e+Si_2H_6->SiH_4+SiH_2+e
+#
+#update:      2020/03/04 
+#
+#ref :      J. Perrin, J.P.M. Schmitt, G. De Rosny, B. Drevillon,J. Huc and A. Lloret
+#           ``Dissociation cross sections of silane and disilane by electron impact''
+#           Chemical Physics 73 (1982) 383-394
+#
+#           (a)Total dissociation cross section of Si2H6 into neutrals : Fig.7 in ref.
+#           (b)Probability of Si2H6 dissociation into SiH4 : Fig.8 in ref.
+#           Then we use (a)*(b)
+#           
+#           Threshold energy is estimated from the first excited state 7 eV. 
+#
+510017
+e(-)+Si_2H_6->SiH_4+SiH_2+e(-)
+7.0
+4
+521   1  510   519
+ -1   0   +1   +1
+255
+   19
+  13.3   5.0517E-16
+  16.9   7.5520E-16
+  20.5   9.7475E-16
+  27.6   1.1701E-15
+  31.2   1.2847E-15
+  38.3   1.3600E-15
+  41.9   1.3827E-15
+  45.5   1.4201E-15
+  49.0   1.4424E-15
+  52.6   1.4666E-15
+  64.2   1.4587E-15
+  77.7   1.3558E-15
+  81.2   1.3312E-15
+  88.4   1.2882E-15
+  91.9   1.2549E-15
+  95.5   1.2355E-15
+ 102.7   1.1843E-15
+ 109.8   1.1402E-15
+ 113.4   1.1219E-15
+-1
+0.00E+00  0.00E+00  0.00E+00

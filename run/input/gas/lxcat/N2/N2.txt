@@ -1,0 +1,9 @@
+&GasPhysicsfile
+ GP%Name      =           N2,
+ GP%MCModel   =           1,
+ GP%NAtom     =           2,
+ GP%Ns        =           2,
+ GP%Mass      =           28.01,
+ GP%Radius    =           330.d-12,
+ GP%SP(1)     =  N2+,2,1,28.01,330.d-12,
+ / 

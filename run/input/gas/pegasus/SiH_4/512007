@@ -1,0 +1,29 @@
+##eqation:     SiH_3+SiH_3->SiH_4+SiH_2
+##
+##ref.auth:    G.J. Nienhuis, W.J. Goedheer, 
+##             E.A.G. Hamers, W.G.J.H.M. van Sark, and J. Bezemer
+##ref.journal: J. Appl. Phys. 82, 2060 (1997)
+## rate constant : 1.5E-10
+##
+##
+#  Mark J. Kushner
+#  A model for the discharge kinetics and plasma chemistry during plasma
+#  enhanced chemical vapor deposition of amorphous silicon
+#  J. Appl. Phys. 63(8), 1988  Table III
+## rate constant : 7.0E-12
+#  Changed the rate constant from 1.5E-10 to 7.0E-12 (2015/8/18)
+#
+### From NIST review:  
+### rate constant : 3.0E-11
+###  Changed the rate constant from 7.0E-12 to 3.0E-11 (2017/6/7)
+512007
+SiH_3+SiH_3->SiH_4+SiH_2
+0.0
+4
+514  514  510   519
+ -1  -1   +1    +1
+255
+ 1
+   0.0e-01    0.0e-18
+ 1
+3.0E-11  0.00E+00   0.00E+00

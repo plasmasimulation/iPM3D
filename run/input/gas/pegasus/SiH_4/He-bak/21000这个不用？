@@ -1,0 +1,40 @@
+#
+# recombination  He(+)+H(-)->He+H
+#
+##equation:    He(+)+H(-)->He+H
+##type:        recombination
+##method:      digitalize from scanned figure
+##ref.auth:    Ronald E. Olson, James R. Peterson, and John Moseley
+##ref.title:   Ion=Ion Recombination Total Cross Sections -- Atomic Species
+##ref.journal: The Journal of Chemical Physics
+##ref.fig:     Fig.3
+21000
+He(+)+H(-)->He+H
+0.0
+4
+ 21  18  20  10
+ -1  -1  +1  +1
+6
+20
+    1.565 9.8168e-14
+     2.028 8.5539e-14
+    2.5468 7.7308e-14
+    4.1446 6.0881e-14
+    5.8747 5.2698e-14
+    8.7292 4.3024e-14
+    13.534 3.6995e-14
+    21.332 3.0666e-14
+    39.098 2.4351e-14
+     57.06 2.1395e-14
+    117.71 1.7385e-14
+    218.23  1.497e-14
+    374.96 1.3366e-14
+    736.95 1.1858e-14
+    1362.5  1.091e-14
+    2518.2 1.0111e-14
+    4523.2 9.0972e-15
+    7098.6 8.3586e-15
+     12566 7.4644e-15
+     18310 6.8041e-15
+-1
+0.0 0.0 0.0

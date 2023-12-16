@@ -44,13 +44,13 @@ Module ModuleMCCInitialization
         ! end subroutine MCCBundleRelease
 
     
-        subroutine  MCCBundleElelctronInit(Ns,Ng,SO,GO,MCCB)
+        subroutine  MCCBundleElelctronInit(Ns,Ng,dt,SO,GO,MCCB)
             Implicit none
             ! Class(ControlFlow), intent(in) :: CF
             Type(SpecyOne),intent(in),Target  :: SO
             Type(GasOne),intent(in),Target :: GO(1:Ng)
              Type(MCCBundle),intent(inout)  :: MCCB(1:Ng)
-            real(8) elegas_ratio
+            real(8) elegas_ratio,dt
             integer(4) Ns,Ng  
             Type(SigmaNormalized) :: SN 
             Integer(4) ::  i
@@ -70,7 +70,7 @@ Module ModuleMCCInitialization
                             
                         !Call UpdateReactionIndex(SN,GO(i))
                          Call ProbilityNonReactive(MCCB(i),SN,SO,GO(i))
-                         MCCB(i)%CollisionRatio=1.d0-DExp(-MCCB(i)%SigmaMax*1e-10)
+                         MCCB(i)%CollisionRatio=1.d0-DExp(-MCCB(i)%SigmaMax*dt)
                         !  *CF%dt
                 End Do
             ! End Associate
@@ -78,7 +78,7 @@ Module ModuleMCCInitialization
         End subroutine MCCBundleElelctronInit
 
    
-        subroutine  MCCBundleIonInit(Ns,Ng,SO,GO,MCCB) 
+        subroutine  MCCBundleIonInit(Ns,Ng,dt,SO,GO,MCCB) 
             Implicit none
             integer(4)::Ns,Ng
             ! Class(ControlFlow), intent(in) :: CF
@@ -87,6 +87,7 @@ Module ModuleMCCInitialization
             Type(MCCBundle),intent(inout)  :: MCCB(1:Ns,1:Ng)
             Type(SigmaNormalized) :: SN 
             Integer(4) ::  i,j
+            real(8):: dt
             Logical :: Inited
             ! Associate(Ns=>CF%Ns,Ng=>CF%Ng)
             ! write(*,*)"Ng",Ng,Ns
@@ -109,18 +110,18 @@ Module ModuleMCCInitialization
                                         Call ProbilityReactive(MCCB(j,i),SN,GO(i),SO(j),Ns,Ng)
                                     Else   
                                     Call ProbilityNonReactive(MCCB(j,i),SN,SO(j),GO(i))
-                                    MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*1e-10)
+                                    MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*dt)
                                     write(*,*)"SigmaMax",MCCB(j,i)%SigmaMax
                                     ENd If
                                 Else    
                                     Call  ProbilityHardShpere(MCCB(j,i),SN,SO(j),GO(i))
-                                    MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*1e-10)
+                                    MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*dt)
                                 ENd If
                              Else
                                
                                 !MCCB(j,i)%Model=0
                                 Call  ProbilityHardShpere(MCCB(j,i),SN,SO(j),GO(i))
-                                MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*1e-10)
+                                MCCB(j,i)%CollisionRatio=1.d0-DExp(-MCCB(j,i)%SigmaMax*dt)
                                 !CF%dt
                             ENd IF
                         

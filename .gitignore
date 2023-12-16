@@ -1,4 +1,6 @@
-# *.mod
+ *.mod  
+ /build  
+ /run  
 
 # sudo rm /var/lib/dpkg/info/amdgpu-dkms*
 # sudo dpkg --configure -D 777 amdgpu-dkms

@@ -1,0 +1,18 @@
+##equation:     SiH_2+Si->Si_2H_2
+##
+#  Mark J. Kushner
+#  A model for the discharge kinetics and plasma chemistry during plasma
+#  enhanced chemical vapor deposition of amorphous silicon
+#  J. Appl. Phys. 63(8), 1988  Table III
+##
+515031
+SiH_2+Si->Si_2H_2
+0.0
+3
+519  140  528
+ -1   -1    +1
+255
+ 1
+   0.0e-01    0.0e-18
+ 1
+4.53E-13  0.00E+00   0.00E+00

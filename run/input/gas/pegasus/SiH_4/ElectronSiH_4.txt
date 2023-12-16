@@ -1,0 +1,12 @@
+1  11
+510000  elastic   0       
+510004  excitation  0.11822 
+510003  excitation  0.27141 
+510002  attachment  6.417  
+510006  excitation  8.4  
+510007  excitation  8.4  
+510008  excitation  8.4  
+510009  ionization  12.0   
+510001  ionization  13.0   
+510005  ionization  19.0   
+510010  ionization  19.0   

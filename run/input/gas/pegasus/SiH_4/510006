@@ -1,0 +1,61 @@
+##eqation:     e+SiH_4->SiH_3+H+e
+##type:        dissociation
+##unit:        eV, cm2
+##date:        2004/05/03
+##method:      tabulated function
+##
+##ref.auth:    IEEE Japan
+##              
+##ref.title:   Low energy electron and ions dynamics & Simulation
+##             technic II
+##ref.journal: IEE Japan Technical report No.853,2001
+##ref.fig:     CD-ROM
+##ref.range:   8.4eV - 100eV
+##
+##extrapolation: 100eV -
+##ref.auth: Mark J. Kushner
+##ref.title: A model for the discharge kinetics and plasma chemistry
+##           during plasma enhanced chemical vapor deposition of
+##           amorohous silicon
+## ref.journal: J.Appl.Phys.63(8),pp.2532,1988
+##ref.table: TABLE II
+510006
+e(-)+SiH_4->SiH_3+H+e(-)
+8.4
+4
+510   1  514  10
+ -1   0   +1  +1
+4
+30
+  8.4E+00  1.0000e-30
+  8.500E+00 4.250E-17
+  8.600E+00 9.350E-17
+  8.700E+00 1.241E-16
+  8.800E+00 1.454E-16
+  9.000E+00 1.870E-16
+  9.200E+00 2.193E-16
+  9.400E+00 2.465E-16
+  9.600E+00 2.720E-16
+  9.800E+00 2.958E-16
+  1.000E+01 3.162E-16
+  1.060E+01 3.655E-16
+  1.100E+01 3.876E-16
+  1.200E+01 4.301E-16
+  1.400E+01 4.735E-16
+  1.600E+01 4.930E-16
+  1.800E+01 5.049E-16
+  2.000E+01 5.160E-16
+  2.500E+01 5.330E-16
+  3.000E+01 5.483E-16
+  3.500E+01 5.636E-16
+  4.000E+01 5.763E-16
+  4.500E+01 5.891E-16
+  5.000E+01 5.976E-16
+  6.000E+01 6.146E-16
+  7.000E+01 5.525E-16
+  8.000E+01 4.913E-16
+  9.000E+01 4.361E-16
+  1.000E+02 3.885E-16
+  1.000E+03  1.700E-17
+-1
+0.00E+00  0.00E+00  0.00E+00

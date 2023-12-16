@@ -1,0 +1,17 @@
+#
+# e + SiH_2(+) -> SiH + H
+#
+#A Salabas,G Gousset and L L Alves, 
+#  Plasma Sources Sci. Technol. 11,448-465 (2002)
+#
+525001
+e(-)+SiH_2(+)->SiH+H
+0.0
+4
+ 1   525  520  10   
+ -1  -1   +1   +1 
+10
+  1
+   0.0E+02  0.0E-19
+ 1
+1.69E-7 -0.5  0.00E+00

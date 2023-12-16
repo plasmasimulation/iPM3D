@@ -106,7 +106,7 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
   // virtual
   Particle();
    ~Particle();
-  void init(double* lo,double* hi,double dx,double dy,double dz,double dt);
+  void init(double* lo,double* hi,double* dx,double dt);
 
    void grow(int);
    void grow_species();
@@ -119,7 +119,7 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
    int find_species(char *);
   int clone_particle(int);
   void add_species(int, char **,double *);
-  void particle_move_comm(double ***barray);
+  void particle_move_comm();
   int particle_domain_index(OnePart* particle );
   void *srealloc(void *ptr, bigint nbytes, const char *name, int align);
   void *Particle::smalloc(bigint nbytes, const char *name, int align);

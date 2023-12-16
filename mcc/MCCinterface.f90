@@ -14,7 +14,7 @@ use iso_c_binding
  use ModuleParticleOne
 implicit none
 Type(MCCBundle),Allocatable :: MCCBundleGlobal(:,:)
-real(8) :: gas_pressure, gas_temperature, ele_temperature,dt
+real(8) :: gas_pressure, gas_temperature, ele_temperature,VFactor
 character(len=99), dimension(1) :: gas_name
 real(8) iongas_ratio,elegas_ratio
 integer(4) model_type,Ng,Ns,collision_section_type
@@ -23,8 +23,8 @@ type(ParticleOne) aParticle
 
 contains
 
-subroutine  MCCBundleInit(coll_ratio)bind(C,name="MCCBundleInit")
-   real(c_double) coll_ratio(2)
+subroutine  MCCBundleInit(coll_ratio,dx,dt)bind(C,name="MCCBundleInit")
+   real(c_double) coll_ratio(2),dx(3),dt
  
 gas_pressure=25
 gas_temperature=300
@@ -35,7 +35,8 @@ model_type=2
 Ns=0
 Ng=1
 gas_ratio(1)=1
-dt=1d-10
+! dt=1d-10
+VFactor=dx(1)/dt
 
 
 
@@ -44,11 +45,11 @@ dt=1d-10
  Allocate(MCCBundleGlobal(0:Ns,Ng))
 !  Ns=1
 ! Ng=1
- call MCCBundleElelctronInit(Ns,Ng,SpecyGlobal(0),GasGlobal(1:Ng),MCCBundleGlobal(0,1:Ng))
+ call MCCBundleElelctronInit(Ns,Ng,dt,SpecyGlobal(0),GasGlobal(1:Ng),MCCBundleGlobal(0,1:Ng))
 ! write(*,*)"Collisionratio 1 ",MCCBundleGlobal(0,1)%CollisionRatio
 ! Ns=1
 ! Ng=1
-   call MCCBundleIonInit(Ns,Ng,SpecyGlobal(1:Ns),GasGlobal(1:Ng),MCCBundleGlobal(1:Ns,1:Ng)) 
+   call MCCBundleIonInit(Ns,Ng,dt,SpecyGlobal(1:Ns),GasGlobal(1:Ng),MCCBundleGlobal(1:Ns,1:Ng)) 
 !    write(*,*)"Collisionratio 2 ",MCCBundleGlobal(1,1)%CollisionRatio
 coll_ratio(1)=MCCBundleGlobal(0,1)%CollisionRatio
 coll_ratio(2)=MCCBundleGlobal(1,1)%CollisionRatio
@@ -58,7 +59,7 @@ coll_ratio(2)=MCCBundleGlobal(1,1)%CollisionRatio
 subroutine MCC(x1,v1,x2,v2,x3,v3,ispecies)bind(C ,name="MCC")
     Implicit none
      real(c_double) :: x1(3),v1(3),x2(3),v2(3),x3(3),v3(3)
-     Real(8) :: CollisionRatio,R,VFactor
+     Real(8) :: CollisionRatio,R
      integer(8):: flag
      integer(c_int) Index,ispecies(3)
      type(MCCParticleOne) :: One
@@ -74,22 +75,22 @@ subroutine MCC(x1,v1,x2,v2,x3,v3,ispecies)bind(C ,name="MCC")
      particle%Vy=v1(2)
      particle%Vz=v1(3)
       One%POI=>particle
-      VFactor=1.0
+       VFactor=1
 
      If (ispecies(1)==0) Then
       call  One%POI%VelRes(VFactor)
       call One%Updater(SpecyGlobal(0),GasGlobal(1))
-        One%POT%X=0
+      !   One%POT%X=0
         Call SelectProbility(One,MCCBundleGlobal(0,1))
      Index=One%ReactionIndex
      Call  SelectCollisionElectron(One,SpecyGlobal(0),GasGlobal(1),MCCBundleGlobal(0,1)%Reaction(Index))
-     if(Index>0) then
-     write(*,*)"Newnumber ispecies(1)",ispecies(1),Index,MCCBundleGlobal(0,1)%Reaction(Index)%ReactionType 
-     end if
+   !   if(Index>1) then
+   !   write(*,*)"Newnumber ispecies(1)",ispecies(1),Index,MCCBundleGlobal(0,1)%Reaction(Index)%ReactionType 
+   !   end if
    else
       call  One%POI%VelRes(VFactor)
       call One%Updater(SpecyGlobal(1),GasGlobal(1))
-        One%POT%X=0
+      !   One%POT%X=0
         Call SelectProbility(One,MCCBundleGlobal(1,1))
         Index=One%ReactionIndex
         Call  SelectCollisionIon(One,SpecyGlobal(1),GasGlobal(1),MCCBundleGlobal(1,1)%Reaction(Index))
@@ -98,6 +99,24 @@ subroutine MCC(x1,v1,x2,v2,x3,v3,ispecies)bind(C ,name="MCC")
  Index=One%ReactionIndex
 
      end if 
+
+
+
+     if(One%NPONew>0)Then
+      ! write(*,*)"newparticle",One%PON(1)%X,One%PON(2)%X
+      if(One%NPONew>=1) then
+         ispecies(1)=One%PON(1)%Index+1
+         v2(1)=One%PON(1)%Vx
+         v2(2)=One%PON(1)%Vy
+         v2(2)=One%PON(1)%Vz
+     end if
+     if(One%NPONew==2) then
+         ispecies(2)=One%PON(2)%Index+1
+         v3(1)=One%PON(2)%Vx
+         v3(2)=One%PON(2)%Vy
+         v3(2)=One%PON(2)%Vz
+     end if
+     end if
 
      x1(1)=particle%X
      x1(2)=particle%Y
@@ -163,14 +182,21 @@ end subroutine
 
 
 
-subroutine InitParticleOne(x1,v1,ispecies)bind(C,name="InitParticleOne")
-   real(c_double) :: x1(3),v1(3)
+subroutine InitParticleOne(v1,ispecies)bind(C,name="InitParticleOne")
+   real(c_double) :: v1(3)
    integer(c_int)::ispecies
    real(8) mass,temperature
-if(ispecies=0) then
+if(ispecies==0) then
+   mass=ElectronMass
+   temperature=30000000
+   call aParticle%VelMaxInit(mass,temperature)
+   ! write(*,*)"Velosity",aParticle%Vx,aParticle%Vy,aParticle%Vz
+   v1(1)=aParticle%Vx
+   v1(2)=aParticle%Vy
+   v1(3)=aParticle%Vz
 end if
    
-   ! aParticle%VelMaxInit()
+
 
 end subroutine
 

@@ -30,6 +30,7 @@ extern "C" {
 void getE(double* x, double* y,double* z);
 void MCC(double*x1,double*v1,double*x2,double*v2,double*x3,double*v3,int*flag);
 void weighting(double*x,double*y,double*z,int *weight);
+
 }
 
 enum{PKEEP,PINSERT,PDONE,PDISCARD,PENTRY,PEXIT,PSURF};  // several files
@@ -139,7 +140,7 @@ Particle::~Particle()
 
 /* ---------------------------------------------------------------------- */
 
-void Particle::init(double lo[3],double hi[3],double dx,double dy,double dz,double dt)
+void Particle::init(double lo[3],double hi[3],double* dx,double dt)
 {
   this->lo[0]=lo[0];
   this->lo[1]=lo[1];
@@ -147,9 +148,9 @@ void Particle::init(double lo[3],double hi[3],double dx,double dy,double dz,doub
   this->hi[0]=hi[0];
   this->hi[1]=hi[1];
   this->hi[2]=hi[2];
-  this->dx=dx;
-  this->dy=dy;
-  this->dz=dz;
+  this->dx=dx[0];
+  this->dy=dx[1];
+  this->dz=dx[2];
   this->dt=dt;
 
 }
@@ -488,7 +489,7 @@ int Particle::find_species(char *id)
    return -1 if not found
 ------------------------------------------------------------------------- */
 
-void Particle::particle_move_comm(double ***barray ){
+void Particle::particle_move_comm( ){
 
 // double dt;
 // local=particle->nlocal;
@@ -509,7 +510,7 @@ double EFactor[2];
 std::random_device e;
 std::uniform_real_distribution<double> randu(0, 1);
 for(int i=0;i<2;i++)
-{EFactor[i]=species[i].charge*species[i].mass*dt/(dx/dt);}
+{EFactor[i]=species[i].charge/species[i].mass*dt/(dx/dt);}
 for(int i = 0; i < 6; i++) {  
     indexmax[i]=10000;
     plist[i]=(int*)malloc(indexmax[i]*sizeof(int));
@@ -526,14 +527,14 @@ MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 for (int i = 0; i<nlocal ; i++) {
    
-//weighting
+
 
 
 
 //move
-   Ex=particles[i].x[0]/dx; //假定x,y,z是真实电子坐标，设定粒子相对网格位置；
-   Ey=particles[i].x[1]/dy;
-   Ez=particles[i].x[2]/dz;
+   Ex=particles[i].x[0]; //假定x,y,z是真实电子坐标，设定粒子相对网格位置；
+   Ey=particles[i].x[1];
+   Ez=particles[i].x[2];
    //传给E需要的粒子相对网格位置,返回对应的电场大小；
   //  Ex=lo[0];
   //  Ey=lo[1];
@@ -542,6 +543,8 @@ for (int i = 0; i<nlocal ; i++) {
   index=particle_domain_index(&particles[i]);
   if(index<0)
     getE(&Ex,&Ey,&Ez);
+    else 
+    printf("not 0");
 speciesid=particles[i].ispecies;
   //  double EFactor= species[particles[i].ispecies].charge* ECharge/EMass*dt/(dx/dt);
    Ex*=EFactor[speciesid];
@@ -753,6 +756,8 @@ if(index>=0)
 
 
   }}
+
+  //weighting
   // if (psend != NULL)
   // free(psend);
   // if (precv != NULL)
@@ -761,27 +766,27 @@ if(index>=0)
 // double x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
 // int *flag;
 // MCC(x1,v1,x2,v2,x3,v3,flag);
-   int weight=1;
+    int weight=1;
 // int int_x,int_y,int_z;
 // double double_x,double_y,double_z ;
-int a ;
- double nx,ny,nz;
+// int a ;
+  double nx,ny,nz;
 //  a=particle_domain_index(&particles[i]);
 // double xfactor[6];
 //  nx=particles[i].x[0]/dx;
 //  ny=particles[i].x[1]/dy;
 //  nz=particles[i].x[2]/dz;
 //  printf("%d,aa",a);
- nx=lo[0]+0.1;
- ny=lo[1]+0.1;
- nz=lo[2]+0.1;
- for(int i=0;i<100;i++)
-   weighting(&nx,&ny,&nz,&weight);
-   nx=lo[0]+0.8;
- ny=lo[1]+0.8;
- nz=lo[2]+0.8;
- for(int i=0;i<100;i++)
-   weighting(&nx,&ny,&nz,&weight);
+//  nx=lo[0]+0.1;
+//  ny=lo[1]+0.1;
+//  nz=lo[2]+0.1;
+//  for(int i=0;i<100;i++)
+//    weighting(&nx,&ny,&nz,&weight);
+//    nx=lo[0]+0.8;
+//  ny=lo[1]+0.8;
+//  nz=lo[2]+0.8;
+//  for(int i=0;i<100;i++)
+//    weighting(&nx,&ny,&nz,&weight);
   
 for (int i = 0; i<nlocal ; i++) {
 if(particles[i].flag==1){
@@ -817,7 +822,41 @@ ispecies[2]=-1;
 
 if(randu(e)>species[ispecies[0]].coll_ratio);
 {//printf("%f,x3",particles[i].x[2]);
-  MCC(particles[i].x,particles[i].v,x2,v2,x3,v3,ispecies);}
+
+  MCC(particles[i].x,particles[i].v,x2,v2,x3,v3,ispecies);
+  if(ispecies[1]>=0)
+  {
+    if (nlocal == maxlocal) {
+    grow(1);
+    // reallocflag = 1;
+  }
+    particles[nlocal].x[0]=particles[i].x[0];
+    particles[nlocal].x[1]=particles[i].x[1];
+    particles[nlocal].x[2]=particles[i].x[2];
+    particles[nlocal].v[0]=v2[0];
+    particles[nlocal].v[1]=v2[1];
+    particles[nlocal].v[2]=v2[2];
+    particles[nlocal].ispecies=ispecies[1];
+    nlocal++;
+
+  }
+  if(ispecies[2]>=0)
+  {
+    if (nlocal == maxlocal) {
+    grow(1);
+    // reallocflag = 1;
+  }
+    particles[nlocal].x[0]=particles[i].x[0];
+    particles[nlocal].x[1]=particles[i].x[1];
+    particles[nlocal].x[2]=particles[i].x[2];
+    particles[nlocal].v[0]=v3[0];
+    particles[nlocal].v[1]=v3[1];
+    particles[nlocal].v[2]=v3[2];
+    particles[nlocal].ispecies=ispecies[2];
+    nlocal++;
+
+  }
+  }
 // int_x=static_cast<int>(std::floor(nx));
 // int_y=static_cast<int>(std::floor(ny));
 // int_z=static_cast<int>(std::floor(nz));

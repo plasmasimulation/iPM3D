@@ -31,7 +31,8 @@ enum{UNKNOWN,OUTSIDE,INSIDE,OVERLAP};   // same as Grid
 
 #define MAXATTEMPT 1024      // max attempts to insert a particle into cut/split cell
 #define EPSZERO 1.0e-14
-
+extern  "C" {
+void InitParticleOne(double *v1,int *ispecies);}
 /* ---------------------------------------------------------------------- */
 
  CreateParticles::CreateParticles(){
@@ -115,16 +116,16 @@ std::uniform_real_distribution<double> randu(0, 1);
       // x[1] = lo[1] + random_num2 * (hi[1]-lo[1]);
       // x[2] = lo[2] + random_num3  * (hi[2]-lo[2]);
       // printf("%f,%f,suijishu",random_num1,random_num2);
-        random_num1 =randu(e); 
-     random_num2 = randu(e); 
-     random_num3 = randu(e); 
+    //     random_num1 =; 
+    //  random_num2 = randu(e); 
+    //  random_num3 = randu(e); 
 
-    x[0] =  random_num1*2;
-      x[1] =random_num2*2;
-      x[2] =random_num3*2;
+      x[0] = lo[0]+randu(e)*(hi[0]-lo[0]);
+      x[1] =lo[1]+randu(e)*(hi[1]-lo[1]);
+      x[2] =lo[2]+randu(e)*(hi[2]-lo[2]);
         
       // rn = random->uniform();
-      rn =randu(e); 
+      // rn =randu(e); 
 
       // isp = 0;
       // while (cummulative[isp] < rn) isp++;
@@ -152,15 +153,17 @@ std::uniform_real_distribution<double> randu(0, 1);
       // v[0]=rand() / RAND_MAX +10;
       // v[1]=rand() / RAND_MAX +10;
       // v[2]=rand() / RAND_MAX +10;
-       v[0]=10000000;
-       v[1]=-100000;
-       v[2]=1000088;
+      //  v[0]=10000000;
+      //  v[1]=-100000;
+      //  v[2]=1000088;
 
       // erot = particle->erot(ispecies,temp_rot*tempscale,random);
       // evib = particle->evib(ispecies,temp_vib*tempscale,random);
 
        id++;
-
+    InitParticleOne(v,&ispecies);
+    //  if(id<100)
+    //  printf("%f,%f,%f",v[0],v[1],v[2]);
       particle->add_particle(id,ispecies,icell,x,v,erot,evib);
 
       

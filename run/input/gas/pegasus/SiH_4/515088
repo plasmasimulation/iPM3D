@@ -1,0 +1,18 @@
+##equation:     Si_3H_4(+)+SiH_4->Si_4H_6(+)+H_2
+##
+#  Mark J. Kushner
+#  A model for the discharge kinetics and plasma chemistry during plasma
+#  enhanced chemical vapor deposition of amorphous silicon
+#  J. Appl. Phys. 63(8), 1988  Table IV
+##
+515088
+Si_3H_4(+)+SiH_4->Si_4H_6(+)+H_2
+0.0
+4
+1018  510  1021  14
+ -1   -1   +1   +1
+255
+ 1
+   0.0e-01    0.0e-18
+ 1
+1.7E-10  0.00E+00   0.00E+00

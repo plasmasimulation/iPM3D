@@ -1,0 +1,16 @@
+##equation:     SiH_2(+)+SiH_4->SiH_3(+)+SiH_3
+##
+#A Salabas,G Gousset and L L Alves, 
+#  Plasma Sources Sci. Technol. 11,448-465 (2002)
+##
+510013
+SiH_2(+)+SiH_4->SiH_3(+)+SiH_3
+0.0
+4
+525  510   516  514
+ -1   -1    +1    +1
+255
+ 1
+   0.0e-01    0.0e-18
+ 1
+1.07E-9  0.00E+00   0.00E+00

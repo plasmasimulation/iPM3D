@@ -23,7 +23,7 @@
 保存在run/solve文件夹内*/
 using namespace std;
  extern "C" {
-  void MCCBundleInit(double *coll_ratio);
+  void MCCBundleInit(double *coll_ratio,double *dx,double *dt);
 }
   
 
@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
   double *x; double *v; double erot=1; double evib=1;
   int data2[5][5][5];
   int *xyz_np=new int[3]{2,2,2};
-  int dx,dy,dz,dt;
+  double dx[3],dt;
   double *coll_ratio=new double[2];
   // xyz_np={2,2,2};
 
@@ -62,10 +62,10 @@ int main(int argc, char** argv) {
     Mx = 5;
     My = 5;
     Mz = 5; //包含边界
-    dx=1;
-    dy=1;
-    dz=1;
-    dt=1;
+    dx[0]=1e-3; //1mm
+    dx[1]=1e-3;
+    dx[2]=1e-3;
+    dt=1e-10;
     int num =2;
     char**name;
     name=new char*[2];
@@ -75,19 +75,19 @@ int main(int argc, char** argv) {
     strcpy(name[1],"Ar+");
 
  
-  Domain* domain=new Domain(xyz_np,Mx,My,Mz,dx,dy,dz,rank);
- MCCBundleInit(coll_ratio);
+  Domain* domain=new Domain(xyz_np,Mx,My,Mz,dx,rank);
+ MCCBundleInit(coll_ratio,dx,&dt);
  load_material(data2);
    fieldsolver->initpetsc(Mx, My, Mz, data2,xyz_np);
-    particle->init(domain->lo,domain->hi,domain->dx,domain->dy,domain->dz,dt);
+    particle->init(domain->lo,domain->hi,domain->dx,dt);
     particle->add_species(num,name,coll_ratio);
     particle->grow(50);
     // particle->add_particle(id,ispecies,icell,x,v,erot,evib);
      createparticles->create_local(particle,domain->lo,domain->hi);
-int step=1 ;//循环100次。
+int step=10 ;//循环100次。
      for(int i=0;i<step;i++)
      {fieldsolver->fieldsolve();
-       particle->particle_move_comm(fieldsolver->barray);
+       particle->particle_move_comm();
       //  cout<<i<<endl;
       }
     //   cout<<"first"<<endl;
