@@ -1,9 +1,10 @@
 #include"material.h"
 #include "hdf5.h" 
 #include<iostream>
+#include<mpi.h>
 // #include "H5Cpp.h" 
 
-#define FILE_NAME "../input/material.h5"  
+#define FILE_NAME "../input/material95.h5"  
 #define DATASET_NAME "my_dataset"  
 #define NUM_THREADS 8  
 using namespace std;
@@ -28,22 +29,25 @@ Dielectric::Dielectric(){
     conductivity=0;
 }
 
-int create_material_file(int rank){
-     int data[64][64][64];
+int create_material_file(){
+ 
+  int rank;
+     int data[95][95][95];
      // 创建HDF5文件  
+      MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 if(rank==0)
    {// 创建HDF5文件  
-    hid_t file_id = H5Fcreate("material.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);  
+    hid_t file_id = H5Fcreate("material96.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);  
   
     // 创建数据集  
-    hsize_t dims[3] = {64,64,64}; // 定义数据集的大小为10  
+    hsize_t dims[3] = {95,95,95}; // 定义数据集的大小为10  
     hid_t dataspace_id = H5Screate_simple(3, dims, NULL);  
     hid_t dataset_id = H5Dcreate2(file_id, "my_dataset", H5T_NATIVE_INT, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);  
   
-    for(int i=0;i<64;i++)
-    for(int j=0;j<64;j++)
-    for(int k=0;k<64;k++)
-    {if(i==0||i==63)
+    for(int i=0;i<95;i++)
+    for(int j=0;j<95;j++)
+    for(int k=0;k<95;k++)
+    {if(i==0||i==94)
       data[i][j][k]=1;
       else
       data[i][j][k]=0;
@@ -73,7 +77,8 @@ if(rank==0)
     
     
 }
- void load_material( int data[5][5][5]){
+ void load_material( int data[95][95][95],int coord_x, int coord_y, int coord_z,
+                   int width_x, int width_y, int width_z){
 
       int rank, size;  
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);  
@@ -83,7 +88,18 @@ if(rank==0)
     herr_t status;  
     hsize_t start[3], count[3];  
     //  float data[5][5][5];  
-    hsize_t dims[3] = {5,5,5};
+    hsize_t dims[3] = {95,95,95};
+    // data=new int**[Mx];
+    // for(int i=0;i<Mx;i++)
+    // {
+    //   data[i]=new int*[My];
+    //    for(int j=0;j<My;j++)
+    // {
+    //   data[i][j]=new int[Mz];
+    // }
+    // }
+   
+
      
   
     /* Open HDF5 file */  
@@ -96,19 +112,19 @@ if(rank==0)
     // memspace_id = H5Screate_simple(3,dims, NULL);  
    memspace_id = H5Dget_space(dataset_id);  
     /* Set the start and count arrays for each process */  
-    start[0] = 0;  
-    start[1] = 0;  
-    start[2] = 0;
-    count[0] = 5;  
-    count[1] = 5; 
-    count[2] = 5; 
+    start[0] = coord_z;  
+    start[1] = coord_y;  
+    start[2] = coord_x;
+    count[0] = width_z;  
+    count[1] = width_y; 
+    count[2] = width_x; 
   
     /* Select hyperslab in the memory dataspace */  
     status = H5Sselect_hyperslab(memspace_id, H5S_SELECT_SET, start, NULL, count, NULL);  
   
     /* Read data in parallel */  
      status = H5Dread(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);  
-  //  cout<<" "<<data[1][1][1]<<" hdf5 ";
+    cout<<" "<<data[1][1][1]<<" hdf5 ";
     /* Process the data as needed */  
     // ...  
   

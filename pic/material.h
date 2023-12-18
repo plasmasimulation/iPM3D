@@ -20,5 +20,6 @@ class  Dielectric :public Material
     double conductivity;
     Dielectric();
 };
- void load_material(int data[5][5][5]);
+ void load_material(int data[95][95][95],int coord_x, int coord_y, int coord_z,
+                   int width_x, int width_y, int width_z);
  int create_material_file();

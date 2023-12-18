@@ -161,7 +161,7 @@ std::uniform_real_distribution<double> randu(0, 1);
       // evib = particle->evib(ispecies,temp_vib*tempscale,random);
 
        id++;
-    InitParticleOne(v,&ispecies);
+    InitParticleOne(v,&ispecies);//调用Fortran函数初始化粒子速度
     //  if(id<100)
     //  printf("%f,%f,%f",v[0],v[1],v[2]);
       particle->add_particle(id,ispecies,icell,x,v,erot,evib);

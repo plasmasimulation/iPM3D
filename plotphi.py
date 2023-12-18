@@ -76,12 +76,12 @@ h=f[:,2,:]
 sm = plt.cm.ScalarMappable(cmap='hot', norm=plt.Normalize(vmin=0, vmax=1))  
 sm.set_array([])
 
-plt.imshow(h, cmap='RdBu', norm=plt.Normalize(vmin=0, vmax=20),extent=[0, 5, 0, 5])  
+plt.imshow(h, cmap='RdBu', norm=plt.Normalize(vmin=0, vmax=1),extent=[0, 5, 0, 5])  
 plt.colorbar(label="phi")  
 
 plt.xlabel('X')  
-plt.ylabel('Y')  
-plt.title('phi x-y surface z=1')  
+plt.ylabel('Z')  
+plt.title('phi x-z surface y=2')  
 print(h)
 plt.savefig("kk.png")
 

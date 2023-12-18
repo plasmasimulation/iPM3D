@@ -99,7 +99,7 @@ subroutine SendPhi( coor_x, coor_y,coor_z,  width_x,  width_y, width_z, phi)bind
     了外面一圈"
     do i=zstart-1,zend+1
         write(13,*)" "
-        write(13,"(5f9.3,/)")array(:,:,i)
+        write(13,"(50f9.3,/)")array(:,:,i)
         ! write(*,*)array(:,:,i)
     end do
   
@@ -113,7 +113,7 @@ subroutine SendPhi( coor_x, coor_y,coor_z,  width_x,  width_y, width_z, phi)bind
     先遍历x和y,再遍历z,为便于观察每一层都用空格隔开"
     do i=zstart-1,zend+1
     write(13,*)" "
-    write(13,"(5f9.3,/)")array(:,:,i)
+    write(13,"(50f9.3,/)")array(:,:,i)
     end do
    
     close(13)
@@ -159,9 +159,9 @@ subroutine weighting(x,y,z,species)bind(C,name="weighting")
     real(C_DOUBLE):: x,y,z,weight
     integer(c_int):: int_x,int_y,int_z,species
     real(C_DOUBLE):: double_x,double_y,double_z 
-    double_x=x
-    double_y=y
-    double_z=z
+    ! double_x=x
+    ! double_y=y
+    ! double_z=z
    int_x=int(double_x)
    int_y=int(double_y)
    int_z=int(double_z)

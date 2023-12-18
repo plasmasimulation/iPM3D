@@ -12,5 +12,7 @@ namespace MathConst {
   static const double ECharge=-1.6022e-19;
   static const double EMass=9.1095e-31;
   static const double AtomicMass=1.660539040e-27;
+  static const double Epsilon=8.8542e-12;
+
 }
 

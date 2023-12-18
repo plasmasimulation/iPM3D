@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
   int rank;
   int id=1; int ispecies=1;int icell=1;
   double *x; double *v; double erot=1; double evib=1;
-  int data2[5][5][5];
+  int*** data2;
   int *xyz_np=new int[3]{2,2,2};
   double dx[3],dt;
   double *coll_ratio=new double[2];
@@ -59,9 +59,9 @@ int main(int argc, char** argv) {
     // CreateParticles createparticles(sparta);
     // 初始化MPI环境
     // parameter set
-    Mx = 5;
-    My = 5;
-    Mz = 5; //包含边界
+    Mx = 95;
+    My = 95;
+    Mz = 95; //包含边界
     dx[0]=1e-3; //1mm
     dx[1]=1e-3;
     dx[2]=1e-3;
@@ -77,14 +77,14 @@ int main(int argc, char** argv) {
  
   Domain* domain=new Domain(xyz_np,Mx,My,Mz,dx,rank);
  MCCBundleInit(coll_ratio,dx,&dt);
- load_material(data2);
-   fieldsolver->initpetsc(Mx, My, Mz, data2,xyz_np);
+
+   fieldsolver->initpetsc(Mx, My, Mz, xyz_np,dx,domain->lo,domain->hi);
     particle->init(domain->lo,domain->hi,domain->dx,dt);
     particle->add_species(num,name,coll_ratio);
     particle->grow(50);
     // particle->add_particle(id,ispecies,icell,x,v,erot,evib);
      createparticles->create_local(particle,domain->lo,domain->hi);
-int step=10 ;//循环100次。
+int step=1 ;//循环100次。
      for(int i=0;i<step;i++)
      {fieldsolver->fieldsolve();
        particle->particle_move_comm();
@@ -97,11 +97,11 @@ int step=10 ;//循环100次。
     //  fieldsolver->fieldsolve();
    
   // cout<<"ok";
- 
+//  create_material_file();//创建介质文件，有了这个介质文件才可以修改网格数大小
 
 
  
-       fieldsolver->fieldsolve();
+      //  fieldsolver->fieldsolve();
       PetscFinalize(); 
 
      MPI_Finalize();

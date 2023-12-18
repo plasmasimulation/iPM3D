@@ -22,7 +22,11 @@
 #include<fstream>
 #include"material.h"
 #include"fieldsolver.h"
+#include "math_const.h"
+#include <vector>
+// #include"material.h"
 using namespace std;
+using namespace MathConst;
 
 extern "C" {
   void  GetRho(int coord_x,int coord_y, int coord_z, int width_x, int width_y,int width_z, float *a);
@@ -32,7 +36,7 @@ extern "C" {
 }
 
 
-int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5][5][5],int* xyz_np){
+int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int* xyz_np,double dx[3],double *lo,double *hi){
     
     
     // PetscErrorCode ierr = 0;
@@ -68,6 +72,11 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
    this->Mx=Mx;
    this->My=My;
    this->Mz=Mz;
+   this->dx[0]=dx[0];
+   this->dx[1]=dx[1];
+   this->dx[2]=dx[2];
+    int data[95][95][95];
+   
     // // init petsc
     // PetscInitialize(NULL, NULL, (char *)0, NULL);
   
@@ -98,11 +107,53 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
     // create vec
     DMCreateGlobalVector(dm, &b);
     DMCreateGlobalVector(dm, &x);
+   DMCreateGlobalVector(dm, &m);
+    //   DMDAVecGetArray(dm, m, &data);
+//    vector<vector<vector<double>>> mydata(Mx,vector<vector<double>>(My, vector<double>(Mz)));  
+//   data=mydata;
+//  DMDAVecGetArray(dm, m, &data);
+     load_material(data,coord_x, coord_y, coord_z, width_x, width_y, width_z);
+    //  for (auto i =  coord_x; i < coord_x + width_x; i++) {
+    //     for (auto j = coord_y; j < coord_y +width_y; j++) {
+    //         for (auto k = coord_z; k < coord_z + width_z; k++) {
+    //             if (0 == k)
+    //             {
+    //                 data[k][j][i] = 0;
+    //             }
+    //             else if (Mz - 1 == k)
+    //             {
+    //                 data[k][j][i] = 1;
+    //             }
+    //             else if (0 == i || Mx - 1 == i || 0 == j || My - 1 == j)
+    //             {
+    //                 data[k][j][i] = k / (Mz - 1.0);
+    //             }
+    //             else {
+    //                 //   barray[k][j][i] = rho[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z];
+    //                    data[k][j][i]=0;
+    //             }
+    //         }
+    //     }
+    // }
+
+
+    // DMDAVecRestoreArray(dm, m, &data);
+    
+
 
     // 此部分获取该进程x,y,z起始坐标以及各方向的宽度
    
     DMDAGetCorners(dm, &coord_x, &coord_y, &coord_z,
                    &width_x, &width_y, &width_z);
+   
+    //  for (auto i =  coord_x; i < coord_x + width_x; i++) {
+    //     for (auto j = coord_y; j < coord_y +width_y; j++) {
+    //         for (auto k = coord_z; k < coord_z + width_z; k++) {
+    //             data[i][j][k]=0;
+    //         }}}
+//    DMDAVecRestoreArray(dm, m, &data);
+
+   
     rho=new float[width_x*width_y*width_z];
     // for(i=0,i<)
     //  GetRho(coord_x, coord_y, coord_z, width_x,width_y,width_z,rho);
@@ -114,7 +165,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
    std:: cout << rank << ": " << coord_x << " " << coord_y << " "
          << coord_z << " " << width_x << " " << width_y << " " << width_z << std::endl;
 
-    for (auto i =  coord_x; i < coord_x + width_x; i++) {
+     for (auto i =  coord_x; i < coord_x + width_x; i++) {
         for (auto j = coord_y; j < coord_y +width_y; j++) {
             for (auto k = coord_z; k < coord_z + width_z; k++) {
                 row.i = i; row.j = j; row.k = k;
@@ -124,6 +175,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
                     MatSetValuesStencil(A, 1, &row, 1, &row, v, INSERT_VALUES);
                 }
                 else {
+
                     col[0].i = i-1; col[0].j = j;   col[0].k = k;
                     col[1].i = i+1; col[1].j = j;   col[1].k = k;
                     col[2].i = i;   col[2].j = j-1; col[2].k = k;
@@ -132,20 +184,20 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
                     col[5].i = i;   col[5].j = j;   col[5].k = k+1;
                     col[6].i = i;   col[6].j = j;   col[6].k = k;
 
-                    v[0] = -1*material[data[i-1][j][k]]->epsilon;
-                    v[1] = -1*material[data[i+1][j][k]]->epsilon;
-                    v[2] = -1*material[data[i][j-1][k]]->epsilon;
-                    v[3] = -1*material[data[i][j+1][k]]->epsilon;
-                    v[4] = -1*material[data[i][j][k-1]]->epsilon;
-                    v[5] = -1*material[data[i][j][k+1]]->epsilon;
-                    v[6] =  -(v[0]+v[1]+v[2]+v[3]+v[4]+v[5]);
-                    // v[0] = -1;
-                    // v[1] = -1;
-                    // v[2] = -1;
-                    // v[3] = -1;
-                    // v[4] = -1;
-                    // v[5] = -1;
-                    // v[6] = 6;
+                    // v[0] = -1*material[data[i-1][j][k]]->epsilon/this->dx[0]/this->dx[0];
+                    // v[1] = -1*material[data[i+1][j][k]]->epsilon/this->dx[0]/this->dx[0];
+                    // v[2] = -1*material[data[i][j-1][k]]->epsilon/this->dx[1]/this->dx[1];
+                    // v[3] = -1*material[data[i][j+1][k]]->epsilon/this->dx[1]/this->dx[1];
+                    // v[4] = -1*material[data[i][j][k-1]]->epsilon/this->dx[2]/this->dx[2];
+                    // v[5] = -1*material[data[i][j][k+1]]->epsilon/this->dx[2]/this->dx[2];
+                    // v[6] =  -(v[0]+v[1]+v[2]+v[3]+v[4]+v[5]);
+                    v[0] = -1;
+                    v[1] = -1;
+                    v[2] = -1;
+                    v[3] = -1;
+                    v[4] = -1;
+                    v[5] = -1;
+                    v[6] = 6;
                     //  cout<<" "<<data[i][j][k]<<' '<<v[6];
                     MatSetValuesStencil(A, 1, &row, 7, col, v, INSERT_VALUES);
                     //将泊松方程置入，其中col的i,j,k为变量坐标，row设置第几个方程
@@ -153,6 +205,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
             }
         }
     }
+ 
 
     MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY);
@@ -163,31 +216,9 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
     PhiInit(coord_x, coord_y, coord_z,width_x,width_y,width_z,lx,ly,lz,xyz_np);
 
     GetRho(coord_x, coord_y, coord_z, width_x,width_y,width_z,rho);
-    DMDAVecGetArray(dm, b, &barray);
-     for (auto i =  coord_x; i < coord_x + width_x; i++) {
-        for (auto j = coord_y; j < coord_y +width_y; j++) {
-            for (auto k = coord_z; k < coord_z + width_z; k++) {
-                if (0 == k)
-                {
-                    barray[k][j][i] = 0;
-                }
-                else if (Mz - 1 == k)
-                {
-                    barray[k][j][i] = 1;
-                }
-                else if (0 == i || Mx - 1 == i || 0 == j || My - 1 == j)
-                {
-                    barray[k][j][i] = k / (Mz - 1.0);
-                }
-                else {
-                      barray[k][j][i] = rho[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z];
-                    //   barray[k][j][i]=0;
-                }
-            }
-        }
-    }
+   
 
-    DMDAVecRestoreArray(dm, b, &barray);
+   
 
     // create ksp
     KSPCreate(PETSC_COMM_WORLD, &ksp);
@@ -227,6 +258,9 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int data [5]
                 else {
                       barray[k][j][i] = rho[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z];
                     //  cout<<barray[k][j][i]<<endl;
+                     barray[k][j][i]=barray[k][j][i]/this->dx[0]/this->dx[1]/this->dx[2]/Epsilon;
+                   
+
                 }
             }
         }
