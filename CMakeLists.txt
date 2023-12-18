@@ -5,6 +5,7 @@ set(CMAKE_CXX_COMPILER icpc)
 set(CMAKE_Fortran_COMPILER ifort)
 project(main0 LANGUAGES CXX Fortran)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_FLAGS "-O3") 
 
 # 设置头文件路径
 # include_directories(${PROJECT_SOURCE_DIR}/include/)
@@ -48,6 +49,7 @@ target_link_libraries(cxx-call-f-cxx ${MPI_LIBRARIES})
 target_link_libraries(cxx-call-f-cxx ${PETSc_LIB})
 target_link_libraries(cxx-call-f-cxx ${HDF5_LIB})
 # target_link_libraries(cxx-call-f-cxx ${PETSC_LIBRARIES})
+
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/run)
 file(COPY
 ${CMAKE_CURRENT_SOURCE_DIR}/input/

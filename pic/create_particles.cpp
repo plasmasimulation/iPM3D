@@ -51,7 +51,7 @@ void InitParticleOne(double *v1,int *ispecies);}
    attributes of created particle depend on number of procs
 ------------------------------------------------------------------------- */
 
-void CreateParticles::create_local(Particle* particle ,double lo[3],double hi[3])
+void CreateParticles::create_local(Particle* particle ,double lo[3],double hi[3],int ncreate)
 {
   // int dimension = domain->dimension;
 
@@ -83,7 +83,7 @@ std::uniform_real_distribution<double> randu(0, 1);
   // double temp_rot = particle->mixture[imix]->temp_rot;
   // double temp_vib = particle->mixture[imix]->temp_vib;
 
-  int npercell,ncreate,isp,ispecies,id,pflag,subcell,icell;
+  int npercell,ncreateion,isp,ispecies,id,pflag,subcell,icell;
   double x[3],v[3],xcell[3],vstream_variable[3];
   double ntarget,scale,rn,vn,vr,theta1,theta2,erot,evib;
   // double *lo,*hi;
@@ -95,7 +95,7 @@ std::uniform_real_distribution<double> randu(0, 1);
   double volsum = 0.0;
   bigint nprev = 0;
   icell=0;
-  ncreate=10000;
+  // ncreate=10000;
   // lo=new double[3];
   // hi=new double[3];
   // lo[0]=0;

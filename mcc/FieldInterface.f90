@@ -173,7 +173,7 @@ subroutine weighting(x,y,z,species)bind(C,name="weighting")
     species=-1
    end if
 !    write(*,*)species,"species"
-   weight=species*ElectronCharge
+   weight=species*ElectronCharge*10000
     
  FO%RhoOne(int_x,int_y,int_z)=FO%RhoOne(int_x,int_y,int_z)+weight*double_x*double_y*double_z;
  FO%RhoOne(int_x+1,int_y,int_z)=FO%RhoOne(int_x+1,int_y,int_z)+weight*(1-double_x)*double_y*double_z;
@@ -230,6 +230,19 @@ subroutine getE(x,y,z)bind(C ,name="getE")
     double_x=x-int_x
     double_y=y-int_y
     double_z=z-int_z
+    if(double_x-0.5>0) then
+        int_x=int_x+1
+        double_x=double_x-0.5
+    end if 
+    if(double_y-0.5>0) then
+        int_y=int_y+1
+        double_y=double_y-0.5
+    end if
+    if(double_z-0.5>0) then
+        int_z=int_z+1
+        double_z=double_z-0.5
+    end if
+
     !   write(*,*) double_z
     VlumFactor(1)=double_x*double_y*double_z
     VlumFactor(2)=(1-double_x)*double_y*double_z
@@ -240,32 +253,32 @@ subroutine getE(x,y,z)bind(C ,name="getE")
     VlumFactor(7)=double_x*(1-double_y)*(1-double_z)
     VlumFactor(8)=(1-double_x)*(1-double_y)*(1-double_z)
 
-    x=FG%Ex(int_x,int_y,int_z)*double_x*double_y*double_z&
-    +FG%Ex(int_x+1,int_y,int_z)*(1-double_x)*double_y*double_z&
-    +FG%Ex(int_x,int_y+1,int_z)*double_x*(1-double_y)*double_z&
-    +FG%Ex(int_x,int_y,int_z+1)*double_x*double_y*(1-double_z)&
-    +FG%Ex(int_x+1,int_y,int_z+1)*(1-double_x)*double_y*(1-double_z)&
-    +FG%Ex(int_x+1,int_y+1,int_z)*(1-double_x)*(1-double_y)*double_z&
-    +FG%Ex(int_x,int_y+1,int_z+1)*double_x*(1-double_y)*(1-double_z)&
-    +FG%Ex(int_x+1,int_y+1,int_z+1)*(1-double_x)*(1-double_y)*(1-double_z)
+    x=FG%Ex(int_x,int_y,int_z)*VlumFactor(1)&
+    +FG%Ex(int_x+1,int_y,int_z)*VlumFactor(2)&
+    +FG%Ex(int_x,int_y+1,int_z)*VlumFactor(3)&
+    +FG%Ex(int_x,int_y,int_z+1)*VlumFactor(4)&
+    +FG%Ex(int_x+1,int_y,int_z+1)*VlumFactor(5)&
+    +FG%Ex(int_x+1,int_y+1,int_z)*VlumFactor(6)&
+    +FG%Ex(int_x,int_y+1,int_z+1)*VlumFactor(7)&
+    +FG%Ex(int_x+1,int_y+1,int_z+1)*VlumFactor(8)
 
-    y=FG%Ey(int_x,int_y,int_z)*double_x*double_y*double_z&
-    +FG%Ey(int_x+1,int_y,int_z)*(1-double_x)*double_y*double_z&
-    +FG%Ey(int_x,int_y+1,int_z)*double_x*(1-double_y)*double_z&
-    +FG%Ey(int_x,int_y,int_z+1)*double_x*double_y*(1-double_z)&
-    +FG%Ey(int_x+1,int_y,int_z+1)*(1-double_x)*double_y*(1-double_z)&
-    +FG%Ey(int_x+1,int_y+1,int_z)*(1-double_x)*(1-double_y)*double_z&
-    +FG%Ey(int_x,int_y+1,int_z+1)*double_x*(1-double_y)*(1-double_z)&
-    +FG%Ey(int_x+1,int_y+1,int_z+1)*(1-double_x)*(1-double_y)*(1-double_z)
+    y=FG%Ey(int_x,int_y,int_z)*VlumFactor(1)&
+    +FG%Ey(int_x+1,int_y,int_z)*VlumFactor(2)&
+    +FG%Ey(int_x,int_y+1,int_z)*VlumFactor(3)&
+    +FG%Ey(int_x,int_y,int_z+1)*VlumFactor(4)&
+    +FG%Ey(int_x+1,int_y,int_z+1)*VlumFactor(5)&
+    +FG%Ey(int_x+1,int_y+1,int_z)*VlumFactor(6)&
+    +FG%Ey(int_x,int_y+1,int_z+1)*VlumFactor(7)&
+    +FG%Ey(int_x+1,int_y+1,int_z+1)*VlumFactor(8)
 
-    z=FG%Ez(int_x,int_y,int_z)*double_x*double_y*double_z&
-    +FG%Ez(int_x+1,int_y,int_z)*(1-double_x)*double_y*double_z&
-    +FG%Ez(int_x,int_y+1,int_z)*double_x*(1-double_y)*double_z&
-    +FG%Ez(int_x,int_y,int_z+1)*double_x*double_y*(1-double_z)&
-    +FG%Ez(int_x+1,int_y,int_z+1)*(1-double_x)*double_y*(1-double_z)&
-    +FG%Ez(int_x+1,int_y+1,int_z)*(1-double_x)*(1-double_y)*double_z&
-    +FG%Ez(int_x,int_y+1,int_z+1)*double_x*(1-double_y)*(1-double_z)&
-    +FG%Ez(int_x+1,int_y+1,int_z+1)*(1-double_x)*(1-double_y)*(1-double_z)
+    z=FG%Ez(int_x,int_y,int_z)*VlumFactor(1)&
+    +FG%Ez(int_x+1,int_y,int_z)*VlumFactor(2)&
+    +FG%Ez(int_x,int_y+1,int_z)*VlumFactor(3)&
+    +FG%Ez(int_x,int_y,int_z+1)*VlumFactor(4)&
+    +FG%Ez(int_x+1,int_y,int_z+1)*VlumFactor(5)&
+    +FG%Ez(int_x+1,int_y+1,int_z)*VlumFactor(6)&
+    +FG%Ez(int_x,int_y+1,int_z+1)*VlumFactor(7)&
+    +FG%Ez(int_x+1,int_y+1,int_z+1)*VlumFactor(8)
 
     end subroutine getE
 subroutine Finalize()bind(C, name="Finalize")

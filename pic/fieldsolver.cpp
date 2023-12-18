@@ -184,20 +184,20 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int* xyz_np,
                     col[5].i = i;   col[5].j = j;   col[5].k = k+1;
                     col[6].i = i;   col[6].j = j;   col[6].k = k;
 
-                    // v[0] = -1*material[data[i-1][j][k]]->epsilon/this->dx[0]/this->dx[0];
-                    // v[1] = -1*material[data[i+1][j][k]]->epsilon/this->dx[0]/this->dx[0];
-                    // v[2] = -1*material[data[i][j-1][k]]->epsilon/this->dx[1]/this->dx[1];
-                    // v[3] = -1*material[data[i][j+1][k]]->epsilon/this->dx[1]/this->dx[1];
-                    // v[4] = -1*material[data[i][j][k-1]]->epsilon/this->dx[2]/this->dx[2];
-                    // v[5] = -1*material[data[i][j][k+1]]->epsilon/this->dx[2]/this->dx[2];
-                    // v[6] =  -(v[0]+v[1]+v[2]+v[3]+v[4]+v[5]);
-                    v[0] = -1;
-                    v[1] = -1;
-                    v[2] = -1;
-                    v[3] = -1;
-                    v[4] = -1;
-                    v[5] = -1;
-                    v[6] = 6;
+                    v[0] = -1*material[data[i-1][j][k]]->epsilon/this->dx[0]/this->dx[0];
+                    v[1] = -1*material[data[i+1][j][k]]->epsilon/this->dx[0]/this->dx[0];
+                    v[2] = -1*material[data[i][j-1][k]]->epsilon/this->dx[1]/this->dx[1];
+                    v[3] = -1*material[data[i][j+1][k]]->epsilon/this->dx[1]/this->dx[1];
+                    v[4] = -1*material[data[i][j][k-1]]->epsilon/this->dx[2]/this->dx[2];
+                    v[5] = -1*material[data[i][j][k+1]]->epsilon/this->dx[2]/this->dx[2];
+                    v[6] =  -(v[0]+v[1]+v[2]+v[3]+v[4]+v[5]);
+                    // v[0] = -1;
+                    // v[1] = -1;
+                    // v[2] = -1;
+                    // v[3] = -1;
+                    // v[4] = -1;
+                    // v[5] = -1;
+                    // v[6] = 6;
                     //  cout<<" "<<data[i][j][k]<<' '<<v[6];
                     MatSetValuesStencil(A, 1, &row, 7, col, v, INSERT_VALUES);
                     //将泊松方程置入，其中col的i,j,k为变量坐标，row设置第几个方程
