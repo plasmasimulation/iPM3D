@@ -427,6 +427,7 @@ int Particle::add_particle(int id, int ispecies, int icell,
   p->erot = erot;
   p->evib = evib;
   p->flag = PKEEP;
+  // weighting(&x[0],&x[1],&x[2],&ispecies);
 
   //p->dtremain = 0.0;    not needed due to memset in grow() ??
   //p->weight = 1.0;      not needed due to memset in grow() ??
@@ -557,7 +558,7 @@ speciesid=particles[i].ispecies;
 particles[i].x[0]+=particles[i].v[0];
 particles[i].x[1]+=particles[i].v[1];
 particles[i].x[2]+=particles[i].v[2];
-
+index=particle_domain_index(&particles[i]);
 //particle comm
 //  index=particle_domain_index(&particles[i]);
 // index=-1;
@@ -658,9 +659,10 @@ for(int dim=0;dim<=2;dim++)
  }}
  else
  {//dealing with boundary  specular reflection
-//  if(l[i+dim*2]>=1) 
-//  {for(int j=0;j<l[i+dim*2];j++)
-//  {
+//  {if(l[i+dim*2]>=1) 
+//   for(int j=0;j<l[i+dim*2];j++)
+//   particles[plist[i+dim*2][j]].flag=1;
+//   }
 //    if(particles[plist[i+dim*2][j]].x[0]<lo[0]||particles[plist[i+dim*2][j]].x[0]>hi[0])
 //    particles[plist[i+dim*2][j]].x[0]=lo[0]+randu(e)*(hi[0]-lo[0]);
 //    if(particles[plist[i+dim*2][j]].x[1]<lo[1]||particles[plist[i+dim*2][j]].x[1]>hi[1])
@@ -681,11 +683,11 @@ for(int dim=0;dim<=2;dim++)
   offset=0;
   double x=9;
      if (particle_number_send[i] > 0) 
-     MPI_Send(&(psend[i][offset]), (particle_number_send[i]*96), MPI_CHAR, negb_rank[i],0, MPI_COMM_WORLD);
+     MPI_Send(&(psend[i][offset]), (particle_number_send[i]*nbytes_particle), MPI_CHAR, negb_rank[i],0, MPI_COMM_WORLD);
 
  
       if (particle_number_recv[i] > 0) 
-  { MPI_Recv(&(precv[i][offset]), (particle_number_recv[i]*96), MPI_CHAR, negb_rank[i], 0,  MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+  { MPI_Recv(&(precv[i][offset]), (particle_number_recv[i]*nbytes_particle), MPI_CHAR, negb_rank[i], 0,  MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
 //  memcpy(&x,&(precv[i][offset+4*sizeof(int)]),sizeof(double));
 //      printf("recv[0],%d ,%f \t",nbytes_particle, x);
      }
@@ -752,42 +754,28 @@ if(index>=0)
  }
   plist[index][l[index]]=j+start;
   l[index]++;
+  particles[j+start].flag=1;
 }}
 
 
-  }}
-
-  //weighting
-  // if (psend != NULL)
-  // free(psend);
-  // if (precv != NULL)
-  // free(precv);
-}
-// double x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
-// int *flag;
-// MCC(x1,v1,x2,v2,x3,v3,flag);
-    int weight=1;
-// int int_x,int_y,int_z;
-// double double_x,double_y,double_z ;
-// int a ;
-  double nx,ny,nz;
-//  a=particle_domain_index(&particles[i]);
-// double xfactor[6];
-//  nx=particles[i].x[0]/dx;
-//  ny=particles[i].x[1]/dy;
-//  nz=particles[i].x[2]/dz;
-//  printf("%d,aa",a);
-//  nx=lo[0]+0.1;
-//  ny=lo[1]+0.1;
-//  nz=lo[2]+0.1;
-//  for(int i=0;i<100;i++)
-//    weighting(&nx,&ny,&nz,&weight);
-//    nx=lo[0]+0.8;
-//  ny=lo[1]+0.8;
-//  nz=lo[2]+0.8;
-//  for(int i=0;i<100;i++)
-//    weighting(&nx,&ny,&nz,&weight);
+  }
   
+  }
+for(int i=0;i<=1;i++)
+  if(test[i]!=1)
+  {
+    if(l[i+dim*2]>=1) 
+  for(int j=0;j<l[i+dim*2];j++)
+  particles[plist[i+dim*2][j]].flag=1;
+  }
+  
+  }
+
+  
+int weight=1;
+double nx,ny,nz; 
+double x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
+int ispecies[3];
 for (int i = 0; i<nlocal ; i++) {
 if(particles[i].flag==1){
     while(particles[nlocal-1].flag==1&&nlocal>1)
@@ -798,6 +786,7 @@ if(particles[i].flag==1){
    }
         if(particles[i].x[0]<lo[0]||particles[i].x[0]>hi[0])
    particles[i].x[0]=lo[0]+randu(e)*(hi[0]-lo[0]);
+   printf("%dflag\t",particles[i].flag);
    if(particles[i].x[1]<lo[1]||particles[i].x[1]>hi[1])
 particles[i].x[1]=lo[1]+randu(e)*(hi[1]-lo[1]);
  if(particles[i].x[2]<lo[2]||particles[i].x[2]>hi[2])
@@ -814,8 +803,7 @@ particles[i].x[2]=lo[2]+randu(e)*(hi[2]-lo[2]);
 
   //  printf("weighting over");
    
- double x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
-int ispecies[3];
+
 ispecies[0]=particles[i].ispecies;
 ispecies[1]=-1;
 ispecies[2]=-1;

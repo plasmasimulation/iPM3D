@@ -60,8 +60,11 @@ void CreateParticles::create_local(Particle* particle ,double lo[3],double hi[3]
   // int nglocal = grid->nlocal;
   int nglocal =particle->nlocal;
 srand((unsigned)time(NULL));
-std::random_device e;
+std::random_device rd;
+  std::mt19937 e(rd()); // 以 rd() 作为种子初始化 Mersenne Twister 生成器
 std::uniform_real_distribution<double> randu(0, 1);
+
+
   // srand(1);
    double random_num1 =randu(e); 
     double random_num2 = randu(e); 
@@ -123,6 +126,11 @@ std::uniform_real_distribution<double> randu(0, 1);
       x[0] = lo[0]+randu(e)*(hi[0]-lo[0]);
       x[1] =lo[1]+randu(e)*(hi[1]-lo[1]);
       x[2] =lo[2]+randu(e)*(hi[2]-lo[2]);
+      // if (m<40)
+      // {
+      //   printf("%f%f%f\n",x[0],x[1],x[2]);
+      // }
+     
         
       // rn = random->uniform();
       // rn =randu(e); 
@@ -168,6 +176,7 @@ std::uniform_real_distribution<double> randu(0, 1);
 
       
     }
+    //  printf("%f%f%f\n",hi[0],hi[1],hi[2]);
 }
 
 

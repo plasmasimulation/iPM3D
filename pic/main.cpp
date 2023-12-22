@@ -13,6 +13,7 @@
 #include"create_particles.h"
 #include"domain.h"
 #include <cstring> 
+#include <ctime>
 //  #include"create_particles.h"
 // #include"sparta.h"
 //  #include"pointers.h"
@@ -63,7 +64,7 @@ int main(int argc, char** argv) {
     name[1]=new char[16];
     strcpy(name[0],"electron");
     strcpy(name[1],"Ar+");
-    int ncreate=100000; //每个进程初始电子数
+    int ncreate=10000000; //每个进程初始电子数
 
  
   Domain* domain=new Domain(xyz_np,Mx,My,Mz,dx,rank);
@@ -75,11 +76,24 @@ int main(int argc, char** argv) {
     // particle->grow(50);
     // particle->add_particle(id,ispecies,icell,x,v,erot,evib);
      createparticles->create_local(particle,domain->lo,domain->hi,ncreate);
-int step=5 ;//循环100次。
+int step=2;//循环100次。
      for(int i=0;i<step;i++)
-     {fieldsolver->fieldsolve();
-       particle->particle_move_comm();
-        cout<<i<<"step"<<endl;
+     { clock_t start = clock();
+      fieldsolver->fieldsolve();
+     
+        clock_t end1   = clock();
+        cout<<"fieldsolve time cost "<<(double)(end1-start) / CLOCKS_PER_SEC<<endl;
+         particle->particle_move_comm();
+       clock_t end2  = clock();
+       if(rank==0){
+ cout<<"fieldsolve time cost "<<(double)(end1-start) / CLOCKS_PER_SEC<<endl;
+ cout<<"particlemove time cost"<<(double)(end2-end1) / CLOCKS_PER_SEC<<endl;
+ cout<<i<<"step"<<endl;
+       }
+       
+      
+
+       
       }
     //   cout<<"first"<<endl;
     //   particle->particle_move_comm();

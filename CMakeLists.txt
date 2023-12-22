@@ -27,10 +27,12 @@ find_library(HDF5_LIB hdf5 $ENV{PATH_HDF5}/lib)
 
 # build lib
 find_package(MPI REQUIRED)
-add_library(cxx-call-f-f ${CMAKE_CURRENT_SOURCE_DIR}/mcc/FieldInterface.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/FieldEM.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/FieldOne.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/PICFieldCom3d.f90
-${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCinterface.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/SpecyOne.F90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/Constants.F90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/ReactionOnePegasus.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/Numrical.F90  ${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCSigma.f90 
-${CMAKE_CURRENT_SOURCE_DIR}/mcc/TypeMCC.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/ParticleOne.f90
-${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCInit.F90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/ParticleOneIndex.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCChi.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCElectron.F90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCIon.F90) 
+file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/mcc/*)  
+# add_library(cxx-call-f-f ${CMAKE_CURRENT_SOURCE_DIR}/mcc/FieldInterface.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/FieldEM.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/FieldOne.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/PICFieldCom3d.f90
+# ${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCinterface.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/SpecyOne.F90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/Constants.F90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/ReactionOnePegasus.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/Numrical.F90  ${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCSigma.f90 
+# ${CMAKE_CURRENT_SOURCE_DIR}/mcc/TypeMCC.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/ParticleOne.f90
+# ${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCInit.F90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/ParticleOneIndex.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCChi.f90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCElectron.F90 ${CMAKE_CURRENT_SOURCE_DIR}/mcc/MCCIon.F90) 
+add_library(cxx-call-f-f ${SOURCES} )
 set_property(TARGET cxx-call-f-f PROPERTY LINKER_LANGUAGE Fortran)
 target_link_libraries(cxx-call-f-f MPI::MPI_Fortran)
 
@@ -38,12 +40,14 @@ target_link_libraries(cxx-call-f-f MPI::MPI_Fortran)
 # target_link_libraries(cxx-call-f-c cxx-call-f-f)main.cpp fieldsolver.cpp material.cpp
 # set_property(TARGET cxx-call-f-c PROPERTY LINKER_LANGUAGE C) ${SOURCES}
 include_directories ("${MPI_CXX_INCLUDE_DIRS}")
+file(GLOB_RECURSE SOURCESCXX ${CMAKE_CURRENT_SOURCE_DIR}/pic/*)  
 # file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/ main.cpp fieldsolver.cpp material.cpp )  
-add_executable(cxx-call-f-cxx ${CMAKE_CURRENT_SOURCE_DIR}/pic/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/pic/particle.cpp 
-${CMAKE_CURRENT_SOURCE_DIR}/pic/fieldsolver.cpp ${CMAKE_CURRENT_SOURCE_DIR}/pic/material.cpp 
-  ${CMAKE_CURRENT_SOURCE_DIR}/pic/create_particles.cpp ${CMAKE_CURRENT_SOURCE_DIR}/pic/domain.cpp  )
+# add_executable(cxx-call-f-cxx ${CMAKE_CURRENT_SOURCE_DIR}/pic/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/pic/particle.cpp 
+# ${CMAKE_CURRENT_SOURCE_DIR}/pic/fieldsolver.cpp ${CMAKE_CURRENT_SOURCE_DIR}/pic/material.cpp 
+#   ${CMAKE_CURRENT_SOURCE_DIR}/pic/create_particles.cpp ${CMAKE_CURRENT_SOURCE_DIR}/pic/domain.cpp  )
 # ${CMAKE_CURRENT_SOURCE_DIR}/src/particle.cpp 
 # ${CMAKE_CURRENT_SOURCE_DIR}/src/mixture.cpp  )
+add_executable(cxx-call-f-cxx ${SOURCESCXX})
 target_link_libraries(cxx-call-f-cxx cxx-call-f-f)
 target_link_libraries(cxx-call-f-cxx ${MPI_LIBRARIES})
 target_link_libraries(cxx-call-f-cxx ${PETSc_LIB})

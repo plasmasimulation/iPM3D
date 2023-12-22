@@ -75,7 +75,7 @@ subroutine MCC(x1,v1,x2,v2,x3,v3,ispecies)bind(C ,name="MCC")
      particle%Vy=v1(2)
      particle%Vz=v1(3)
       One%POI=>particle
-       VFactor=1
+      !  VFactor=1
 
      If (ispecies(1)==0) Then
       call  One%POI%VelRes(VFactor)
@@ -188,7 +188,7 @@ subroutine InitParticleOne(v1,ispecies)bind(C,name="InitParticleOne")
    real(8) mass,temperature
 if(ispecies==0) then
    mass=ElectronMass
-   temperature=30000000
+   temperature=30000
    call aParticle%VelMaxInit(mass,temperature)
    ! write(*,*)"Velosity",aParticle%Vx,aParticle%Vy,aParticle%Vz
    v1(1)=aParticle%Vx

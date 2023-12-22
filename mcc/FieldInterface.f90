@@ -162,9 +162,9 @@ subroutine weighting(x,y,z,species)bind(C,name="weighting")
     ! double_x=x
     ! double_y=y
     ! double_z=z
-   int_x=int(double_x)
-   int_y=int(double_y)
-   int_z=int(double_z)
+   int_x=int(x)
+   int_y=int(y)
+   int_z=int(z)
 
    double_x=x-int_x
    double_y=y-int_y

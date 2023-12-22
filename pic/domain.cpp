@@ -14,13 +14,13 @@ Domain::Domain(int* xyz_np ,int Mx,int My, int Mz,double *dx  ,int rank){
    lo[0]=(Mx/xyz_np[0])*col;
    lo[1]=(My/xyz_np[1])*row;
    lo[2]=(Mz/xyz_np[2])*layer;
-   hi[0]=col+Mx/xyz_np[0];
-   hi[1]=row+My/xyz_np[1];
-   hi[2]=layer+Mz/xyz_np[2];
+   hi[0]=lo[0]+Mx/xyz_np[0];
+   hi[1]=lo[1]+My/xyz_np[1];
+   hi[2]=lo[2]+Mz/xyz_np[2];
    this->dx[0]=dx[0];
    this->dx[1]=dx[1];
    this->dx[2]=dx[2];
-   // printf("zuobiao,%f,%f,%f,%f",lo[0],lo[1],lo[2],hi[0]);
+    printf("zuobiao,%d,%f,%f,%f,%f,\n",rank,lo[0],lo[1],lo[2],hi[0]);
 
    
    
