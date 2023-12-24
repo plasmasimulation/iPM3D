@@ -75,7 +75,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int* xyz_np,
    this->dx[0]=dx[0];
    this->dx[1]=dx[1];
    this->dx[2]=dx[2];
-    int data[95][95][95];
+    int data[65][65][65];
    
     // // init petsc
     // PetscInitialize(NULL, NULL, (char *)0, NULL);
@@ -249,7 +249,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int* xyz_np,
                 }
                 else if (Mz - 1 == k)
                 {
-                    barray[k][j][i] = 1;
+                    barray[k][j][i] = 1000;
                 }
                 else if (0 == i || Mx - 1 == i || 0 == j || My - 1 == j)
                 {

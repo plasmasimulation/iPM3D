@@ -50,13 +50,13 @@ int main(int argc, char** argv) {
     // CreateParticles createparticles(sparta);
     // 初始化MPI环境
     // parameter set
-    Mx = 95;
-    My = 95;
-    Mz = 95; //包含边界
-    dx[0]=1e-3; //1mm
-    dx[1]=1e-3;
-    dx[2]=1e-3;
-    dt=1e-10;
+    Mx = 65;
+    My = 65;
+    Mz = 65; //包含边界
+    dx[0]=1e-2; //1mm
+    dx[1]=1e-2;
+    dx[2]=1e-2;
+    dt=1e-13;
     int num =2;
     char**name;
     name=new char*[2];
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     name[1]=new char[16];
     strcpy(name[0],"electron");
     strcpy(name[1],"Ar+");
-    int ncreate=10000000; //每个进程初始电子数
+    int ncreate=1200000; //每个进程初始电子数
 
  
   Domain* domain=new Domain(xyz_np,Mx,My,Mz,dx,rank);
@@ -76,20 +76,24 @@ int main(int argc, char** argv) {
     // particle->grow(50);
     // particle->add_particle(id,ispecies,icell,x,v,erot,evib);
      createparticles->create_local(particle,domain->lo,domain->hi,ncreate);
-int step=2;//循环100次。
+int step=5;//循环5个周期。
+int peroid=1/13.56e6*dt;
+
      for(int i=0;i<step;i++)
-     { clock_t start = clock();
+     { for(int j=0;j<peroid;j++)
+      {clock_t start = clock();
       fieldsolver->fieldsolve();
      
         clock_t end1   = clock();
-        cout<<"fieldsolve time cost "<<(double)(end1-start) / CLOCKS_PER_SEC<<endl;
+        // cout<<"fieldsolve time cost "<<(double)(end1-start) / CLOCKS_PER_SEC<<endl;
          particle->particle_move_comm();
        clock_t end2  = clock();
-       if(rank==0){
+       if(rank==6){
  cout<<"fieldsolve time cost "<<(double)(end1-start) / CLOCKS_PER_SEC<<endl;
  cout<<"particlemove time cost"<<(double)(end2-end1) / CLOCKS_PER_SEC<<endl;
  cout<<i<<"step"<<endl;
-       }
+ cout<<"particles"<<particle->nlocal<<endl;
+       }}
        
       
 
@@ -102,7 +106,7 @@ int step=2;//循环100次。
     //  fieldsolver->fieldsolve();
    
   // cout<<"ok";
-//  create_material_file();//创建介质文件，有了这个介质文件才可以修改网格数大小
+  // create_material_file();//创建介质文件，有了这个介质文件才可以修改网格数大小
 
 
  

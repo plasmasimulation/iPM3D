@@ -57,9 +57,10 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
     int flag;               // used for migration status
     double x[3];            // particle position
     double v[3];            // particle velocity
-    double erot;            // rotational energy
-    double evib;            // vibrational energy
-    double dtremain;        // portion of move timestep remaining
+    double a[3];
+    // double erot;            // rotational energy
+    // double evib;            // vibrational energy
+    // double dtremain;        // portion of move timestep remaining
     double weight;          // particle or cell weight, if weighting enabled
   };
 
@@ -104,6 +105,8 @@ enum{MAXVIBMODE=4};       // increase value if species need more vib modes
 
   // Particle(class SPARTA *);
   // virtual
+
+
   Particle();
    ~Particle();
   void init(double* lo,double* hi,double* dx,double dt);

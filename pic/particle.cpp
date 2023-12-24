@@ -421,11 +421,14 @@ int Particle::add_particle(int id, int ispecies, int icell,
   p->x[0] = x[0];
   p->x[1] = x[1];
   p->x[2] = x[2];
-  p->v[0] = v[0];
-  p->v[1] = v[1];
-  p->v[2] = v[2];
-  p->erot = erot;
-  p->evib = evib;
+  p->v[0] = v[0]*dt/dx;
+  p->v[1] = v[1]*dt/dy;
+  p->v[2] = v[2]*dt/dz;
+  p->a[0] =0;
+  p->a[1] =0;
+  p->a[2] =0;
+  // p->erot = erot;
+  // p->evib = evib;
   p->flag = PKEEP;
   // weighting(&x[0],&x[1],&x[2],&ispecies);
 
@@ -508,7 +511,8 @@ double Ex,Ey,Ez;
 int int_x,int_y,int_z;
 double double_x,double_y,double_z ; 
 double EFactor[2];
-std::random_device e;
+std::random_device rd;
+std::mt19937 e(rd());
 std::uniform_real_distribution<double> randu(0, 1);
 for(int i=0;i<2;i++)
 {EFactor[i]=species[i].charge/species[i].mass*dt/(dx/dt);}
@@ -541,23 +545,38 @@ for (int i = 0; i<nlocal ; i++) {
   //  Ey=lo[1];
   //  Ez=lo[2];
   //  printf("Ez,%f",Ez);
-  index=particle_domain_index(&particles[i]);
-  if(index<0)
-    getE(&Ex,&Ey,&Ez);
-    else 
-    printf("not 0");
+  // index=particle_domain_index(&particles[i]);
+  // if(index<0)
+  //   getE(&Ex,&Ey,&Ez);
+  //   else 
+  //   printf("not 0");
+   getE(&Ex,&Ey,&Ez);
 speciesid=particles[i].ispecies;
   //  double EFactor= species[particles[i].ispecies].charge* ECharge/EMass*dt/(dx/dt);
    Ex*=EFactor[speciesid];
    Ey*=EFactor[speciesid];
    Ez*=EFactor[speciesid];
+  
    particles[i].v[0]+=Ex;
    particles[i].v[1]+=Ey;
    particles[i].v[2]+=Ez;
 
+   particles[i].x[0]+=Ex;
+   particles[i].x[1]+=Ey;
+   particles[i].x[2]+=Ez;
+   
+   particles[i].a[0]=0.5*(particles[i].a[0]+Ex);
+   particles[i].a[1]=0.5*(particles[i].a[1]+Ey);
+   particles[i].a[2]=0.5*(particles[i].a[2]+Ez);
+  
+   particles[i].v[0]+=particles[i].a[0];
+   particles[i].v[1]+=particles[i].a[1];
+   particles[i].v[2]+=particles[i].a[2];
 particles[i].x[0]+=particles[i].v[0];
 particles[i].x[1]+=particles[i].v[1];
 particles[i].x[2]+=particles[i].v[2];
+// if(particles[i].v[2]>50000)
+//   printf("%f  %f %f\n",particles[i].x[0],particles[i].v[0],Ez*1e6);
 index=particle_domain_index(&particles[i]);
 //particle comm
 //  index=particle_domain_index(&particles[i]);
@@ -754,7 +773,7 @@ if(index>=0)
  }
   plist[index][l[index]]=j+start;
   l[index]++;
-  particles[j+start].flag=1;
+  // particles[j+start].flag=1;
 }}
 
 
@@ -774,7 +793,7 @@ for(int i=0;i<=1;i++)
   
 int weight=1;
 double nx,ny,nz; 
-double x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
+double x0[3],v0[3],x1[3],v1[3],x2[3],v2[3],x3[3],v3[3];
 int ispecies[3];
 for (int i = 0; i<nlocal ; i++) {
 if(particles[i].flag==1){
@@ -782,15 +801,16 @@ if(particles[i].flag==1){
     nlocal--;
      memcpy(&particles[i],&particles[nlocal-1],sizeof(OnePart));
      nlocal--;
-     continue;
+      continue;
    }
-        if(particles[i].x[0]<lo[0]||particles[i].x[0]>hi[0])
-   particles[i].x[0]=lo[0]+randu(e)*(hi[0]-lo[0]);
-   printf("%dflag\t",particles[i].flag);
-   if(particles[i].x[1]<lo[1]||particles[i].x[1]>hi[1])
-particles[i].x[1]=lo[1]+randu(e)*(hi[1]-lo[1]);
- if(particles[i].x[2]<lo[2]||particles[i].x[2]>hi[2])
-particles[i].x[2]=lo[2]+randu(e)*(hi[2]-lo[2]);
+  //  continue;
+//         if(particles[i].x[0]<lo[0]||particles[i].x[0]>hi[0])
+//    {particles[i].x[0]=lo[0]+randu(e)*(hi[0]-lo[0]);
+//    printf("%dflag\t",particles[i].flag);}
+//    if(particles[i].x[1]<lo[1]||particles[i].x[1]>hi[1])
+// particles[i].x[1]=lo[1]+randu(e)*(hi[1]-lo[1]);
+//  if(particles[i].x[2]<lo[2]||particles[i].x[2]>hi[2])
+// particles[i].x[2]=lo[2]+randu(e)*(hi[2]-lo[2]);
    //weighting
    weight=particles[i].ispecies;
   //  weight=0;
@@ -809,9 +829,14 @@ ispecies[1]=-1;
 ispecies[2]=-1;
 
 if(randu(e)>species[ispecies[0]].coll_ratio);
-{//printf("%f,x3",particles[i].x[2]);
-
-  MCC(particles[i].x,particles[i].v,x2,v2,x3,v3,ispecies);
+{continue;
+  //printf("%f,x3",particles[i].x[2]);
+// continue;
+for(int k=0;k<3;k++)
+{x0[k]=particles[i].x[k];
+v0[k]=particles[i].v[k];}
+  // MCC(particles[i].x,particles[i].v,x2,v2,x3,v3,ispecies);
+   MCC(x0,v0,x2,v2,x3,v3,ispecies);
   if(ispecies[1]>=0)
   {
     if (nlocal == maxlocal) {
@@ -821,10 +846,14 @@ if(randu(e)>species[ispecies[0]].coll_ratio);
     particles[nlocal].x[0]=particles[i].x[0];
     particles[nlocal].x[1]=particles[i].x[1];
     particles[nlocal].x[2]=particles[i].x[2];
-    particles[nlocal].v[0]=v2[0];
-    particles[nlocal].v[1]=v2[1];
-    particles[nlocal].v[2]=v2[2];
+    particles[nlocal].v[0]=v2[0]*dt/dx;
+    particles[nlocal].v[1]=v2[1]*dt/dy;
+    particles[nlocal].v[2]=v2[2]*dt/dz;
+    particles[nlocal].a[0]=0;
+    particles[nlocal].a[1]=0;
+    particles[nlocal].a[2]=0;
     particles[nlocal].ispecies=ispecies[1];
+    particles[nlocal].flag=0;
     nlocal++;
 
   }
@@ -837,10 +866,14 @@ if(randu(e)>species[ispecies[0]].coll_ratio);
     particles[nlocal].x[0]=particles[i].x[0];
     particles[nlocal].x[1]=particles[i].x[1];
     particles[nlocal].x[2]=particles[i].x[2];
-    particles[nlocal].v[0]=v3[0];
-    particles[nlocal].v[1]=v3[1];
-    particles[nlocal].v[2]=v3[2];
+    particles[nlocal].v[0]=v3[0]*dt/dx;
+    particles[nlocal].v[1]=v3[1]*dt/dy;
+    particles[nlocal].v[2]=v3[2]*dt/dz;
+    particles[nlocal].a[0]=0;
+    particles[nlocal].a[1]=0;
+    particles[nlocal].a[2]=0;
     particles[nlocal].ispecies=ispecies[2];
+    particles[nlocal].flag=0;
     nlocal++;
 
   }

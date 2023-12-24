@@ -173,7 +173,7 @@ subroutine weighting(x,y,z,species)bind(C,name="weighting")
     species=-1
    end if
 !    write(*,*)species,"species"
-   weight=species*ElectronCharge*10000
+   weight=species*ElectronCharge*100
     
  FO%RhoOne(int_x,int_y,int_z)=FO%RhoOne(int_x,int_y,int_z)+weight*double_x*double_y*double_z;
  FO%RhoOne(int_x+1,int_y,int_z)=FO%RhoOne(int_x+1,int_y,int_z)+weight*(1-double_x)*double_y*double_z;
@@ -279,7 +279,7 @@ subroutine getE(x,y,z)bind(C ,name="getE")
     +FG%Ez(int_x+1,int_y+1,int_z)*VlumFactor(6)&
     +FG%Ez(int_x,int_y+1,int_z+1)*VlumFactor(7)&
     +FG%Ez(int_x+1,int_y+1,int_z+1)*VlumFactor(8)
-
+! write(*,*)"x,y,z",x,y,z
     end subroutine getE
 subroutine Finalize()bind(C, name="Finalize")
     call FO%destroy()
