@@ -24,6 +24,7 @@
 #include"fieldsolver.h"
 #include "math_const.h"
 #include <vector>
+#include <cmath>
 // #include"material.h"
 using namespace std;
 using namespace MathConst;
@@ -234,7 +235,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int* xyz_np,
 
   
  }
- int FieldSolver::fieldsolve(){
+ int FieldSolver::fieldsolve(double wt){
    double*charge;
     float *rho ,*phi,*rho1;
     rho=new float[width_x*width_y*width_z];
@@ -249,7 +250,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int* xyz_np,
                 }
                 else if (Mz - 1 == k)
                 {
-                    barray[k][j][i] = 1000;
+                    barray[k][j][i] = 200*cos(13.56e6*wt);
                 }
                 else if (0 == i || Mx - 1 == i || 0 == j || My - 1 == j)
                 {

@@ -173,7 +173,7 @@ subroutine weighting(x,y,z,species)bind(C,name="weighting")
     species=-1
    end if
 !    write(*,*)species,"species"
-   weight=species*ElectronCharge*100
+   weight=species*ElectronCharge*610.3514
     
  FO%RhoOne(int_x,int_y,int_z)=FO%RhoOne(int_x,int_y,int_z)+weight*double_x*double_y*double_z;
  FO%RhoOne(int_x+1,int_y,int_z)=FO%RhoOne(int_x+1,int_y,int_z)+weight*(1-double_x)*double_y*double_z;

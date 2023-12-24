@@ -6,6 +6,8 @@ set(CMAKE_Fortran_COMPILER ifort)
 project(main0 LANGUAGES CXX Fortran)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_FLAGS "-O3") 
+set(CMAKE_CXX_FLAGS "-O3") 
+set(CMAKE_Fortran_FLAGS "-O3")
 
 # 设置头文件路径
 # include_directories(${PROJECT_SOURCE_DIR}/include/)

@@ -93,7 +93,7 @@ std::uniform_real_distribution<double> randu(0, 1);
 
   double tempscale = 1.0;
   double sqrttempscale = 1.0;
-  ispecies=0;
+  
 
   double volsum = 0.0;
   bigint nprev = 0;
@@ -167,7 +167,9 @@ std::uniform_real_distribution<double> randu(0, 1);
 
       // erot = particle->erot(ispecies,temp_rot*tempscale,random);
       // evib = particle->evib(ispecies,temp_vib*tempscale,random);
-
+      ispecies=0;
+      if(m<800000)
+         ispecies=1;
        id++;
     InitParticleOne(v,&ispecies);//调用Fortran函数初始化粒子速度
     //  if(id<100)

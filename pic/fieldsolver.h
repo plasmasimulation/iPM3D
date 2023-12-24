@@ -17,7 +17,7 @@ class FieldSolver{
     double dx[3];
     
     int initpetsc(PetscInt Mx,  PetscInt My, PetscInt Mz,int* xyz_np,double dx[3],double *lo,double*hi);
-     int fieldsolve(); 
+     int fieldsolve(double wt); 
     // int petscfinalsize();
 
 

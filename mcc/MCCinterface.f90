@@ -195,6 +195,15 @@ if(ispecies==0) then
    v1(2)=aParticle%Vy
    v1(3)=aParticle%Vz
 end if
+if(ispecies==1) then
+   mass=39.948*AtomicMass
+   temperature=300
+   call aParticle%VelMaxInit(mass,temperature)
+   ! write(*,*)"Velosity",aParticle%Vx,aParticle%Vy,aParticle%Vz
+   v1(1)=aParticle%Vx
+   v1(2)=aParticle%Vy
+   v1(3)=aParticle%Vz
+end if
    
 
 

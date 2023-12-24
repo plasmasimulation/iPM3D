@@ -515,7 +515,7 @@ std::random_device rd;
 std::mt19937 e(rd());
 std::uniform_real_distribution<double> randu(0, 1);
 for(int i=0;i<2;i++)
-{EFactor[i]=species[i].charge/species[i].mass*dt/(dx/dt);}
+{EFactor[i]=species[i].charge/species[i].mass*dt/(dx/dt)/dx;}
 for(int i = 0; i < 6; i++) {  
     indexmax[i]=10000;
     plist[i]=(int*)malloc(indexmax[i]*sizeof(int));
@@ -575,8 +575,8 @@ speciesid=particles[i].ispecies;
 particles[i].x[0]+=particles[i].v[0];
 particles[i].x[1]+=particles[i].v[1];
 particles[i].x[2]+=particles[i].v[2];
-// if(particles[i].v[2]>50000)
-//   printf("%f  %f %f\n",particles[i].x[0],particles[i].v[0],Ez*1e6);
+//  if(i<6)
+//    printf("%f  %f %f\n",particles[i].x[0],particles[i].v[0],Ez*1e6);
 index=particle_domain_index(&particles[i]);
 //particle comm
 //  index=particle_domain_index(&particles[i]);
@@ -828,7 +828,7 @@ ispecies[0]=particles[i].ispecies;
 ispecies[1]=-1;
 ispecies[2]=-1;
 
-if(randu(e)>species[ispecies[0]].coll_ratio);
+if(randu(e)<species[ispecies[0]].coll_ratio);
 {continue;
   //printf("%f,x3",particles[i].x[2]);
 // continue;

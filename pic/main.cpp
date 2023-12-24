@@ -53,10 +53,10 @@ int main(int argc, char** argv) {
     Mx = 65;
     My = 65;
     Mz = 65; //包含边界
-    dx[0]=1e-2; //1mm
-    dx[1]=1e-2;
-    dx[2]=1e-2;
-    dt=1e-13;
+    dx[0]=3.125e-4; //1mm
+    dx[1]=3.125e-4;
+    dx[2]=3.125e-4;
+    dt=1e-10;
     int num =2;
     char**name;
     name=new char*[2];
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     name[1]=new char[16];
     strcpy(name[0],"electron");
     strcpy(name[1],"Ar+");
-    int ncreate=1200000; //每个进程初始电子数
+    int ncreate=1638400; //每个进程初始电子数
 
  
   Domain* domain=new Domain(xyz_np,Mx,My,Mz,dx,rank);
@@ -76,13 +76,13 @@ int main(int argc, char** argv) {
     // particle->grow(50);
     // particle->add_particle(id,ispecies,icell,x,v,erot,evib);
      createparticles->create_local(particle,domain->lo,domain->hi,ncreate);
-int step=5;//循环5个周期。
-int peroid=1/13.56e6*dt;
+int step=1;//循环5个周期。
+int peroid=1/dt/13.56e6;
 
      for(int i=0;i<step;i++)
-     { for(int j=0;j<peroid;j++)
+     { for(int j=0;j<40;j++)
       {clock_t start = clock();
-      fieldsolver->fieldsolve();
+      fieldsolver->fieldsolve(j*dt);
      
         clock_t end1   = clock();
         // cout<<"fieldsolve time cost "<<(double)(end1-start) / CLOCKS_PER_SEC<<endl;
@@ -91,7 +91,7 @@ int peroid=1/13.56e6*dt;
        if(rank==6){
  cout<<"fieldsolve time cost "<<(double)(end1-start) / CLOCKS_PER_SEC<<endl;
  cout<<"particlemove time cost"<<(double)(end2-end1) / CLOCKS_PER_SEC<<endl;
- cout<<i<<"step"<<endl;
+ cout<<j<<"step"<<endl;
  cout<<"particles"<<particle->nlocal<<endl;
        }}
        
