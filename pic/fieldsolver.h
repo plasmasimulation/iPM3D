@@ -19,6 +19,8 @@ class FieldSolver{
     int initpetsc(PetscInt Mx,  PetscInt My, PetscInt Mz,int* xyz_np,double dx[3],double *lo,double*hi);
      int fieldsolve(double wt); 
     // int petscfinalsize();
+    void  plot_density();
+   void init_density();
 
 
 };

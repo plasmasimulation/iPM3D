@@ -250,7 +250,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int* xyz_np,
                 }
                 else if (Mz - 1 == k)
                 {
-                    barray[k][j][i] = 200*cos(13.56e6*wt);
+                    barray[k][j][i] = 200*cos(MY_2PI*13.56e6*wt);
                 }
                 else if (0 == i || Mx - 1 == i || 0 == j || My - 1 == j)
                 {
@@ -271,7 +271,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int* xyz_np,
   ierr = KSPSolve(ksp, b, x); CHKERRQ(ierr);
  
   
-    DMDAVecGetArray(dm,x,&array);
+     DMDAVecGetArray(dm,x,&array);
 
    phi=new float[width_x*width_y*width_z];
     //  std::ofstream log("./solve/petscphi"+std::to_string(rank)+".txt", std::ios::trunc std::ios_base::app | std::ios_base::out);
@@ -292,6 +292,54 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int* xyz_np,
      SendPhi(coord_x, coord_y, coord_z,width_x,width_y,width_z,phi);
     //  Finalize();
 //     PetscFinalize(); 
+ }
+
+
+
+
+void FieldSolver:: plot_density()
+{
+     double*charge;
+    float *rho ,*phi,*rho1;
+    rho=new float[width_x*width_y*width_z];
+     GetRho(coord_x, coord_y, coord_z, width_x,width_y,width_z,rho);
+//  { DMDAVecGetArray(dm,x,&array);
+DMDAVecGetArray(dm, b, &barray);
+    std::ofstream logmain("./solve/electrondensity"+std::to_string(rank)+".txt", std::ios::trunc);
+     logmain<< width_x << " " << width_y << " " << width_z << " "<<std::endl;
+    //  log<<"电势 存储顺序：先遍历z,再遍历x和y"<<std::endl;
+     for (auto i =  coord_x; i < coord_x + width_x; i++) {
+        for (auto j = coord_y; j < coord_y +width_y; j++) {
+            for (auto k = coord_z; k < coord_z + width_z; k++) {
+                // phi[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z]=array[k][j][i];
+                // array[k][j][i];
+            // logmain<<fieldsolver->array[k][j][i]<<" ";
+              barray[k][j][i] = rho[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z];
+            logmain<<barray[k][j][i]<<" ";
+            }
+        logmain<<std::endl;}}
+        // DMDAVecRestoreArray(dm,x,&array);
+          DMDAVecRestoreArray(dm, b, &barray);
+
+ }
+ void FieldSolver:: init_density()
+ {     
+//  { DMDAVecGetArray(dm,x,&array);
+    // std::ofstream logmain("./solve/electrondensity"+std::to_string(rank)+".txt", std::ios::trunc);
+    //  logmain<< width_x << " " << width_y << " " << width_z << " "<<std::endl;
+    //  log<<"电势 存储顺序：先遍历z,再遍历x和y"<<std::endl;
+    //  for (auto i =  coord_x; i < coord_x + width_x; i++) {
+    //     for (auto j = coord_y; j < coord_y +width_y; j++) {
+    //         for (auto k = coord_z; k < coord_z + width_z; k++) {
+    //             // phi[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z]=array[k][j][i];
+    //             // array[k][j][i];
+    //         // logmain<<fieldsolver->array[k][j][i]<<" ";
+    //         logmain<<21<<" ";
+    //         // array[k][j][i]=0;
+    //         }
+    //     }}
+        // DMDAVecRestoreArray(dm,x,&array);
+
  }
 
 

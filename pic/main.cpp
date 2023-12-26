@@ -24,6 +24,9 @@ MCC 相关初始化信息在MCCinterface.F90中
 using namespace std;
  extern "C" {
   void MCCBundleInit(double *coll_ratio,double *dx,double *dt);
+  void iondens(double* x,double* y,double* z,int* species);
+  void elecdens(double* x,double* y,double* z,int* species);
+  void zerodens();
 }
   
 
@@ -80,7 +83,7 @@ int step=1;//循环5个周期。
 int peroid=1/dt/13.56e6;
 
      for(int i=0;i<step;i++)
-     { for(int j=0;j<40;j++)
+     { for(int j=0;j<553;j++)
       {clock_t start = clock();
       fieldsolver->fieldsolve(j*dt);
      
@@ -93,12 +96,23 @@ int peroid=1/dt/13.56e6;
  cout<<"particlemove time cost"<<(double)(end2-end1) / CLOCKS_PER_SEC<<endl;
  cout<<j<<"step"<<endl;
  cout<<"particles"<<particle->nlocal<<endl;
-       }}
-       
-      
+       }}}
+      //  fieldsolver->init_density();
+      //  double*** barray
+      double x,y,z;
+      int ssp;
+        zerodens();
+      for(int k=0;k<particle->nlocal;k++)
+      {x=particle->particles[k].x[0];
+      y=particle->particles[k].x[1];
+      z=particle->particles[k].x[2];
+      ssp=particle->particles[k].ispecies;
+        elecdens(&x,&y,&z,&ssp);}
+         fieldsolver->plot_density();
+      // fieldsolver->plot_density();
 
-       
-      }
+
+      
     //   cout<<"first"<<endl;
     //   particle->particle_move_comm();
     //      cout<<"second"<<endl;

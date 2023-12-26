@@ -4,7 +4,7 @@ a=[]
 c=[]
 for i in range(0,8): 
    
-    with open('./run/solve/petscphi'+str(i)+'.txt')as f:
+    with open('./run/solve/electrondensity'+str(i)+'.txt')as f:
         b=f.readline().strip()
         c.append([int(x) for x in b.split(' ')])
     
@@ -16,7 +16,7 @@ z=coord[0,2]+coord[4,2]
 f=np.ones((x,y,z))
 
 for i in range(0,8):
-    a=np.loadtxt('./run/solve/petscphi'+str(i)+'.txt',skiprows=1)
+    a=np.loadtxt('./run/solve/electrondensity'+str(i)+'.txt',skiprows=1)
     a=a.reshape(coord[i,0],coord[i,1],coord[i,2])
    #  print(a)
 
@@ -71,7 +71,7 @@ yy=np.arange(0,5)
 X1,Y1=np.meshgrid(xx,yy)
 # fig = plt.figure()  #定义新的三维坐标轴
 fig,ax = plt.subplots(figsize=(6,8))
-h=f[43,:,:]
+h=f[:,21,:]
 # print(h)
 sm = plt.cm.ScalarMappable(cmap='hot', norm=plt.Normalize(vmin=0, vmax=1))  
 sm.set_array([])
@@ -79,9 +79,9 @@ plt.imshow(h, cmap='RdBu', extent=[0, 95, 0, 95])
 # plt.imshow(h, cmap='RdBu', norm=plt.Normalize(vmin=0, vmax=1000),extent=[0, 95, 0, 95])  
 plt.colorbar(label="phi")  
 
-plt.xlabel('Y')  
+plt.xlabel('X')  
 plt.ylabel('Z')  
-plt.title('phi y-z surface x=43')  
+plt.title('phi x-z surface y=21')  
 print(h)
 plt.savefig("kk.png")
 

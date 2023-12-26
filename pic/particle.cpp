@@ -171,9 +171,9 @@ void Particle::init(double lo[3],double hi[3],double* dx,double dt)
       // printf("%f,collisionratio\n", species[i].coll_ratio);
   }
   species[0].charge=-1.6022e-19;
-  species[0].mass=9.1095e-31;
+  species[0].mass=9.1095e-31*6103.514;
   species[1].charge=1.6022e-19;
-  species[1].mass=39.948*AtomicMass;
+  species[1].mass=39.948*AtomicMass*6103.514;
 
 
   }
@@ -828,8 +828,8 @@ ispecies[0]=particles[i].ispecies;
 ispecies[1]=-1;
 ispecies[2]=-1;
 
-if(randu(e)<species[ispecies[0]].coll_ratio);
-{continue;
+if(randu(e)<species[ispecies[0]].coll_ratio)
+{
   //printf("%f,x3",particles[i].x[2]);
 // continue;
 for(int k=0;k<3;k++)

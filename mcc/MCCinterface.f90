@@ -187,7 +187,7 @@ subroutine InitParticleOne(v1,ispecies)bind(C,name="InitParticleOne")
    integer(c_int)::ispecies
    real(8) mass,temperature
 if(ispecies==0) then
-   mass=ElectronMass
+   mass=ElectronMass*6103.514
    temperature=30000
    call aParticle%VelMaxInit(mass,temperature)
    ! write(*,*)"Velosity",aParticle%Vx,aParticle%Vy,aParticle%Vz
@@ -196,7 +196,7 @@ if(ispecies==0) then
    v1(3)=aParticle%Vz
 end if
 if(ispecies==1) then
-   mass=39.948*AtomicMass
+   mass=39.948*AtomicMass*6103.514
    temperature=300
    call aParticle%VelMaxInit(mass,temperature)
    ! write(*,*)"Velosity",aParticle%Vx,aParticle%Vy,aParticle%Vz

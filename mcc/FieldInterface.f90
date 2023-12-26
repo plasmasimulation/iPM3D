@@ -173,7 +173,8 @@ subroutine weighting(x,y,z,species)bind(C,name="weighting")
     species=-1
    end if
 !    write(*,*)species,"species"
-   weight=species*ElectronCharge*610.3514
+    weight=species*ElectronCharge*610.3514
+   
     
  FO%RhoOne(int_x,int_y,int_z)=FO%RhoOne(int_x,int_y,int_z)+weight*double_x*double_y*double_z;
  FO%RhoOne(int_x+1,int_y,int_z)=FO%RhoOne(int_x+1,int_y,int_z)+weight*(1-double_x)*double_y*double_z;
@@ -281,7 +282,75 @@ subroutine getE(x,y,z)bind(C ,name="getE")
     +FG%Ez(int_x+1,int_y+1,int_z+1)*VlumFactor(8)
 ! write(*,*)"x,y,z",x,y,z
     end subroutine getE
+subroutine zerodens()bind(C,name="zerodens")
+    FO%RhoOne=0
+end subroutine 
+    subroutine elecdens(x,y,z,species)bind(C,name="elecdens")
+        real(C_DOUBLE):: x,y,z,weight
+        integer(c_int):: int_x,int_y,int_z,species
+        real(C_DOUBLE):: double_x,double_y,double_z 
+        ! double_x=x
+        ! double_y=y
+        ! double_z=z
+       int_x=int(x)
+       int_y=int(y)
+       int_z=int(z)
+    
+       double_x=x-int_x
+       double_y=y-int_y
+       double_z=z-int_z
+       if(species==0) then
+        species=-1
+      
+    !    write(*,*)species,"species"
+    !    weight=species*ElectronCharge*610.3514
+       weight=-1
+        
+     FO%RhoOne(int_x,int_y,int_z)=FO%RhoOne(int_x,int_y,int_z)+weight*double_x*double_y*double_z;
+     FO%RhoOne(int_x+1,int_y,int_z)=FO%RhoOne(int_x+1,int_y,int_z)+weight*(1-double_x)*double_y*double_z;
+     FO%RhoOne(int_x,int_y+1,int_z)=FO%RhoOne(int_x,int_y+1,int_z)+weight*double_x*(1-double_y)*double_z;
+     FO%RhoOne(int_x,int_y,int_z+1)=FO%RhoOne(int_x,int_y,int_z+1)+weight*double_x*double_y*(1-double_z);
+     FO%RhoOne(int_x+1,int_y+1,int_z)=FO%RhoOne(int_x+1,int_y+1,int_z)+weight*(1-double_x)*(1-double_y)*double_z;
+     FO%RhoOne(int_x+1,int_y,int_z+1)=FO%RhoOne(int_x+1,int_y,int_z+1)+weight*(1-double_x)*double_y*(1-double_z);
+     FO%RhoOne(int_x,int_y+1,int_z+1)=FO%RhoOne(int_x,int_y+1,int_z+1)+weight*double_x*(1-double_y)*(1-double_z);
+     FO%RhoOne(int_x+1,int_y+1,int_z+1)=FO%RhoOne(int_x+1,int_y+1,int_z+1)+weight*(1-double_x)*(1-double_y)*(1-double_z);
+    end if
+    end subroutine
+
+    subroutine iondens(x,y,z,species)bind(C,name="iondens")
+        real(C_DOUBLE):: x,y,z,weight
+        integer(c_int):: int_x,int_y,int_z,species
+        real(C_DOUBLE):: double_x,double_y,double_z 
+        ! double_x=x
+        ! double_y=y
+        ! double_z=z
+       int_x=int(x)
+       int_y=int(y)
+       int_z=int(z)
+    
+       double_x=x-int_x
+       double_y=y-int_y
+       double_z=z-int_z
+       if(species==1) then
+        ! species=-1
+      
+    !    write(*,*)species,"species"
+    !    weight=species*ElectronCharge*610.3514
+        weight=1
+        
+     FO%RhoOne(int_x,int_y,int_z)=FO%RhoOne(int_x,int_y,int_z)+weight*double_x*double_y*double_z;
+     FO%RhoOne(int_x+1,int_y,int_z)=FO%RhoOne(int_x+1,int_y,int_z)+weight*(1-double_x)*double_y*double_z;
+     FO%RhoOne(int_x,int_y+1,int_z)=FO%RhoOne(int_x,int_y+1,int_z)+weight*double_x*(1-double_y)*double_z;
+     FO%RhoOne(int_x,int_y,int_z+1)=FO%RhoOne(int_x,int_y,int_z+1)+weight*double_x*double_y*(1-double_z);
+     FO%RhoOne(int_x+1,int_y+1,int_z)=FO%RhoOne(int_x+1,int_y+1,int_z)+weight*(1-double_x)*(1-double_y)*double_z;
+     FO%RhoOne(int_x+1,int_y,int_z+1)=FO%RhoOne(int_x+1,int_y,int_z+1)+weight*(1-double_x)*double_y*(1-double_z);
+     FO%RhoOne(int_x,int_y+1,int_z+1)=FO%RhoOne(int_x,int_y+1,int_z+1)+weight*double_x*(1-double_y)*(1-double_z);
+     FO%RhoOne(int_x+1,int_y+1,int_z+1)=FO%RhoOne(int_x+1,int_y+1,int_z+1)+weight*(1-double_x)*(1-double_y)*(1-double_z);
+    end if
+    end subroutine
+
 subroutine Finalize()bind(C, name="Finalize")
+
     call FO%destroy()
     call FG%dump(xstart, xend, ystart, yend,zstart,zend)
     call FG%destroy()
