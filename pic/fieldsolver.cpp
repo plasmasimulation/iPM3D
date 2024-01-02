@@ -257,7 +257,7 @@ int FieldSolver::initpetsc( PetscInt Mx,  PetscInt My, PetscInt Mz, int* xyz_np,
                     barray[k][j][i] = k / (Mz - 1.0);
                 }
                 else {
-                      barray[k][j][i] = rho[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z];
+                      barray[k][j][i] = -rho[(i-coord_x)*width_y*width_z+(j-coord_y)*width_z+k-coord_z];
                     //  cout<<barray[k][j][i]<<endl;
                      barray[k][j][i]=barray[k][j][i]/this->dx[0]/this->dx[1]/this->dx[2]/Epsilon;
                    

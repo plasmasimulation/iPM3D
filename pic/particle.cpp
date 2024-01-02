@@ -170,9 +170,9 @@ void Particle::init(double lo[3],double hi[3],double* dx,double dt)
       //  printf("%s",species[i].id);
       // printf("%f,collisionratio\n", species[i].coll_ratio);
   }
-  species[0].charge=-1.6022e-19;
+  species[0].charge=-1.6022e-19*6103.514;
   species[0].mass=9.1095e-31*6103.514;
-  species[1].charge=1.6022e-19;
+  species[1].charge=1.6022e-19*6103.514;
   species[1].mass=39.948*AtomicMass*6103.514;
 
 
@@ -604,7 +604,9 @@ if(index>=0)
 // if(nlocal==0)
 // return ;
 for(int dim=0;dim<=2;dim++)
-  { test[0]=0;
+  { 
+   
+    test[0]=0;
     test[1]=0;
     particle_number_send[0]=0;
     particle_number_send[1]=0;
@@ -787,7 +789,17 @@ for(int i=0;i<=1;i++)
   for(int j=0;j<l[i+dim*2];j++)
   particles[plist[i+dim*2][j]].flag=1;
   }
-  
+   for(int h=0;h<2;h++)
+    {
+      if(psend[h]!=NULL)
+      free(psend[h]);
+      psend[h]=NULL;
+      if(precv[h]!=NULL)
+      free(precv[h]);
+      precv[h]=NULL;
+
+    }
+
   }
 
   
@@ -904,6 +916,13 @@ v0[k]=particles[i].v[k];}
 
 
 
+
+}
+
+for(int i=0;i<6;i++)
+{
+  if(plist[i]!=NULL)
+  free(plist[i]);
 
 }
 

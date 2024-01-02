@@ -71,12 +71,12 @@ yy=np.arange(0,5)
 X1,Y1=np.meshgrid(xx,yy)
 # fig = plt.figure()  #定义新的三维坐标轴
 fig,ax = plt.subplots(figsize=(6,8))
-h=f[:,21,:]
+h=f[:,43,:]
 # print(h)
 sm = plt.cm.ScalarMappable(cmap='hot', norm=plt.Normalize(vmin=0, vmax=1))  
 sm.set_array([])
 plt.imshow(h, cmap='RdBu', extent=[0, 95, 0, 95])  
-# plt.imshow(h, cmap='RdBu', norm=plt.Normalize(vmin=0, vmax=1000),extent=[0, 95, 0, 95])  
+# plt.imshow(h, cmap='RdBu', norm=plt.Normalize(vmin=0, vmax=50),extent=[0, 65, 0, 65])  
 plt.colorbar(label="phi")  
 
 plt.xlabel('X')  

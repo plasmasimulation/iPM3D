@@ -56,9 +56,9 @@ int main(int argc, char** argv) {
     Mx = 65;
     My = 65;
     Mz = 65; //包含边界
-    dx[0]=3.125e-4; //1mm
-    dx[1]=3.125e-4;
-    dx[2]=3.125e-4;
+    dx[0]=3.125e-4*10; //1mm
+    dx[1]=3.125e-4*10;
+    dx[2]=3.125e-4*10;
     dt=1e-10;
     int num =2;
     char**name;
@@ -79,11 +79,11 @@ int main(int argc, char** argv) {
     // particle->grow(50);
     // particle->add_particle(id,ispecies,icell,x,v,erot,evib);
      createparticles->create_local(particle,domain->lo,domain->hi,ncreate);
-int step=1;//循环5个周期。
+int step=3;//循环5个周期。
 int peroid=1/dt/13.56e6;
 
      for(int i=0;i<step;i++)
-     { for(int j=0;j<553;j++)
+     { for(int j=0;j<737;j++)
       {clock_t start = clock();
       fieldsolver->fieldsolve(j*dt);
      
@@ -107,7 +107,7 @@ int peroid=1/dt/13.56e6;
       y=particle->particles[k].x[1];
       z=particle->particles[k].x[2];
       ssp=particle->particles[k].ispecies;
-        elecdens(&x,&y,&z,&ssp);}
+        iondens(&x,&y,&z,&ssp);}
          fieldsolver->plot_density();
       // fieldsolver->plot_density();
 

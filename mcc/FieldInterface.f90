@@ -92,31 +92,31 @@ subroutine SendPhi( coor_x, coor_y,coor_z,  width_x,  width_y, width_z, phi)bind
 
     !保存场通讯前后的数据，petsc场通讯无法获取角点数据，因此还是采用了自己编写的场通讯
     
-    write(file_name, '(i1)') rank
-    open(13, file="./solve/initphi"//trim(file_name)//".txt")
-    write(13,*)"通讯前petsc求解出的电势,场通讯之前数据并不完整&
-    每个只有一小部分,此处因为petsc包含了边界,但边界不是每个网格都有,因此又多&
-    了外面一圈"
-    do i=zstart-1,zend+1
-        write(13,*)" "
-        write(13,"(50f9.3,/)")array(:,:,i)
-        ! write(*,*)array(:,:,i)
-    end do
+    ! write(file_name, '(i1)') rank
+    ! open(13, file="./solve/initphi"//trim(file_name)//".txt")
+    ! write(13,*)"通讯前petsc求解出的电势,场通讯之前数据并不完整&
+    ! 每个只有一小部分,此处因为petsc包含了边界,但边界不是每个网格都有,因此又多&
+    ! 了外面一圈"
+    ! do i=zstart-1,zend+1
+    !     write(13,*)" "
+    !     write(13,"(50f9.3,/)")array(:,:,i)
+    !     ! write(*,*)array(:,:,i)
+    ! end do
   
 
-    close(13)
+    ! close(13)
     call mycom%comfext(array,xstart, xend, ystart, yend,zstart,zend)
 
-    open(13, file="./solve/finalphi"//trim(file_name)//".txt")
-    write(13,*)"通讯后的电势,此处因为petsc包含了边界,但边界不是每个网格都有，因此又多&
-    了外面一圈,这一圈在有边界的地方是无效电势,值为初值0,后面会舍去,电势存储顺序是&
-    先遍历x和y,再遍历z,为便于观察每一层都用空格隔开"
-    do i=zstart-1,zend+1
-    write(13,*)" "
-    write(13,"(50f9.3,/)")array(:,:,i)
-    end do
+    ! open(13, file="./solve/finalphi"//trim(file_name)//".txt")
+    ! write(13,*)"通讯后的电势,此处因为petsc包含了边界,但边界不是每个网格都有，因此又多&
+    ! 了外面一圈,这一圈在有边界的地方是无效电势,值为初值0,后面会舍去,电势存储顺序是&
+    ! 先遍历x和y,再遍历z,为便于观察每一层都用空格隔开"
+    ! do i=zstart-1,zend+1
+    ! write(13,*)" "
+    ! write(13,"(50f9.3,/)")array(:,:,i)
+    ! end do
    
-    close(13)
+    ! close(13)
 
 !根据电势求解电场
     ! allocate(FG%Ex(xstart:xend+1,ystart:yend+1,zstart:zend+1))
@@ -173,7 +173,7 @@ subroutine weighting(x,y,z,species)bind(C,name="weighting")
     species=-1
    end if
 !    write(*,*)species,"species"
-    weight=species*ElectronCharge*610.3514
+    weight=species*ElectronCharge*6103.514
    
     
  FO%RhoOne(int_x,int_y,int_z)=FO%RhoOne(int_x,int_y,int_z)+weight*double_x*double_y*double_z;
